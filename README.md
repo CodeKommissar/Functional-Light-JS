@@ -2,14 +2,13 @@
 
 Este libro explora los principios claves de la programacion funcional (PF) a la vez que estos son aplicados a JavaScript. Pero lo que hace a este libro diferente, es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a observar un subconjunto de conceptos fundamentales de la PF a la que yo llamo "Programacion Funcionalmente-Ligera" (PFL) y la aplicaremos a JavaScript.
 
-**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "facil", "para principantes" o una "introduccion" acerca del tema. Este libro es riguroso y esta lleno de crudos detalles; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero" significa limitado en su alcance; en vez de ser much mas amplio, este libro se adentra mucho mas dentro de cada tema de lo que esperarias encontrar en otros libros de PF relacionados a JavaScript.
+**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "facil", "para principantes" o una "introduccion" acerca del tema. Este libro es riguroso y esta lleno de crudos detalles; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero", en este contexto, significa limitado en su alcance; en vez de ser mucho mas amplio, este libro va mas alla dentro de cada tema de lo que esperarias encontrar en otros libros de PF relacionados a JavaScript.
 
+Seamos sinceros: a menos de que tu ya seas un miembro del club de PF chicos cool (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
 
-Vamos a afrontarlo: a menos de que tu ya seas un miembro del club de PF chicos cool (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
+Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y ciertamente tu ya tendras bastante de exposicion a lo que estos terminos significan y al porque.
 
-Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y tu ciertamente tendras bastante de exposicion a lo que estos terminos significan y porque.
-
-Pero yo quiero que tu seas capaz de aplicar algunos de los fundamentales de la PF a tu JavaScript *ahora*, porque yo creo que te ayudara a escribir mejor codigo y mas *razon*able..
+Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales de la PF en tu JavaScript *ahora*, porque yo creo que te ayudara a escribir mejor codigo y mas *razon*able..
 
 **Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](prefacio.md)**
 
