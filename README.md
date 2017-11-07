@@ -17,7 +17,7 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 [Tabla de Contenidos](toc.md)
 
 * [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
-* [Prólogo](prefacio.md)
+* [Prefacio](prefacio.md)
 * [Capitulo 1: Programacion Funcional, Porque?](ch1.md)
 * [Capitulo 2: La Naturaleza de las Funciones](ch2.md)
 * [Capitulo 3: Manejando la Entrada de las Funciones](ch3.md)
@@ -37,15 +37,15 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 Yo estoy publicando este libro por mi propia cuenta, mas probablemnte digitalemente [en Leanpub](https://leanpub.com/fljs/). Intentare tambien conseguir una opcion para vender copias fisicas del libro, pero esa parte aun es incierta.
 
-Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de mis otros trabajos de OSS) aparte de comprar los libros, tengo un [patreon](https://www.patreon.com/getify) al cual siempre aprecieria de tu generosidad.
+Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de mis otros trabajos de OSS) aparte de comprar los libros, tengo un [patreon](https://www.patreon.com/getify) en el cual siempre aprecieria de tu generosidad.
 
 <a href="https://www.patreon.com/getify">[![patreon.png](https://s11.postimg.org/axpzguh77/patreon.png)](https://www.patreon.com/getify)</a>
 
 ## Entrenamiento en Persona
 
-El contenido de este libro procede fuertemente de un taller de entrenamiento que enseño profesionalmente (ya sea publicamente o en un formato de taller corporacionalmente-privado) del mismo nombre.
+El contenido de este libro procede fuertemente de un taller de entrenamiento que enseño profesionalmente (ya sea publicamente o en un formato de taller corporalmente-privado) del mismo nombre.
 
-Si te gusta este contenido y te gustaria contactarme por razon de conducir un entrenamiento en esto, o de otros temas tales como JS/HTML5/Node.js, por favor contactame a traves de cualquiera de los canales listados aqui:
+Si te gusta este contenido y te gustaria contactarme por razon de conducir un entrenamiento en este tema, o de otros temas tales como JS/HTML5/Node.js, por favor contactame a traves de cualquiera de los canales listados aqui:
 
 [http://getify.me](http://getify.me)
 

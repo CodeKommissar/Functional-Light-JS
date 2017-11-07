@@ -3,7 +3,7 @@
 ## Tabla de Contenidos
 
 * Prólogo
-* Prólogo
+* Prefacio
 * Capitulo 1: Programacion Funcional, Porque?
     * Confianza
     * Comunicacion
