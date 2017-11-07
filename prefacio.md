@@ -3,19 +3,19 @@
 
 > Una monada es solo un monoide en la categoria de los endofuntores.
 
-Ya te perdi? No te preocupes, yo estaria perdido tambien! Todo esos terminos solo significan algo para los ya iniciados en Programacion Funcional&trade; (PF) solo son tonterias sin sentido para muchos del resto de nosotros.
+Ya te perdi? No te preocupes, yo estaria perdido tambien! Todo esos terminos solo significan algo para los ya iniciados en el mundo de la Programacion Funcional&trade; (PF), para la mayoria del resto de nosotros solo son tonterias sin sentido.
 
-Este libro no va a enseñarte que significan esas palabras. Si eso era lo que estabas buscando, sigue buscando. De hecho, ya hay bastantes buenos libros que enseñan PF a la *manera correcta*, desde arriba hacia abajo. Esas palabras tienen significados importantes y si quieres estudiar a la PF en profundidad, tu absolutamente deberias querer familiarizarte con ellas.
+Este libro no va a enseñarte lo que significan esas palabras. Si eso era lo que estabas buscando,  sigue buscando. De hecho, ya hay bastantes libros buenos que enseñan PF de la *manera correcta*, desde arriba hacia abajo. Esas palabras tienen significados importantes y si quieres estudiar a la PF en profundidad, absolutamente deberias querer familiarizarte con ellas.
 
-Pero este libro va a abordar al tema bastante diferente. Voy a presentar los conceptos fundamentales de la PF desde abajo hacia arriba, con menos terminos especiales / no intuitivos que la mayoria de los acercamientos a la PF. Vamos a intentar tomar un enfoque practico a cada uno de los principios en vez de un angulo puramente academico. **Van a haber terminos**, sin ninguna duda. Pero vamos a ser cuidadosos y deliberados acerca de como los vamos a introducir, explicacando porque son importantes.
+Pero este libro va a abordar al tema de una forma bastante diferente. Voy a presentar los conceptos fundamentales de la PF desde abajo hacia arriba, con menos terminos especiales/no intuitivos que la mayoria de los acercamientos a la PF. Vamos a intentar tomar un enfoque practico dentro de cada uno de los principios en vez de un angulo puramente academico. **Van a haber terminos**, sin ninguna duda. Pero vamos a ser cuidadosos y deliberados acerca de como los vamos a introducir, explicando porque son importantes.
 
-Tristemente, no tengo una tarjeta de miembro del club de PF chicos cool. Formalmente nunca me han enseñado nada acerca de la PF. Y aunque tengo un antecedente academico en Ciencias de la Computacion y era decente en matematicas, la notacion matematica no es como mi cerebro entiende a la programacion. Nunca he escrito una linea de Scheme, Clojure, o Haskell. No soy un Lisper de la vieja escuela.
+Tristemente, no soy portador de una tarjeta de miembro del club de Programadores Funcionales chicos cool. Formalmente nunca me han enseñado nada acerca de la PF. Y aunque tengo un antecedente academico en Ciencias de la Computacion y era decente en matematicas, la notacion matematica no es como mi cerebro entiende a la programacion. Nunca he escrito una linea de Scheme, Clojure, o Haskell. No soy un Lisper de la vieja escuela.
 
 *He* asistido a innumerables conferencias acerca de la PF, cada una de ellas con la desesperada esperanza de que finalmente, *esta vez*, sería el momento en que entenderia de qué se trata todo este misticismo acerca de la programación funcional. Y cada vez, salí frustrado y con todos esos términos mezclados en mi cabeza sin idea de que aprendi o si de siquiera aprendi algo. Quizás aprendí cosas. Pero no pude descifrar cuáles eran esas cosas por mucho tiempo.
 
 Poco a poco, a través de esas diversas exposiciones, saqué a relucir retazos de conceptos importantes que parecen venir naturalmente al mas formal Programador Funcional. Los aprendí lentamente y los aprendí de forma pragmática y experimental, no académicamente con la terminología adecuada. ¿No te ha pasado alguna vez has sabido algo por un tiempo, y solo después descubriste que tenía un nombre específico al que nunca habias conocido!?
 
-Tal vez eres como yo; Escuché términos como "map-reduce" alrededor de segmentos de la industria como "big data" durante años sin una idea real de lo que estos eran. Eventualmente aprendí qué era lo que hacía la función `map (..)`, y todo antes de tener idea de que las operaciones en listas eran una piedra angular en el camino del Programador Funcional y lo que las hace tan importantes. Sabía lo que *map* era mucho antes de que supiera que se llamaba `map (..)`.
+Tal vez eres como yo; Escuché términos como "map-reduce" alrededor de segmentos de la industria como "big data" durante años sin una idea real de lo que estos eran. Eventualmente aprendí qué era lo que hacía la función `map (..)`, y todo esto antes de tener idea de que las operaciones en listas eran una piedra angular en el camino del Programador Funcional y que es lo que las hace tan importantes. Sabía lo que *map* era mucho antes de que supiera que se llamaba `map (..)`.
 
 Eventualmente comencé a reunir todos estos fragmentos de comprensión en lo que ahora llamo "Programación Ligeramente-Functional" (FLP).
 
@@ -23,7 +23,7 @@ Eventualmente comencé a reunir todos estos fragmentos de comprensión en lo que
 
 Pero, ¿por qué es tan importante que aprendas programación funcional, incluso en su forma ligera?
 
-He llegado a creer algo muy profundamente en los últimos años, tanto que podrías *casi* llamarlo una creencia religiosa. Creo que la programación es fundamentalmente acerca de los humanos, no acerca del código. Creo que el código es ante todo un medio de comunicación humana, y solo como un *efecto secundario* (escuche mi risa autorreferencial) instruye a la computadora.
+He llegado a creer algo muy profundamente en los últimos años, tanto que podrías *casi* llamarlo una creencia religiosa. Creo que la programación es fundamentalmente acerca de los humanos, no acerca del código. Creo que el código es ante todo un medio de comunicación humana, y solo como un *efecto secundario* (escucha mi risa autorreferencial) instruye a la computadora.
 
 Del modo en que lo veo, en su corazón, la programación funcional es acerca de usar patrones en tu código que sean conocidos, comprensibles, *y* probados para mantener alejados los errores que hacen que el código sea más difícil de entender. Desde este punto de vista, la PF - o, ¡ejem, la PFL! - podría ser una de las colecciones de herramientas más importantes que cualquier desarrollador podría adquirir.
 
@@ -33,7 +33,7 @@ Del modo en que lo veo, en su corazón, la programación funcional es acerca de 
 >
 > https://www.youtube.com/watch?v=dkZFtimgAcM
 
-Espero que este libro "Quizás" rompa el espíritu de esa maldición, aunque no hablaremos de "mónadas" hasta el final en los apéndices.
+Espero que este libro "Quizás" rompa el espíritu de esa maldición, aunque no hablaremos de "mónadas" sino hasta el final en los apéndices.
 
 El Programador Funcional formal a menudo afirmará que el *valor verdadero* de la PF está en usarla esencialmente al 100%: esta es una proposición de todo o nada. La creencia es que si usas a la PF en una parte de tu programa pero no en otra, todo el programa está contaminado por cosas que no son de PF y, por lo tanto, este programa sufre lo suficiente como para que la PF probablemente no haya valido la pena.
 
