@@ -1,48 +1,48 @@
-# Functional-Light JavaScript
-# Preface
+# JavaScript Funcionalmente-Ligero
+# Prefacio
 
-> A monad is just a monoid in the category of endofunctors.
+> Una monada es solo un monoide en la categoria de los endofuntores.
 
-Did I just lose you? Don't worry, I'd be lost, too! All those terms that only mean something to the already-initiated in Functional Programming&trade; (FP) are just jumbled nonsense to many of the rest of us.
+Ya te perdi? No te preocupes, yo estaria perdido tambien! Todo esos terminos solo significan algo para los ya iniciados en Programacion Funcional&trade; (PF) solo son tonterias sin sentido para muchos del resto de nosotros.
 
-This book is not going to teach you what those words mean. If that's what you're looking for, keep looking. In fact, there's already plenty of great books that teach FP the *right way*, from the top-down. Those words have important meanings and if you formally study FP in-depth, you'll absolutely want to get familiar with them.
+Este libro no va a enseñarte que significan esas palabras. Si eso era lo que estabas buscando, sigue buscando. De hecho, ya hay bastantes buenos libros que enseñan PF a la *manera correcta*, desde arriba hacia abajo. Esas palabras tienen significados importantes y si quieres estudiar a la PF en profundidad, tu absolutamente deberias querer familiarizarte con ellas.
 
-But this book is going to approach the topic quite differently. I'm going to present fundamental FP concepts from the ground-up, with fewer special or non-intuitive terms than most approaches to FP. We'll try to take a practical approach to each principle rather than a purely academic angle. **There will be terms**, no doubt. But we'll be careful and deliberate about introducing them and explaining why they're important.
+Pero este libro va a abordar al tema bastante diferente. Voy a presentar los conceptos fundamentales de la PF desde abajo hacia arriba, con menos terminos especiales / no intuitivos que la mayoria de los acercamientos a la PF. Vamos a intentar tomar un enfoque practico a cada uno de los principios en vez de un angulo puramente academico. **Van a haber terminos**, sin ninguna duda. Pero vamos a ser cuidadosos y deliberados acerca de como los vamos a introducir, explicacando porque son importantes.
 
-Sadly, I am not a card-carrying member of the FP cool kids club. I've never been formally taught anything about FP. And though I have a CS academic background and I was decent at math, mathematical notation is not how my brain understands programming. I have never written a line of Scheme, Clojure, or Haskell. I'm not an old-school Lisp'r.
+Tristemente, no tengo una tarjeta de miembro del club de PF chicos cool. Formalmente nunca me han enseñado nada acerca de la PF. Y aunque tengo un antecedente academico en Ciencias de la Computacion y era decente en matematicas, la notacion matematica no es como mi cerebro entiende a la programacion. Nunca he escrito una linea de Scheme, Clojure, o Haskell. No soy un Lisper de la vieja escuela.
 
-I *have* attended countless conference talks about FP, each one with the desperate clinging hope that finally, *this time*, would be the time I understood what this whole functional programming mysticism is all about. And each time, I came away frustrated and reminded that those terms got all mixed up in my head and I had no idea if or what I learned. Maybe I learned things. But I couldn't figure out what those things were, for the longest time.
+*He* asistido a innumerables conferencias acerca de la PF, cada una de ellas con la desesperada esperanza de que finalmente, *esta vez*, sería el momento en que entenderia de qué se trata todo este misticismo acerca de la programación funcional. Y cada vez, salí frustrado y con todos esos términos mezclados en mi cabeza sin idea de que aprendi o si de siquiera aprendi algo. Quizás aprendí cosas. Pero no pude descifrar cuáles eran esas cosas por mucho tiempo.
 
-Little by little, across those various exposures, I teased out bits and pieces of important concepts that seem to just come all too naturally to the formal FPer. I learned them slowly and I learned them pragmatically and experientially, not academically with appropriate terminology. Have you ever known a thing for a long time, and only later found out it had a specific name you never knew!?
+Poco a poco, a través de esas diversas exposiciones, saqué a relucir retazos de conceptos importantes que parecen venir naturalmente al mas formal Programador Funcional. Los aprendí lentamente y los aprendí de forma pragmática y experimental, no académicamente con la terminología adecuada. ¿No te ha pasado alguna vez has sabido algo por un tiempo, y solo después descubriste que tenía un nombre específico al que nunca habias conocido!?
 
-Maybe you're like me; I heard terms like "map-reduce" around industry segments like "big data" for years with no real idea what they were. Eventually I learned what the `map(..)` function did -- all long before I had any idea that list operations were a cornerstone of the FPer path and what makes them so important. I knew what *map* was long before I ever knew it was called `map(..)`.
+Tal vez eres como yo; Escuché términos como "map-reduce" alrededor de segmentos de la industria como "big data" durante años sin una idea real de lo que estos eran. Eventualmente aprendí qué era lo que hacía la función `map (..)`, y todo antes de tener idea de que las operaciones en listas eran una piedra angular en el camino del Programador Funcional y lo que las hace tan importantes. Sabía lo que *map* era mucho antes de que supiera que se llamaba `map (..)`.
 
-Eventually I began to gather all these tidbits of understanding into what I now call "Functional-Light Programming" (FLP).
+Eventualmente comencé a reunir todos estos fragmentos de comprensión en lo que ahora llamo "Programación Ligeramente-Functional" (FLP).
 
-## Mission
+## Mision
 
-But, why is it so important for you to learn functional programming, even the light form?
+Pero, ¿por qué es tan importante que aprendas programación funcional, incluso en su forma ligera?
 
-I've come to believe something very deeply in recent years, so much so you could *almost* call it a religious belief. I believe that programming is fundamentally about humans, not about code. I believe that code is first and foremost a means of human communication, and only as a *side effect* (hear my self-referential chuckle) does it instruct the computer.
+He llegado a creer algo muy profundamente en los últimos años, tanto que podrías *casi* llamarlo una creencia religiosa. Creo que la programación es fundamentalmente acerca de los humanos, no acerca del código. Creo que el código es ante todo un medio de comunicación humana, y solo como un *efecto secundario* (escuche mi risa autorreferencial) instruye a la computadora.
 
-The way I see it, functional programming is at its heart about using patterns in your code that are well-known, understandable, *and* proven to keep away the mistakes that make code harder to understand. In that view, FP -- or, ahem, FLP! -- might be one of the most important collections of tools any developer could acquire.
+Del modo en que lo veo, en su corazón, la programación funcional es acerca de usar patrones en tu código que sean conocidos, comprensibles, *y* probados para mantener alejados los errores que hacen que el código sea más difícil de entender. Desde este punto de vista, la PF - o, ¡ejem, la PFL! - podría ser una de las colecciones de herramientas más importantes que cualquier desarrollador podría adquirir.
 
-> The curse of the monad is that... once you understand... you lose the ability to explain it to anyone else.
+> La maldicion de la monada es que... una vez la entiendes... pierdes la habilidad de explicarsela a cualquier otra persona.
 >
-> Douglas Crockford 2012 "Monads and Gonads"
+> Douglas Crockford 2012 "Monadas y Gonadas"
 >
 > https://www.youtube.com/watch?v=dkZFtimgAcM
 
-I hope this book "Maybe" breaks the spirit of that curse, even though we won't talk about "monads" until the very end in the appendices.
+Espero que este libro "Quizás" rompa el espíritu de esa maldición, aunque no hablaremos de "mónadas" hasta el final en los apéndices.
 
-The formal FPer will often assert that the *real value* of FP is in using it essentially 100%: it's an all-or-nothing proposition. The belief is that if you use FP in one part of your program but not in another, the whole program is polluted by the non-FP stuff and therefore suffers enough that the FP was probably not worth it.
+El Programador Funcional formal a menudo afirmará que el *valor verdadero* de la PF está en usarla esencialmente al 100%: esta es una proposición de todo o nada. La creencia es que si usas a la PF en una parte de tu programa pero no en otra, todo el programa está contaminado por cosas que no son de PF y, por lo tanto, este programa sufre lo suficiente como para que la PF probablemente no haya valido la pena.
 
-I'll say unequivocally: **I think that absolutism is bogus**. That's as silly to me as suggesting that this book is only good if I use perfect grammar and active voice throughout; if I make any mistakes, it degrades the entire book's quality. Nonsense.
+Inequívocamente dire: **Creo que el absolutismo es una tonteria**. Eso seria como si yo sugeriera que este libro solo es bueno si uso una gramática perfecta y voz activa en todo momento; si cometo algún error, se degrada la calidad de todo el libro. Disparates.
 
-The better I am at writing in a clear, consistent voice, the better this book experience will be for you. But I'm not a 100% perfect author. Some parts will be better written than others. The parts where I can still improve are not going to invalidate the other parts of this book which are useful.
+Mientras mejor escriba este libro con una voz clara y consistente, mejor será para ti la experiencia de leer este libro. Pero no soy un autor 100% perfecto. Algunas partes estarán mejor escritas que otras. Las partes en las que aún puedo mejorar no van a invalidar todas las otras partes de este libro que son útiles.
 
-And so it goes with our code. The more you can apply these principles to more parts of your code, the better your code will be. Use them well 25% of the time, and you'll get some good benefit. Use them 80% of the time, and you'll see even more benefit.
+Y así sera con nuestro código. Cuanto más puedas aplicar estos principios a más partes de tu código, mejor será tu código. Úsalos bien el 25% del tiempo, y obtendrás un buen beneficio. Úsalos el 80% del tiempo, y verá aún más beneficios.
 
-With perhaps a few exceptions, I don't think you'll find many absolutes in this text. We'll instead talk about aspirations, goals, principles to strive for. We'll talk about balance and pragmatism and trade-offs.
+Con quizás algunas excepciones, no creo que encuentres muchos absolutos en este texto. En cambio, hablaremos sobre las aspiraciones, los objetivos y los principios a los que debemos aspirar. Hablaremos de equilibrio, pragmatismo e intercambios.
 
-Welcome to this journey into the most useful and practical foundations of FP. We both have plenty to learn!
+Bienvenido a este viaje hacia los fundamentos más útiles y prácticos de la PF. ¡Ambos tenemos mucho que aprender!
