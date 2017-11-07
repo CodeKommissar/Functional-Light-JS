@@ -1,16 +1,62 @@
+# JavaScript Funcionalmente-Ligero (libro)
 # Functional-Light JavaScript (book)
+
+---------------
+
+Este libro explora los principios claves de la programacion funcional (PF) mientras estos son aplicados a JavaScript. Pero lo que hace a este libro diferente es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a ver un subconjunto de conceptos fundamentales de la PF que yo llamo "Programacion Funcionalmente-Ligera" y la aplicaremos a JavaScript.
 
 This book explores the core principles of functional programming (FP) as they are applied to JavaScript. But what makes this book different is that we approach these principles without drowning in all the heavy terminology. We look at a subset of FP foundational concepts that I call "Functional-Light Programming" (FLP) and apply it to JavaScript.
 
+---------------
+
+**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "para principantes", "facil" o una "introduccion" acerca del tema. Este libro es riguroso y lleno de crudo detalle; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero" significa limitado en su alcance; en vez de ser mas amplio, este libro se adentra mucho mas dentro de cada tema de lo que esperarias encontrar en otros libros de JavaScript-PF.
+
 **Note:** Despite the word "Light" in the title, I do not consider or recommend this book as a "beginner", "easy", or "intro" book on the topic. This book is rigorous and full of gritty detail; it expects a solid foundation of JS knowledge before diving in. "Light" means limited in scope; instead of being more broad, this book goes much deeper into each topic than you typically find in other FP-JavaScript books.
+
+---------------
+
+Vamos a afrontarlo: a menos de que tu ya seas miembro del club de chicos cool PF (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
 
 Let's face it: unless you're already a member of the FP cool kids club (I'm not!), a statement like, "a monad is just a monoid in the category of endofunctors", just doesn't mean anything useful to us.
 
+---------------
+
+Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez de te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y tu ciertamente tendras bastante de exposicion a lo que ellos significan y porque.
+
 That's not to say the terms are meaning*less* or that FPrs are bad for using them. Once you graduate from Functional-Light, you'll maybe/hopefully want to study FP more formally, and you'll certainly have plenty of exposure to what they mean and why.
+
+---------------
+
+Pero yo quiero que tu seas capaz de aplicar algunos de los fundamentales de la PF a tu JavaScript *ahora*, porque yo creo en que te ayudar a escribir mejor codigo y mas *razon*able..
+
+**Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](prefacio.md)**
 
 But I want you to be able to apply some of the fundamentals of FP to your JavaScript *now*, because I believe it will help you write better, more *reason*able code.
 
 **To read more about the motivations and perspective behind this book, check out the [Preface](preface.md).**
+
+---------------
+
+## Libro
+
+[Tabla de Contenidos](toc.md)
+
+* [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
+* [Prefacio](prefacio.md)
+* [Capitulo 1: Programacion Funcional, Porque??](ch1.md)
+* [Capitulo 2: La Naturaleza de las Funciones](ch2.md)
+* [Capitulo 3: Manejando la Entrada de las Funciones](ch3.md)
+* [Capitulo 4: Componiendo Funciones](ch4.md)
+* [Capitulo 5: Reduciendo Efectos Secundarios](ch5.md)
+* [Capitulo 6: Immutabilitidad de los Valores](ch6.md)
+* [Capitulo 7: Cierre vs Objeto](ch7.md)
+* [Capitulo 8: Recursion](ch8.md)
+* [Capitulo 9: Operaciones en Listas](ch9.md)
+* [Capitulo 10: Async Funcional](ch10.md)
+* [Capitulo 11: Poniendolo Todo Junto](ch11.md)
+* [Apendie A: Transduciendo](apA.md)
+* [Apendie B: La Humilde Monada](apB.md)
+* [Apendie C: Librerias de PF](apC.md)
 
 ## Book
 
@@ -33,6 +79,16 @@ But I want you to be able to apply some of the fundamentals of FP to your JavaSc
 * [Appendix B: The Humble Monad](apB.md)
 * [Appendix C: FP Libraries](apC.md)
 
+---------------
+
+## Publicando
+
+Yo estoy publicando este libro por mi propia cuenta, mas probablemnte digitalemente [en Leanpub](https://leanpub.com/fljs/). Tambien intentare conseguir una opcion para vender copias fisicas del libro, pero esa parte aun es incierta.
+
+Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de mis otros trabajos de OSS) aparte de comprar los libros, tengo un [patreon](https://www.patreon.com/getify) al cual siempre aprecieria de tu generosidad.
+
+<a href="https://www.patreon.com/getify">[![patreon.png](https://s11.postimg.org/axpzguh77/patreon.png)](https://www.patreon.com/getify)</a>
+
 ## Publishing
 
 I'm self-publishing this book, most likely digitally [on Leanpub](https://leanpub.com/fljs/). I'll also be trying to work out an option to sell print book copies, but that part is still uncertain.
@@ -40,6 +96,16 @@ I'm self-publishing this book, most likely digitally [on Leanpub](https://leanpu
 If you'd like to contribute financially towards the effort (or any of my other OSS work) aside from purchasing the books, I do have a [patreon](https://www.patreon.com/getify) that I would always appreciate your generosity towards.
 
 <a href="https://www.patreon.com/getify">[![patreon.png](https://s11.postimg.org/axpzguh77/patreon.png)](https://www.patreon.com/getify)</a>
+
+---------------
+
+## Entrenamiento en Persona
+
+El contenido de este libro procede fuertemente de un taller de entrenamiento que enseño profesionalmente (ya sea publicamente o en un formato de taller corporacionalmente-privado) del mismo nombre.
+
+Si te gusta este contenido y te gustaria contactarme por razon de conducir un entrenamiento en esto, o de otros temas tales como JS/HTML5/Node.js, por favor contactame a traves de cualquiera de los canales listados aqui:
+
+[http://getify.me](http://getify.me)
 
 ## In-person Training
 
@@ -49,15 +115,37 @@ If you like this content and would like to contact me regarding conducting train
 
 [http://getify.me](http://getify.me)
 
+---------------
+
+## Entrenamiento en Video Online
+
+Tambien tengo varios cursos acerca de JS disponibles en el formato de video en-demanda. Enseño cursos a traves de [Frontend Masters](https://FrontendMasters.com), como mi taller [JS Funcional-Leve](https://frontendmasters.com/courses/functional-js-lite/). Algunos de estos cursos estan tambien disponibles en [PluralSight](https://www.pluralsight.com/search?q=kyle%20simpson&categories=all).
+
 ## Online Video Training
 
 I also have several JS training courses available in on-demand video format. I teach courses through [Frontend Masters](https://FrontendMasters.com), like my [Functional-Lite JS](https://frontendmasters.com/courses/functional-js-lite/) workshop. Some of those courses are also available on [PluralSight](https://www.pluralsight.com/search?q=kyle%20simpson&categories=all).
+
+---------------
+
+## Contribuciones
+
+Cualquier  numero de contribuciones que realizes hacia este esfuero **son por supuesto, realmente apreciadas**.
+
+Pero **POR FAVOR** lee la [Guia de Contribuciones](CONTRIBUTING.md) cuidadosamene antes de enviar un PR.
 
 ## Contributions
 
 Any contributions you make to this effort **are of course greatly appreciated**.
 
 But **PLEASE** read the [Contributions Guidelines](CONTRIBUTING.md) carefully before submitting a PR.
+
+---------------
+
+## Licencia & Copyright
+
+Todos los materiales aqui son (c) 2016-2017 Kyle Simpson.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivs 4.0 Unported License</a>.
 
 ## License & Copyright
 

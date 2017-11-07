@@ -1,5 +1,17 @@
+# Javascript Funcionalmente-Ligero
+# Capitulo 1: Programacion Funcional, Porque?
+
 # Functional-Light JavaScript
 # Chapter 1: Why Functional Programming?
+
+-------------------
+
+> Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y nombra
+patrones de codigo tales como "premorfismo zygohistoricomorfico"
+>
+> James Iry ‏@jamesiry 5/13/15
+>
+> https://twitter.com/jamesiry/status/598547781515485184
 
 > Functional programmer: (noun) One who names variables "x", names functions "f", and names code patterns "zygohistomorphic prepromorphism"
 >
@@ -7,11 +19,27 @@
 >
 > https://twitter.com/jamesiry/status/598547781515485184
 
+----------------
+
+La Programacion Funcional (PF) no es un concepto nuevo bajo ningun sentido. Ha estado rondando durante casi toda la historia de la programacion. Aunque -- y no estoy seguro si es justo decirlo, pero! --
+es seguro decir que no ha parecido ser un concepto tradicional en el mundo general del desarollador hasta quizas los ultimos años. Yo creo que la PF ha sido mas parte del reino de los academicos.
+
+
 Functional Programming (FP) is not a new concept by any means. It's been around almost the entire history of programming. However -- and I'm not sure it's fair to say, but! -- it sure hasn't seemed like as mainstream of a concept in the overall developer world until perhaps the last few years. I think FP has more been the realm of academics.
+
+----------------
+
+Pero todo esto esta cambiando. Un gran pozo de interes esta creciendo alrededor de la PF, no solo al nivel de los lenguajes, pero incluso tambien en librerias y frameworks. Puede que tu estes leyendo este texto porque finalmente te has dado cuenta que la PF es algo que no puedes seguir ignorando. O quizas tu eres como yo y has intentado aprender la PF muchas veces antes pero has luchado a traves de todos los terminos o la notacion matematica.
 
 But that's all changing. A groundswell of interest is growing around FP, not just at the languages level but even in libraries and frameworks. You very well might be reading this text because you've finally realized FP is something you can't ignore any longer. Or maybe you're like me and you've tried to learn FP many times before but struggled to wade through all the terms or mathematical notation.
 
+----------------
+
+El proposito de este primero capitulo es poner las fundaciones para responder preguntas tales como: "¿Porque yo deberia usar un estilo de PF con mi codigo?" y "¿De que manera Javascript Funcionalmente-Ligero es comparable con lo que otros dicen acerca de la PF?" Comenzando con el Capitulo 2 a traves del resto libro, comenzaremos a desvelar, pieza por pieza, las tecnicas y los patrones de escribir JS en un estilo funcionalmente-ligero.
+
 This first chapter's purpose is to lay the groundwork to answer questions like: "Why should I use FP style with my code?" and "How does Functional-Light JavaScript compare to what others say about FP?" Starting with Chapter 2 throughout the rest of the book, we'll begin uncovering, piece by piece, the techniques and patterns of writing JS in functional-light style.
+
+----------------
 
 ## At A Glance
 

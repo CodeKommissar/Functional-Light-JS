@@ -1,9 +1,19 @@
-# Functional-Light JavaScript
-# Foreword
+# JavaScript Funcionalmente-Ligero
+# Prologo
+
+-------------
+
+No es un secreto que soy un loco de la programacion funcional. Evangelizo los lenguajes e ideas funcionales siempre que puedo, trato de leer los ultimos papeles academicos, estudio algebra abstracta en mi tiempo libre...los trabajos. Incluso en JavaScript, me niego a escribir una declaracion impura, que es lo que me llevo a escribir La Guia Mayormente Adecuada a la Programacion Funcional del Profesor Frisby. Sep, un fanatico dogmatico de lleno.
 
 It's no secret that I am a functional programming nut. I evangelize functional ideas and languages wherever I can, try to read the latest academic papers, study abstract algebra in my spare time…the works. Even in JavaScript, I refuse to write an impure statement, which is what lead to writing Professor Frisby's Mostly Adequate Guide to Functional Programming. Yep, full on, dogmatic zealot.
 
+-------------
+
+Yo no fui siempre de esta manera... Hubo una vez en la que estuve obsesionado con objetos. Amaba modelar el "mundo real". Era el inventor de automatons sinteticos, retocando a traves de la noche con una precision maestra. El creador de titeres sentientes, los dedos bailando a traves del teclado para darles vide - un Geppetto 1337 h4x0r real. Aun asi, luego de 5 SOLIDOS años de escribir codigo orientado a objetos, nunca estaba completamente satisfecho con los resultos. Solamente nunca funciono bien para mi. Me sentia como un mal programador. Incluso perdi la fe de que una base de codigo simple y sencilla, de una escala decente era posible.
+
 I was not always this way… I was once obsessed with objects. I loved modeling the "real world". I was the inventor of synthetic automatons, tinkering through the night with masterful precision. The creator of sentient puppets, fingers dancing on the keyboard to give them life - a real 1337 h4x0r Geppetto. Yet, after 5 SOLID years of writing object oriented code, I was never quite satisfied with the outcome. It just never worked out well for me. I felt like a lousy programmer. I even lost faith that a simple, flexible codebase of decent scale was possible.
+
+-------------
 
 I figured I'd try something different: Functional programming. I began to dabble with functional ideas in my every day codebase and, much to my coworkers dismay, hadn't the slightest clue what I was doing. The code I wrote in those days was awful. Atrocious. Digital sewage. The reason was a lack of clear vision or goal on what I was even trying to accomplish. My Jiminy-Coding-Cricket, if you like, was not there to guide me. It took a long time and a lot of garbage programs to figure out how to FP.
 
