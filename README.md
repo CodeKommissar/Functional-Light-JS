@@ -1,41 +1,17 @@
 # JavaScript Funcionalmente-Ligero (libro)
-# Functional-Light JavaScript (book)
 
----------------
+Este libro explora los principios claves de la programacion funcional (PF) a la vez que estos son aplicados a JavaScript. Pero lo que hace a este libro diferente, es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a observar un subconjunto de conceptos fundamentales de la PF a la que yo llamo "Programacion Funcionalmente-Ligera" (PFL) y la aplicaremos a JavaScript.
 
-Este libro explora los principios claves de la programacion funcional (PF) mientras estos son aplicados a JavaScript. Pero lo que hace a este libro diferente es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a ver un subconjunto de conceptos fundamentales de la PF que yo llamo "Programacion Funcionalmente-Ligera" y la aplicaremos a JavaScript.
+**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "facil", "para principantes" o una "introduccion" acerca del tema. Este libro es riguroso y esta lleno de crudos detalles; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero" significa limitado en su alcance; en vez de ser much mas amplio, este libro se adentra mucho mas dentro de cada tema de lo que esperarias encontrar en otros libros de PF relacionados a JavaScript.
 
-This book explores the core principles of functional programming (FP) as they are applied to JavaScript. But what makes this book different is that we approach these principles without drowning in all the heavy terminology. We look at a subset of FP foundational concepts that I call "Functional-Light Programming" (FLP) and apply it to JavaScript.
 
----------------
+Vamos a afrontarlo: a menos de que tu ya seas un miembro del club de PF chicos cool (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
 
-**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "para principantes", "facil" o una "introduccion" acerca del tema. Este libro es riguroso y lleno de crudo detalle; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero" significa limitado en su alcance; en vez de ser mas amplio, este libro se adentra mucho mas dentro de cada tema de lo que esperarias encontrar en otros libros de JavaScript-PF.
+Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y tu ciertamente tendras bastante de exposicion a lo que estos terminos significan y porque.
 
-**Note:** Despite the word "Light" in the title, I do not consider or recommend this book as a "beginner", "easy", or "intro" book on the topic. This book is rigorous and full of gritty detail; it expects a solid foundation of JS knowledge before diving in. "Light" means limited in scope; instead of being more broad, this book goes much deeper into each topic than you typically find in other FP-JavaScript books.
-
----------------
-
-Vamos a afrontarlo: a menos de que tu ya seas miembro del club de chicos cool PF (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
-
-Let's face it: unless you're already a member of the FP cool kids club (I'm not!), a statement like, "a monad is just a monoid in the category of endofunctors", just doesn't mean anything useful to us.
-
----------------
-
-Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez de te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y tu ciertamente tendras bastante de exposicion a lo que ellos significan y porque.
-
-That's not to say the terms are meaning*less* or that FPrs are bad for using them. Once you graduate from Functional-Light, you'll maybe/hopefully want to study FP more formally, and you'll certainly have plenty of exposure to what they mean and why.
-
----------------
-
-Pero yo quiero que tu seas capaz de aplicar algunos de los fundamentales de la PF a tu JavaScript *ahora*, porque yo creo en que te ayudar a escribir mejor codigo y mas *razon*able..
+Pero yo quiero que tu seas capaz de aplicar algunos de los fundamentales de la PF a tu JavaScript *ahora*, porque yo creo que te ayudara a escribir mejor codigo y mas *razon*able..
 
 **Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](prefacio.md)**
-
-But I want you to be able to apply some of the fundamentals of FP to your JavaScript *now*, because I believe it will help you write better, more *reason*able code.
-
-**To read more about the motivations and perspective behind this book, check out the [Preface](preface.md).**
-
----------------
 
 ## Libro
 
