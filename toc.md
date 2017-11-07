@@ -1,73 +1,73 @@
-# Functional-Light JavaScript
+# JavaScript Funcionalmente-Ligero
 
-## Table of Contents
+## Tabla de Contenidos
 
-* Foreword
-* Preface
-* Chapter 1: Why Functional Programming?
-    * Confidence
-    * Communication
-    * Take
-    * YAGNI
-    * Resources
-* Chapter 2: The Nature Of Functions
-    * What Is A Function?
-    * Function Input
-    * Function Output
-    * Functions Of Functions
-    * Syntax
-    * What's This?
-* Chapter 3: Managing Function Inputs
-    * Some Now, Some Later
-    * One At A Time
-    * All For One
-    * Spread 'Em Out
-    * Order Matters
-    * No Points
-* Chapter 4: Composing Functions
-    * Output To Input
-    * Reordered Composition
-    * Abstraction
-    * Revisiting Points
-* Chapter 5: Reducing Side Effects
-    * Effects On The Side, Please
-    * Once Is Enough, Thanks
-    * Pure Bliss
-    * There Or Not
-    * Purifying
-* Chapter 6: Value Immutability
-    * Primitive Immutability
-    * Value To Value
-    * Reassignment
-    * Performance
-    * Treatment
-* Chapter 7: Closure vs Object
-    * The Same Page
-    * Look Alike
-    * Two Roads Diverged In A Wood...
-* Chapter 8: Recursion
-    * Definition
-    * Declarative Recursion
-    * Stack
-    * Rearranging Recursion
-* Chapter 9: List Operations
-    * Non-FP List Processing
+* Prólogo
+* Prólogo
+* Capitulo 1: Programacion Funcional, Porque?
+    * Confianza
+    * Comunicacion
+    * Toma
+    * NLVAN
+    * Recursos
+* Capitulo 2: La Naturaleza de las Funciones
+    * Que es una Funcion?
+    * Entrada de una Funcion
+    * Salida de una Funcion
+    * Funciones de Funciones
+    * Sintaxis
+    * Que es Esto?
+* Capitulo 3: Manejando la Entrada de las Funciones
+    * Algo Ahora, Algo Despues
+    * Una a la Vez
+    * Todos para una
+    * Extiendelas
+    * El Orden Importa
+    * Sin Puntos
+* Capitulo 4: Componiendo Funciones
+    * Salida a Entrada
+    * Composición Reordenada
+    * Abstracción
+    * Revisando puntos
+* Capitulo 5: Reduciendo Efectos Secundarios
+    * Efectos de un Lado, Por Favor
+    * Uno es suficiente, Gracias
+    * Pura Felicidad
+    * Allí o no
+    * Purificando
+* Capitulo 6: Immutabilitidad de los Valores
+    * Immutabilitidad Primitiva
+    * De Valor a Valor
+    * Reasignación
+    * Rendimiento
+    * Tratado
+* Capitulo 7: Cierre vs Objeto
+    * La Misma Pagina
+    * Parecidos
+    * Dos Caminos Divergieron en un Bosque...
+* Capitulo 8: Recursion
+    * Definicion
+    * Recursion Declarativa
+    * Monton
+    * Reorganizando la Recursión
+* Capitulo 9: Operaciones en Listas
+    * Procesamiento de Listas no-PF
     * Map
     * Filter
     * Reduce
-    * Advanced List Operations
-    * Method vs. Standalone
-    * Looking For Lists
-    * Fusion
-    * Beyond Lists
-* Chapter 10: Functional Async
-    * Time As State
-    * Eager vs Lazy
-    * Reactive FP
-* Chapter 11: Putting It All Together
-    * Setup
-    * Stock Events
-    * Stock Ticker UI
-* Appendix A: Transducing
-* Appendix B: The Humble Monad
-* Appendix C: FP Libraries
+    * Operaciones de Listas Avanzadas
+    * Método vs. Independiente
+    * Buscando Listas
+    * Fusión
+    * Más Allá de las Listas
+* Capitulo 10: Async Funcional
+    * Tiempo como Estado
+    * Ansioso vs Flojo
+    * PF Reactiva
+* Capitulo 11: Poniendolo Todo Junto
+    * Preparandonos
+    * Eventos de Valores
+    * Teletipo de Eventos UI
+* Apendice A: Transduciendo
+* Apendice B: La Humilde Monada
+* Apendice C: Librerias de PF
