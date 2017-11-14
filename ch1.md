@@ -1,17 +1,17 @@
 # Javascript Funcionalmente-Ligero
 # Capitulo 1: Programacion Funcional, Porque?
 
-> Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y nombra patrones de codigo tales como "premorfismo zygohistoricomorfico"
+> Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y dice patrones de codigo tales como "premorfismo zygohistoricomorfico"
 >
 > James Iry ‏@jamesiry 5/13/15
 >
 > https://twitter.com/jamesiry/status/598547781515485184
 
-La Programación Funcional (PF) no es un concepto nuevo de ninguna manera. Ha estado en casi toda la historia de la programación. Sin embargo -- y no estoy seguro si es justo decirlo, pero! -- es seguro decir que no ha parecido ser un concepto tradicional en el mundo general del desarollador hasta quizas en los ultimos años. Yo creo que la PF ha sido siempre mas parte del reino de los academicos.
+La Programación Funcional (PF) no es un concepto bajo ninguna manera. Ha existido durante casi toda la historia de la programación. Sin embargo -- y no estoy seguro si es justo decirlo, pero! -- es seguro decir que no ha parecido ser un concepto tradicional en el mundo general del desarollador hasta quizas los ultimos años. Yo creo que la PF ha sido siempre mas parte del reino de los academicos.
 
 Pero todo esto esta cambiando. Un gran pozo de interes esta creciendo alrededor de la PF, no solo al nivel de los lenguajes, pero incluso tambien en librerias y frameworks. Puede que tu estes leyendo este texto porque finalmente te has dado cuenta que la PF es algo que no puedes seguir ignorando. O quizas tu eres como yo y has intentado aprender de la PF muchas veces antes pero has tenido problemas para entender todos los terminos o la notacion matematica.
 
-El propósito de este primer capítulo es sentar las bases para responder a preguntas como: "¿Por qué debería usar el estilo de PF con mi código?" y "¿Cómo se compara JavaScript Funcionalmente-Ligero con lo que otros dicen acerca de la PF?" Comenzando con el Capítulo 2 a lo largo del resto del libro, comenzaremos a descubrir, pieza por pieza, las técnicas y los patrones de escribit JS en un estilo funcionalmente-ligero.
+El propósito de este primer capítulo es sentar las bases para responder a preguntas tales como: "¿Por qué debería usar el estilo de PF con mi código?" y "¿Cómo se compara JavaScript Funcionalmente-Ligero con lo que otros dicen acerca de la PF?" Comenzando con el Capítulo 2 a lo largo del resto del libro, comenzaremos a descubrir, pieza por pieza, las técnicas y los patrones de escribir JS en un estilo funcionalmente-ligero.
 
 ## A un Vistazo
 
@@ -78,7 +78,7 @@ Una vez que entiendas a la PF y Funcionalmente-Ligero, esta es la forma en que *
 >
 > Luego creamos otra función llamada `imprimirNumeroMagico (..)` que primero reduce una lista de números usando el reductor `sumarSoloFavoritos (..)` que acabamos de definir, lo que resulta en una suma de solo los números que pasaron a traves de los filtros de *favoritos*. Luego, `imprimirNumeroMagico (..)` canaliza la suma final a traves de `construirMensaje (..)`, la que crea un valor string que finalmente es pasado a `console.log (..)`.
 
-Todas esas piezas en movimiento *le hablan* a un desarrollador en PF de una forma que probablemente te parezca poco familiar ahora mismo. Este libro te ayudará a *hablar* ese mismo tipo de razonamiento para que te sea tan legible para ti como cualquier otro tipo de código, ¡o tal vez hasta más!
+Todas esas piezas en movimiento *le hablan* a un desarrollador en PF de una forma que probablemente te parezca poco familiar ahora mismo. Este libro te ayudará a *pensar* en ese mismo tipo de razonamiento para que te sea tan legible para ti como cualquier otro tipo de código, ¡o tal vez hasta más!
 
 Algunas otras observaciones rápidas sobre esta comparación de código:
 
@@ -88,43 +88,44 @@ Algunas otras observaciones rápidas sobre esta comparación de código:
 
 * También es posible que ya seas un desarrollador experimentado en PF que está a traves del comienzo de este libro para ver si tiene algo útil que leer. Ese segundo fragmento ciertamente tendra algunas partes que te son bastante familiares. Pero también estoy apostando a que pensaste, "Hmmm, no lo hubiese hecho de *esa* manera..." un par de veces. Eso está bien, y es completamente razonable.
 
-    Este no es un libro de PF tradicional y canónico. En ciertas veces todos parecemos bastante heréticos en nuestros enfoques. Aqui estamos tratando de lograr un equilibrio pragmático entre los claros beneficios innegables de la PF, y la necesidad de enviar JS viable y mantenible sin tener que abordar una montaña desalentadora de matemática/notación/terminología. Esta no es *tu* PF, es "JavaScript Funcionalmente-Ligero".
+    Este no es un libro de PF tradicional y canónico. En ciertas veces todos parecemos bastante heréticos en nuestros enfoques. Aqui estamos tratando de lograr un equilibrio pragmático entre los claros beneficios innegables de la PF, y la necesidad de shipear JS viable y mantenible sin tener que abordar una montaña desalentadora de matemática/notación/terminología. Esta no es *tu* PF, es "JavaScript Funcionalmente-Ligero".
 
 Sean cuales sean sus razones para leer este libro, ¡bienvenido!
 
 ## Confianza
 
-I have a very simple premise that sort of underlies everything I do as a teacher of software development (in JavaScript): code that you cannot trust is code that you do not understand. The reverse is true, also: code that you don't understand is code you can't trust. Furthermore, if you cannot trust or understand your code, then you can't have any confidence whatsoever that the code you write is suitable to the task. You run the program and basically just cross your fingers.
+Tengo una premisa muy simple que subyace a todo lo que hago como profesor de desarrollo de software (en JavaScript): código en el que no puedes confiar es código que no comprendes. Lo contrario también es cierto: el código que no entiendes es código en el que no puedes confiar. Además, si no puedes confiar o comprender tu propio código, entonces no puedes confiar en absoluto en que el código que escribes es adecuado para la tarea. Basicamente ejecutas el programa y cruzas los dedos.
 
-What do I mean by trust? I mean that you can verify, by reading and reasoning, not just executing, that you understand what a piece of code *will* do; you aren't just relying on what it *should* do. Perhaps more often than we should, we tend to rely on verification of our program's correctness by running test suites. I don't mean to suggest tests are bad. But I do think we should aspire to be able to understand our code well enough that we know the test suite will pass before it runs.
+¿Qué quiero decir con confianza? Quiero decir que puedes verificar, leyendo y razonando, no solo ejecutando, que es lo que un código *hará*; no solo dependes de lo que *debería* hacer. Tal vez con más frecuencia de la que deberíamos, tendemos a confiar que nuestro programa es correcro ejecutando suites de prueba. No quiero sugerir que las pruebas sean malas. Pero creo que deberíamos aspirar a poder entender nuestro código lo suficientemente bien como para saber que el conjunto de pruebas pasaran antes de que se ejecuten.
 
-The techniques that form the foundation of FP are designed from the mindset of having far more confidence over our programs just by reading them. Someone who understands FP, and who's disciplined enough to diligently use throughout their programs, will write code that they **and others** can read and verify that the program will do what they want.
+Las técnicas que forman la base de la PF son diseñadas desde la mentalidad de tener mucha más confianza sobre nuestros programas simplemente leyéndolos. Alguien que entiende a la PF, y que es lo suficientemente disciplinado como para usarla diligentemente a lo largo de sus programas, escribirá código que el **y otros** pueden leer y verificara que el programa hará lo que quiere.
 
-Confidence is also increased when we use techniques that avoid or minimize likely sources of bugs. That's perhaps one of the biggest selling points of FP: FP programs often have fewer bugs, and the bugs that do exist are often in more obvious places, so they're easier to find and fix. FP code tends to be more bug resistant -- certainly not bug proof, though.
+La confianza también aumenta cuando utilizamos técnicas que evitan o minimizan las posibles fuentes de errores. Ese es quizás uno de los mayores puntos de venta de la PF: los programas hechos con la PF en mente a menudo tienen menos errores, y los errores que existen a menudo se encuentran en lugares más obvios, por lo que son más fáciles de encontrar y corregir. El código PF tiende a ser más resistente a los errores, sin embargo, no es prueba de errores.
 
-As you journey through this book, you will begin to develop more confidence in the code you write, because you will use patterns and practices that are already well-proven; and you'll avoid the most common causes of program bugs!
+A medida que avances en este libro, comenzarás a desarrollar más confianza en el código que escribas, porque usarás patrones y prácticas que ya están bien probados; ¡y adenas evitarás las causas más comunes de errores en los programas!
 
-## Communication
+## Comunicacion
 
-Why is functional programming important? To answer that, we need to take a bigger step back and talk about why programming itself is important.
+¿Por qué es importante la programación funcional? Para responder eso, tenemos que dar un paso atrás y hablar sobre por qué la programación en sí misma es importante.
 
-It may surprise you to hear this, but I don't believe that code is primarily a set of instructions for the computer. As a matter of fact, I think the fact that code instructs the computer is almost a happy accident.
+Puede sorprenderte escuchar esto, pero no creo en la idea de que el código sea principalmente un conjunto de instrucciones para la computadora. De hecho, creo que el hecho de que el código instruye a la computadora es algo mas como un "feliz accidente".
 
-I believe very deeply that the vastly more important role of code is as a means of communication with other human beings.
+Creo profundamente que el papel, mucho más importante, del código es como un medio de comunicación con otros seres humanos.
 
-You probably know by experience that an awful lot of your time spent "coding" is actually spent reading existing code. Very few of us are so privileged as to spend all or most of our time simply banging out all new code and never dealing with code that others (or our past selves) wrote.
+Probablemente sabes por experiencia que una gran parte de tu tiempo dedicado a "programar" lo usas para leer código ya existente. Muy pocos de nosotros somos tan privilegiados como para gastar todo o la mayoría de nuestro tiempo simplemente golpeando el teclado para escribir código nuevo y nunca tener que lidiar con el código que otros (o nosotros mismos en el pasado) escribieron.
 
-It's widely estimated that developers spend 70% of code maintenance time on reading to understand it? That is eye-opening. 70%. No wonder the global average for a programmer's lines of code written per day is about 10. We spend about 7 hours of our day just reading the code to figure out where those 10 lines should go!
+Se estima ampliamente que los desarrolladores gastan el 70% del tiempo de mantenimiento del código, leyendolo para poder entenderlo. Eso es revelador. 70%. No es de extrañar que el promedio global de numero de líneas de código escritas por un programador al día sea de aproximadamente de 10. ¡Pasamos aproximadamente 7 horas de nuestro día simplemente leyendo código para descubrir en dónde deberían ir esas 10 líneas!
 
-I think we should focus a lot more on the readability of our code. And by the way, readability is not just about fewer characters. Readability is actually most impacted by familiarity. [1]
+Creo que deberíamos centrarnos mucho más en la legibilidad de nuestro código. Ah y, por cierto, la legibilidad no se trata solo acerca de menos caracteres. La legibilidad en realidad se ve más impactada por la familiaridad. [1]
 
-If we are going to spend our time concerned with making code that will be more readable and understandable, FP is central in that effort. The principles of FP are well established, deeply studied and vetted, and provably verifiable. Taking the time to learn and employ these FP principles will ultimately lead to more readily and recognizably familiar code for you and others. The increase in code familiarity, and the expediency of that recognition, will increase code readability.
+Si vamos a dedicar nuestro tiempo a hacer que nuestro código que sea más legible y comprensible, la PF es central en ese esfuerzo. Los principios de la PF están bien establecidos, profundamente estudiados y examinados, y demostrablemente comprobables. Tomarse el tiempo para aprender y emplear estos principios de la PF finalmente conducirá a un código que nos sera mas familiar, más fácil de reconocer para ti y para los demás. El aumento en la familiaridad del código y la conveniencia de ese reconocimiento aumentarán la legibilidad de nuestro código.
 
-For example, once you learn what `map(..)` does, you'll be able to almost instantly spot and understand it when you see it in any program. But every time you see a `for` loop, you're going to have to read the whole loop to understand it. The syntax of the `for` loop may be familiar, but the substance of what it's doing is not; that has to be *read*, every time.
 
-By having more code that's recognizable at a glance, and thus spending less time figuring out what the code is doing, our focus is freed up to think about the higher levels of program logic; this is the important stuff that most needs our attention anyway.
+Por ejemplo, una vez que aprendas lo que `map (..)` hace, podrás detectarlo y comprenderlo casi de inmediato cuando lo veas en cualquier programa. Pero cada vez que veas un ciclo `for`, tendrás que leer todo el ciclo para comprender que es lo que hace. La sintaxis del ciclo `for` puede que te sea familiar, pero la sustancia de lo que está haciendo no lo es; eso tiene que ser *leído*, cada vez.
 
-FP (at least, without all the terminology weighing it down) is one of the most effective tools for crafting readable code. *That* is why it's so important.
+Al tener más código que es reconocible de un vistazo, y por lo tanto dedicar menos tiempo a descubrir qué es lo que está haciendo el código, nuestro enfoque se libera para pensar en los niveles más altos en la lógica del programa; de todas formas, este es la parte importante que más necesita de nuestra atención.
+
+La PF (al menos, sin toda la terminología que la hace pesada) es una de las herramientas más efectivas para crear código legible. *Esa* es la razón por la cual es tan importante.
 
 ## Readability
 

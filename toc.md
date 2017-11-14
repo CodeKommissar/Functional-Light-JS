@@ -7,8 +7,9 @@
 * Capitulo 1: Programacion Funcional, Porque?
     * Confianza
     * Comunicacion
-    * Toma
-    * NLVAN
+    * Legibilidad
+    * Perspectiva
+    * Cómo encontrar el equilibrio
     * Recursos
 * Capitulo 2: La Naturaleza de las Funciones
     * Que es una Funcion?
