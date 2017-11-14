@@ -120,144 +120,143 @@ Creo que deberíamos centrarnos mucho más en la legibilidad de nuestro código.
 
 Si vamos a dedicar nuestro tiempo a hacer que nuestro código que sea más legible y comprensible, la PF es central en ese esfuerzo. Los principios de la PF están bien establecidos, profundamente estudiados y examinados, y demostrablemente comprobables. Tomarse el tiempo para aprender y emplear estos principios de la PF finalmente conducirá a un código que nos sera mas familiar, más fácil de reconocer para ti y para los demás. El aumento en la familiaridad del código y la conveniencia de ese reconocimiento aumentarán la legibilidad de nuestro código.
 
-
 Por ejemplo, una vez que aprendas lo que `map (..)` hace, podrás detectarlo y comprenderlo casi de inmediato cuando lo veas en cualquier programa. Pero cada vez que veas un ciclo `for`, tendrás que leer todo el ciclo para comprender que es lo que hace. La sintaxis del ciclo `for` puede que te sea familiar, pero la sustancia de lo que está haciendo no lo es; eso tiene que ser *leído*, cada vez.
 
 Al tener más código que es reconocible de un vistazo, y por lo tanto dedicar menos tiempo a descubrir qué es lo que está haciendo el código, nuestro enfoque se libera para pensar en los niveles más altos en la lógica del programa; de todas formas, este es la parte importante que más necesita de nuestra atención.
 
 La PF (al menos, sin toda la terminología que la hace pesada) es una de las herramientas más efectivas para crear código legible. *Esa* es la razón por la cual es tan importante.
 
-## Readability
+## Legibilidad
 
-Readability is not a binary characteristic. It's a largely subjective human factor describing our relationship to code. And it will naturally vary over time as our skills and understanding evolve. I have experienced effects similar to the following figure, and anecdotally many others I've talked to have as well.
+La legibilidad no es una característica binaria. Es un factor humano (en gran parte subjetivo) que describe nuestra relación con el código. Y naturalmente variará con el tiempo a medida que nuestras habilidades y comprension evolucionen. Yo he experimentado efectos similares a la siguiente figura, y anecdóticamente muchos otros con los que he hablado también.
 
 <p align="center">
     <img src="fig17.png" width="600">
 </p>
 
-You may just find yourself experiencing similar effects as you work through the book. But take heart; if you stick this out, the curve comes back up!
+Puede que experimente efectos similares a medida que trabajes en el libro. Pero anímate; si aguantas esto, ¡la curva vuelve a subir!
 
-*Imperative* describes the code most of us probably already write naturally; it's focused on precisely instructing the computer *how* to do something. Declarative code -- the kind we'll be learning to write, which adheres to FP principles -- is code that's more focused on describing the *what* outcome.
+*Imperativo* describe el código que la mayoría de nosotros probablemente ya escribe naturalmente; está enfocado en instruir con precisión a la computadora *cómo* hacer algo. El código declarativo, del tipo que aprenderemos a escribir, el cual se adhiere mas a los principios de la PF, es un tipo código que se centra más en describir el *qué* del resultado.
 
-Let's revisit the two code snippets earlier in this chapter.
+Revisemos los dos fragmentos de código que vimos anteriormente en este capítulo.
 
-The first snippet is imperative, focused almost entirely on *how* to do the tasks; it's littered with `if` statements, `for` loops, temporary variables, reassignments, value mutations, function calls with side effects, and implicit data flow between functions. You certainly *can* trace through its logic to see how the numbers flow and change to the end state, but it's not at all clear and straightforward.
+El primer fragmento es imperativo, y se centra casi por completo en *cómo* hacer las tareas; está plagado por condicionales `if`, ciclos `for`, variables temporales, reasignaciones, mutaciones de valores, llamadas a funciones con efectos secundarios y flujo de datos implícito entre funciones. Sin ninguna duda *puedes* rastrear a través de toda esta lógica para ver cómo los números fluyen y cambian hacia al estado final, pero no es del todo claro y directo.
 
-The second snippet is more declarative; it does away with most of those aforementioned imperative techniques. Notice there's no explicit conditionals, loops, side effects, reassignments, or mutations; instead, it employs well-known (to the FP world, anyway!) and trustable patterns like filtering, reduction, transducing, and composition. The focus shifts from low-level *how* to higher level *what* outcomes.
+El segundo fragmento es más declarativo; elimina la mayoría de las técnicas imperativas antes mencionadas. Ten en cuenta que no hay condicionales explícitos, ciclos, efectos secundarios, reasignaciones o mutaciones; en cambio, emplea patrones bien conocidos (¡en el mundo de la PF, de todos modos!) y confiables como lo son el filtrado, reducción, transducción y composición. El enfoque cambia de ser un *cómo* de bajo nivel a un nivel superior de donde el resultado de *qué* es lo hace el codigo es lo mas importante.
 
-Instead of messing with an `if` statement to test a number, we delegate that to a well-known FP utility like `gte(..)` (greater-than-or-equal-to), and then focus on the more important task of combining that filter with another filter and a summation function.
+En lugar de meterse con un condicional `if` para probar un número, lo delegamos a una conocida utilidad de PF conocida como `gte (..)` (mayor que o igual a), y luego nos centramos en la tarea mas importante de combinar ese filtro con otro filtro y una función de suma.
 
-Moreover, the flow of data through the second program is explicit:
+Además, el flujo de datos a través del segundo programa es explícito:
 
-1. A list of numbers goes into `printMagicNumber(..)`.
-2. One at a time those numbers are processed by `sumOnlyFavorites(..)`, resulting in a single number total of only our favorite kinds of numbers.
-3. That total is converted to a message string with `constructMsg(..)`.
-4. The message string is printed to the console with `console.log(..)`.
+1. Una lista de números entra a `imprimirNumeroMagico(..)`.
+2. Uno a la vez, estos números son procesados ​​por `sumarSoloFavoritos(..)`, lo que resulta en un unico número total que proviene de nuestros tipos de números favoritos.
+3. Ese total se convierte en un mensaje con `construirMensaje (..)`.
+4. El mensaje final se imprime en la consola con `console.log (..)`.
 
-You may still feel this approach is convoluted, and that the imperative snippet was easier to understand. You're much more used to it; familiarity has a profound influence on our judgements of readability. By the end of this book, though, you will have internalized the benefits of the second snippet's declarative approach, and that familiarity will spring its readability to life.
+Puede que aun sientas que este enfoque es intrincado y que el fragmento imperativo era más fácil de entender. Estás mucho más acostumbrado a eso; la familiaridad tiene una profunda influencia en nuestros juicios de legibilidad. Al final de este libro, sin embargo, habrás internalizado los beneficios del enfoque declarativo del segundo fragmento, y esa familiaridad hará brotar su legibilidad a la vida.
 
-I know asking you to believe that at this point is a leap of faith.
+Sé que pedirte que creas que en este momento es un acto de fe.
 
-It takes a lot more effort, and sometimes more code, to improve its readability as I'm suggesting, and to minimize or eliminate many of the mistakes that lead to bugs. Quite honestly, when I started writing this book, I could never have written (or even fully understood!) that second snippet. As I'm now further along on my journey of learning, it's more natural and comfortable.
+Se requiere de mucho más esfuerzo, y a veces hasta de más código, para mejorar su legibilidad como sugiero, y para minimizar o eliminar muchos de los errores que conducen a bugs. Honestamente, cuando comencé a escribir este libro, nunca podría haber escrito (¡incluso hasta haber comprendido completamente!) ese segundo fragmento. Ahora, mientras más he avanzado en mi viaje de aprendizaje, se me hace más natural y cómodo.
 
-If you're hoping that FP refactoring, like a magic silver bullet, will quickly transform your code to be more graceful, elegant, clever, resiliant, and concise -- that it will come easy in the short term -- unfortunately that's just not a realistic expectation.
+Si esperas que la refactorizar hacia la PF, sea como una bala de plata mágica, que transforme rápidamente tu código para que sea más elegante, elegante, inteligente, resiliente y conciso -- que esto resulte fácil a corto plazo -- desafortunadamente no es una expectativa realista.
 
-FP is a very different way of thinking about how code should be structured, to make the flow of data much more obvious and to help your reader follow your thinking. It will take time. This effort is eminently worthwhile, but it can be an arduous journey.
+La PF es una forma muy diferente de pensar sobre cómo se debe estructurar el código, para hacer que el flujo de datos sea mucho más obvio y ayudar al lector a seguir su pensamiento. Tomará tiempo. Este esfuerzo es eminentemente valioso, pero puede ser un viaje arduo.
 
-It still often takes me multiple attempts at refactoring a snippet of imperative code into more declarative FP, before I end up with something that's clear enough for me to understand later. I've found converting to FP is a slow iterative process rather than a quick binary flip from one paradigm to another.
+A menudo, todavía tengo que tomar múltiples intentos para refactorizar un fragmento de código imperativo para que sea mas más declarativo "a la" PF, antes de terminar con algo que me sea lo suficientemente claro como para que lo pueda entender más adelante. He encontrado que convertir a PF es un proceso iterativo lento, en lugar de un salto binario rápido de un paradigma a otro.
 
-I also apply the "teach it later" test to every piece of code I write. After I've written a piece of code, I leave it alone for a few hours or days, then come back and try to read it with fresh eyes, and pretend as if I need to teach or explain it to someone else. Usually, it's jumbled and confusing the first few passes, so I tweak it and repeat!
+También aplico la prueba de "enseñalo despues" a cada fragmento de código que escribo. Después de escribir un fragmento de código, lo dejo durante algunas horas o días, luego vuelvo y trato de leerlo con ojos nuevos, y finjo como si fuera necesario enseñarselo o explicárselo a otra persona. Por lo general, el codigo es complicado y confuso en las primeras pruebas, así que lo refactorizo un poco y repito!
 
-I'm not trying to dampen your spirits. I really want you to hack through these weeds. I am glad I have. I can finally start to see the curve bending upward towards more readability. The effort has been worth it. It will be for you, too.
+No estoy tratando de empañar tus espíritus. Realmente quiero que atravieses estas malezas. Yo estoy feliz de haberlo hecho. Finalmente puedo comenzar a ver la curva inclinada hacia arriba para una mayor legibilidad. El esfuerzo ha valido la pena. Para ti también lo sera.
 
-## Perspective
+## Perspectiva
 
-We're going to approach FP from the ground up -- it seems to me most other FP texts go the opposite direction: top-down -- and discover the basic foundational principles that I believe formal FPers would admit are the scaffolding for everything they do. But for the most part we'll stay arms length away from most of the intimidating terminology or mathematical notation that can so easily frustrate learners.
+Nos acercaremos a la PF desde abajo hacia arriba -- me parece que la mayoría de los otros textos acerca de PF van en la dirección opuesta: de arriba hacia abajo -- y descubriremos los principios fundamentales básicos que creo que los Programadores-Funcionales formales admitirían son la base para todo lo que hacen. Pero en general nos mantendremos alejados de la mayoría de la terminología intimidante o la notación matemática que puede frustrar fácilmente a los estudiantes.
 
-I believe it's less important what you call something and more important that you understand what it is and how it works. That's not to say there's no importance to shared terminology -- it undoubtedly eases communication among seasoned professionals. But for the learner, I've found it can be distracting.
+Creo que es menos importante como llamas a algo y más importante si que entiendas qué es y cómo funciona. Eso no quiere decir que no haya importancia para la terminología compartida -- sin dudas, facilita la comunicación entre los profesionales con experiencia. Pero para el alumno, he descubierto que puede ser una distracción.
 
-So this book will try to focus more on the base concepts and less on the fancy fluff. That's not to say there won't be terminology; there definitely will be. But don't get too wrapped up in the sophisticated words. Wherever necessary, look beyond them to the ideas.
+Entonces, este libro intentará enfocarse más en los conceptos básicos y menos en los lujos. Eso no quiere decir que no habrá terminología; definitivamente la habrá. Pero no te envolveras demasiado en palabras sofisticadas. Donde sea necesario, mira más allá de esas palabras hacia a las ideas.
 
-I call the less formal practice herein "Functional-Light Programming" because I think where the formalism of true FP suffers is that it can be quite overwhelming if you're not already accustomed to formal thought. I'm not just guessing; this is my own personal story. Even after teaching FP and writing this book, I can still say that the formalism of terms and notation in FP is very, very diffcult for me to process. I've tried, and tried, and I can't seem to get through much of it.
+Llamo a esta práctica menos formal en este documento "Programación Funcionalmente-Ligera" porque creo que el formalismo de la verdadera PF sufre en que puede ser bastante abrumadora si no estás acostumbrado al pensamiento formal. No solo estoy adivinando; esta es mi propia historia personal. Incluso después de enseñar PF y de escribir este libro, todavía puedo decir que el formalismo de los términos y la notación en la PF es muy, muy difícil de procesar. Lo intenté y lo intenté, y parece que no puedo superarlo en gran medida.
 
-I know many FPers who believe that the formalism itself helps learning. But I think there's clearly a cliff where that only becomes true once you reach a certain comfort with the formalism. If you happen to already have a math background or even some flavors of CS experience, this may come more naturally to you. But some of us don't, and no matter how hard we try, the formalism keeps getting in the way.
+Conozco a muchos Programadores-Funcionales que creen que el formalismo en sí ayuda al aprendizaje. Pero creo que claramente hay un acantilado donde eso solo se hace realidad una vez que alcanzas cierta comodidad con el formalismo. Si ya tienes experiencia en matemática o incluso algunos sabores de experiencia en Ciencias de la Computacion, puede que esto te sea mas natural. Pero para algunos de nosotros esto no es asi, y no importa cuánto lo intentemos, el formalismo se interpone en el camino.
 
-So this book introduces the concepts that I believe FP is built on, but comes at it by giving you a boost from below to climb up the cliff wall, rather than condescendingly shouting down at you from the top, proding you to just figure out how to climb as you go.
+Así que este libro presenta los conceptos en los que creo esta construida la PF, pero intenta mas en impulsarte desde abajo para trepar por la pared del acantilado, que en gritarte condescendientemente desde lo más alto, instandote a que descubras cómo escalar sobre la marcha.
 
-## How To Find Balance
+## Cómo encontrar el equilibrio
 
-If you've been around programming for very long, chances are you've heard the phrase "YAGNI" before: "You Ain't Gonna Need It". This principle primarily comes from extreme programming, and stresses the high risk and cost of building a feature before it's needed.
+Si has estado programando durante mucho tiempo, es probable que hayas escuchado antes la frase "YAGNI": "You Ain't Gonna Need It" ("No vas a necesitarlo" en español). Este principio proviene principalmente de la [programación extrema](https://es.wikipedia.org/wiki/Programaci%C3%B3n_extrema) y enfatiza el alto riesgo y el costo de construir una característica antes de que sea necesaria.
 
-Sometimes we guess we'll need a feature in the future, build it now believing it'll be easier to do as we build other stuff, then realize we guessed wrong and the feature wasn't needed, or needed to be quite different. Other times we guess right, but build a feature too early, and suck up time from the features that are genuinely needed now; we incur an opportunity cost in diluting our energy.
+A veces creemos que necesitaremos de una característica particular en nuestro programa en el futuro, y la desarrollamos ahora creyendo que será más fácil de hacer a medida que construimos otras cosas, luego nos damos cuenta de que nos equivocamos y que la característica no era necesaria o que debía de ser bastante diferente. Otras veces adivinamos correctamente, pero construimos la característica demasiado pronto y le restamos tiempo a otras características que son realmente necesarias ahora; al final sufrimos las consecuencias de un costo de oportunidad que diluye de nuestra energía y tiempo.
 
-YAGNI challenges us to remember: even if it's counter intuitive in a situation, we often should postpone building something until it's presently needed. We tend to exaggerate our mental estimates of the future refactoring cost of adding it later when it is needed. Odds are, it won't be as hard to do later as we might assume.
+El principio de YAGNI nos desafía a recordar: incluso si es contrario a la intuición en una situación, a menudo deberíamos posponer la construcción de algo hasta que sea realmente necesario. Muchas veces tendemos a exagerar nuestras estimaciones mentales del costo futuro de una refactorización de agregar una nueva característica más tarde cuando sea necesaria. Las probabilidades son, que probablemente no será tan difícil de construirla más tarde como podríamos suponer.
 
-As it applies to functional programming, I would offer this admonition: there will be plenty of interesting and compelling patterns discussed in this text, but just because you find some pattern exciting to apply, it may not necessarily be appropriate to do so in a given part of your code.
+En cuanto a como se aplica a la programación funcional, ofrecería esta advertencia: habrá muchos patrones interesantes y convincentes discutidos en este texto, pero solo porque encuentres algún patrón emocionante de aplicar, puede que no sea necesariamente apropiado hacerlo en una parte cualquiera de tu código.
 
-This is where I will differ from many formal FPers: just because you *can* apply FP to something doesn't mean you *should* apply FP to it. Moreover, there are many ways to slice a problem, and even though you may have learned a more sophisticated approach that is more "future-proof" to maintenance and extensibility, a simpler FP pattern might be more than sufficient in that spot.
+Aquí es donde diferiré de muchos Programadores-Funcionales formales: solo porque *puedas* aplicarle PF a algo no significa que *debas* aplicarle PF a ese algo. Además, hay muchas maneras de resolver un problema, y ​​aunque hayas aprendido un enfoque más sofisticado que sea mas propenso a ser "a prueba de futuro" para el mantenimiento y la extensibilidad del codigo, un patrón de PF más simple podría ser más que suficiente en ese lugar.
 
-Generally, I'd recommend to seek balance in what you code, and to be conservative in your application of FP concepts as you get the hang of things. Default to the YAGNI principle in deciding if a certain pattern or abstraction will help that part of the code be more readable or if it's just introducing clever sophistication that isn't (yet) warranted.
+En general, te recomendaría buscar el equilibrio cuando programas y que seas conservador en la aplicación de los conceptos de PF a medida que te familiarizas con las cosas. Abstente al principio de YAGNI al decidir que si un cierto patrón o abstracción del codigo te ayudará a que parte de tu aplicacion sea más legible o si solo estás introduciendo una sofisticación inteligente que (aún) no está garantizada.
 
-> Reminder, any extensibility point that’s never used isn’t just wasted effort, it’s likely to also get in your way as well
+> Recordatorio, cualquier punto de extensibilidad que nunca se use no es solo un esfuerzo desperdiciado, es probable que también se interponga en tu camino
 >
 > Jeremy D. Miller @jeremydmiller 2/20/15
 >
 > https://twitter.com/jeremydmiller/status/568797862441586688
 
-Remember, every single line of code you write has a reader cost associated with it. That reader may be another team member, or even your future self. Neither of those readers will be impressed with overly clever, unnecessary sophistication just to show off your FP prowess.
+Recuerda, cada línea de código que escribas tiene un costo de lector asociado con ella. Ese lector puede ser otro miembro del equipo, o incluso tu mismo en el futuro. Ninguno de esos lectores quedará impresionado con una sofisticación excesivamente inteligente e innecesaria solo para mostrar tu destreza en PF.
 
-The best code is the code that is most readable in the future because it strikes exactly the right balance between what it can/should be (idealism) and what it must be (pragmatism).
+El mejor código es el código que es más legible en el futuro porque establece exactamente el equilibrio correcto entre lo que puede/deberia hacer (idealismo) y lo que debe ser (pragmatismo).
 
-## Resources
+## Recursos
 
-I have drawn on a great many different resources to be able to compose this text. I believe you, too, may benefit from them, so I wanted to take a moment to point them out.
+Utilicé muchos recursos diferentes para poder componer este texto. Creo que tu también puedes beneficiarte de ellos, así que quise tomar solo un momento para señalarlos.
 
-### Books
+### Libros
 
-Some FP/JavaScript books that you should definitely read:
+Algunos libros de JavaScript/PF que definitivamente deberias leer:
 
-* [Professor Frisby's Mostly Adequate Guide to Functional Programming](https://drboolean.gitbooks.io/mostly-adequate-guide/content/ch1.html) by [Brian Lonsdorf](https://twitter.com/drboolean)
-* [JavaScript Allongé](https://leanpub.com/javascriptallongesix) by [Reg Braithwaite](https://twitter.com/raganwald)
-* [Functional JavaScript](http://shop.oreilly.com/product/0636920028857.do) by [Michael Fogus](https://twitter.com/fogus)
+* [La Guia Mayormente Adecuada a la Programacion Funcional del Profesor Frisby](https://drboolean.gitbooks.io/mostly-adequate-guide/content/ch1.html) por [Brian Lonsdorf](https://twitter.com/drboolean)
+* [JavaScript Allongé](https://leanpub.com/javascriptallongesix) por [Reg Braithwaite](https://twitter.com/raganwald)
+* [JavaScript Funcional](http://shop.oreilly.com/product/0636920028857.do) por [Michael Fogus](https://twitter.com/fogus)
 
-### Blogs/Sites
+### Blogs/Sitios
 
-Some other authors and content you should check out:
+Algunos otros autores y contendiso que deberias de chequear:
 
-* [Fun Fun Function Videos](https://www.youtube.com/watch?v=BMUiFMZr7vk) by [Mattias P Johansson](https://twitter.com/mpjme)
+* [Los Videos de Fun Fun Function](https://www.youtube.com/watch?v=BMUiFMZr7vk) por [Mattias P Johansson](https://twitter.com/mpjme)
 * [Awesome FP JS](https://github.com/stoeffel/awesome-fp-js)
 * [Kris Jenkins](http://blog.jenkster.com/2015/12/what-is-functional-programming.html)
 * [Eric Elliott](https://medium.com/@_ericelliott)
 * [James A Forbes](https://james-forbes.com/)
 * [James Longster](https://github.com/jlongster)
 * [André Staltz](http://staltz.com/)
-* [Functional Programming Jargon](https://github.com/hemanth/functional-programming-jargon#functional-programming-jargon)
-* [Functional Programming Exercises](https://github.com/InceptionCode/Functional-Programming-Exercises)
+* [Jerga de Programación Funcional](https://github.com/hemanth/functional-programming-jargon#functional-programming-jargon)
+* [Ejercicios de Programacion Funcional](https://github.com/InceptionCode/Functional-Programming-Exercises)
 
-### Libraries
+### Librerias
 
-The code snippets in this book largely do not rely on libraries. Each operation that we discover, we'll derive how to implement it in standalone, plain ol' JavaScript. However, as you begin to build more of your real code with FP, you'll quickly want a library to provide optimized and highly reliable versions of these commonly accepted utilities.
+Los fragmentos de código en este libro no dependen en gran medida de librerias. Cada operación que descubramos, derivaremos cómo implementarla en JavaScript independiente y simple. Sin embargo, cuando empieces a construir más de tu código real con FP, querrás rápidamente que una libreria proporcione versiones optimizadas y altamente confiables de estas utilidades comúnmente aceptadas.
 
-By the way, you'll want to make sure you check the documentation for the library functions you use to make sure you know how they work. There will be a lot of similarities in many of them to the code we build on in this text, but there will undoubtedly be some differences, even between popular libraries.
+Por cierto, querrás asegurarte de revisar la documentación de las funciones de la libreria que utilizes para asegurarse de saber cómo funcionan. Habrá muchas similitudes en muchas de ellas con el código que construiremos en este texto, pero indudablemente habrá algunas diferencias, incluso entre librerias populares.
 
-Here are a few popular FP libraries for JavaScript that are a great place to start your exploration with:
+Aquí hay algunas librerias de PF populares para JavaScript que son un gran lugar para comenzar tu exploración:
 
 * [Ramda](http://ramdajs.com)
 * [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide)
 * [functional.js](http://functionaljs.com/)
 * [Immutable.js](https://github.com/facebook/immutable-js)
 
-Appendix C takes a deeper look at these libraries and others.
+El Apéndice C profundiza en estas librerias y otras.
 
-## Summary
+## Resumen
 
-You may have a variety reasons for starting to read this book, and different expectations of what you'll get out of it. This chapter has explained why I want you to read the book and what I want you to get out of the journey. It also helps you articulate to others (like your fellow developers) why they should come on the journey with you!
+Puede que tengas una variedad de razones para comenzar a leer este libro y diferentes expectativas de lo que obtendrás de él. Este capítulo ha explicado por qué quiero que leas este libro y lo que quiero que obtengas del viaje. También te ayudara a articularse con los demás (tales como sus compañeros programadores) ¡de por qué deberían emprender este viaje con usted!
 
-Functional programming is about writing code that is based on proven principles so we can gain a level of confidence and trust over the code we write and read. We shouldn't be content to write code that we anxiously *hope* works, and then abruptly breathe a sigh of relief when the test suite passes. We should *know* what it will do before we run it, and we should be absolutely confident that we've communicated all these ideas in our code for the benefit of other readers (including our future selves).
+La programación funcional se trata acerca de escribir código que se basa en principios probados para que podamos ganar un nivel de confianza sobre el código que escribamos y leamos. No deberíamos de conformarnos con escribir código que ansiosamente *esperamos* funcione, y luego dar un suspiro de alivio repentino cuando este pase las pruebas automaticas. Deberíamos de *saber* qué hará nuestro codigo antes de ejecutarlo, y debemos estar absolutamente seguros de que hemos comunicado todas estas ideas en nuestro código para el beneficio de otros lectores (incluidos nosotros mismos en el futuro).
 
-This is the heart of Functional-Light JavaScript. The goal is to learn to effectively communicate with our code but not have to suffocate under mountains of notation or terminology to get there.
+Ese es el corazón de JavaScript Funcionalmente-Ligero. El objetivo es aprender a comunicarse efectivamente con nuestro código, pero no tener que ahogarse bajo montañas de notación o terminología para llegar allí.
 
-The journey to learning functional programming starts with deeply understanding the nature of what a function is. That's what we tackle in the next chapter.
+El viaje hacia el aprendizaje de la programación funcional comienza con la comprensión profunda de la naturaleza de lo que es una función. Eso es exactamente lo que abordaremos en el próximo capítulo.
 
 ----
 
