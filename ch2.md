@@ -173,15 +173,15 @@ Se cuidadoso: **nunca** accedas a los argumentos posicionalmente, tal como `argu
 
 Excepto... ¿cómo accederas a un argumento que fue pasado en una posición más allá de los parámetros declarados? Voy a responder a esa pregunta en un momento; pero primero, da un paso atrás y preguntate: "¿Por qué querría hacer algo como eso?". Seriamente. Piensa en eso de cerca durante un minuto.
 
-Debería ser bastante raro que esto ocurra; no deberia ser algo que regularmente esperes o que confíes al escribir tus funciones. Si te encuentras en un escenario así, pasa 20 minutos adicionales tratando de diseñar la interacción con esa función de una manera diferente. Nombra ese argumento adicional incluso si es excepcional.
+Debería ser bastante raro que esto ocurra; no deberia ser algo que regularmente esperes o en lo que confíes al escribir tus funciones. Si te encuentras en un escenario así, intenta pasar unos 20 minutos adicionales tratando de diseñar la interacción con esa función de una manera diferente. Nombra ese argumento adicional incluso si es excepcional.
 
-A function signature that accepts an indeterminate amount of arguments is referred to as a variadic function. Some people prefer this style of function design, but I think you'll find that often the FPer wants to avoid these where possible.
+Si la firma de una función acepta una cantidad indeterminada de argumentos, a esta se la denomina función variadica. Algunas personas prefieren este estilo cuando diseñan sus funciones, pero yo creo que encontrarás que a menudo el Programador Funcional prefiere evitar esto cuando sea posible.
 
-OK, enough harping on that point.
+De acuerdo, suficiente con insistir en ese punto.
 
-Say you do need to access the arguments in a positional array-like way, possibly because you're accessing an argument that doesn't have a formal parameter at that position. How do we do it?
+Supongamos que necesitas acceder a los argumentos en una manera posicional (como lo harias en un array), posiblemente porque estarias intentando acceder a un argumento que no tiene un parámetro formal en esa posición. ¿Cómo lo hacemos?
 
-ES6 to the rescue! Let's declare our function with the `...` operator -- variously referred to as "spread", "rest", or (my preference) "gather".
+ES6 al rescate! Vamos a declarar nuestra función con el operador `...` - conocido como "spread", "rest", o (mi preferencia) "reunir".
 
 ```js
 function foo(x,y,z,...args) {
@@ -189,7 +189,7 @@ function foo(x,y,z,...args) {
 }
 ```
 
-See the `...args` in the parameter list? That's an ES6 declarative form that tells the engine to collect (ahem, "gather") all remaining arguments (if any) not assigned to named parameters, and put them in a real array named `args`. `args` will always be an array, even if it's empty. But it **will not** include values that are assigned to the `x`, `y`, and `z` parameters, only anything else that's passed in beyond those first three values.
+Ves el `...args` en la lista de los parámetros? Esta es una forma declarativa proveniente de ES6 que le dice al motor de JS que recolecte (ejem, "reúna") todos los argumentos restantes (si los hay) no asignados a los parámetros nombrados, y los coloca en una array con el nombre de `args`. `args` siempre será un array, incluso si está vacío. Pero **no** incluirá los valores que ya están asignados a los parámetros `x`,` y`, `` z`, solo cualquier otros valores que esten más allá de esos tres primeros valores.
 
 ```js
 function foo(x,y,z,...args) {
@@ -202,11 +202,11 @@ foo( 1, 2, 3, 4 );      // 1 2 3 [ 4 ]
 foo( 1, 2, 3, 4, 5 );   // 1 2 3 [ 4, 5 ]
 ```
 
-So, if you *really* want to design a function that can account for an arbitrary number of arguments to be passed in, use `...args` (or whatever name you like) on the end. Now, you'll have a real, non-deprecated, non-yucky array to access those argument values from.
+Entonces, si *realmente* deseas diseñar una función que pueda recibir una cantidad arbitraria de argumentos para que sean pasados, usa `...args` (o el nombre que desees) al final. Ahora, tendras un array real, no obsoleto y no apestoso, para acceder a esos valores del argumento.
 
-Just pay attention to the fact that the value `4` is at position `0` of that `args`, not position `3`. And its `length` value won't include those three `1`, `2`, and `3` values. `...args` gathers everything else, not including the `x`, `y`, and `z`.
+Solo presta atención al hecho de que el valor `4` está en la posición `0` de ese `args`, no en la posición` 3`. Y que su valor `length` no incluirá esos tres valores `1`, `2` y `3`. `...args` reúne todo lo demás, sin incluir `x`, `y`, y `z`.
 
-You *can* even use the `...` operator in the parameter list even if there's no other formal parameters declared:
+Incluso *puedes* utilizar el operador `...` en la lista de parámetros si no hay otros parámetros formales declarados:
 
 ```js
 function foo(...args) {
@@ -214,11 +214,11 @@ function foo(...args) {
 }
 ```
 
-Now `args` will be the full array of arguments, whatever they are, and you can use `args.length` to know exactly how many arguments have been passed in. And you're safe to use `args[1]` or `args[317]` if you so choose. Please don't pass in 318 arguments, though.
+Ahora `args` será el array completo de los argumentos, sean lo que sean, y puedes usar `args.length` para saber exactamente cuántos argumentos han sido pasados. Y eres libre de usar `args[1]` o `args[317]` si así lo deseas. Sin embargo, no pases 318 argumentos, por favor.
 
-### Arrays Of Arguments
+### Arrays De Argumentos
 
-What if you wanted to pass along an array of values as the arguments to a function call?
+¿Qué pasaría si quisieras pasar un array de valores como los argumentos en la llamada de una función?
 
 ```js
 function foo(...args) {
@@ -230,9 +230,9 @@ var arr = [ 1, 2, 3, 4, 5 ];
 foo( ...arr );                      // 4
 ```
 
-Our new friend `...` is used, but now not just in the parameter list; it's also used in the argument list at the call-site. It has the opposite behavior in this context. In a parameter list, we said it *gathered* arguments together. In an argument list, it *spreads* them out. So the contents of `arr` are actually spread out as individual arguments to the `foo(..)` call. Do you see how that's different from just passing in a reference to the whole `arr` array?
+Nuestro nuevo amigo `...` es usado, pero ahora no solo en la lista de parámetros; también es usado en la lista de argumentos en el sitio donde la funcion es llamada. Tiene el comportamiento opuesto en este contexto. En una lista de parámetros, dijimos que *reunió* a los argumentos. En una lista de argumentos, los *extiende*. Por lo tanto, los contenidos de `arr` se extienden en realidad como argumentos individuales en la llamada a `foo (..)`. ¿Ves cual es la diferencia a solo pasar una referencia a todo el array `arr`?
 
-By the way, multiple values and `...` spreadings can be interleaved, as you see fit:
+Por cierto, valores múltiples y las separaciones `...` pueden ser intercaladas, como mejor te parezca:
 
 ```js
 var arr = [ 2 ];
@@ -240,15 +240,15 @@ var arr = [ 2 ];
 foo( 1, ...arr, 3, ...[4,5] );      // 4
 ```
 
-Think of `...` in this symmetric sense: in a value-list position, it *spreads*. In an assignment position -- like a parameter list, because arguments get *assigned to* parameters -- it *gathers*.
+Piensa en `...` en este sentido simétrico: en una posición de lista de valores, se *extienden*. En una posición de asignación, como en una lista de parámetros, porque los argumentos se *asignan a* parámetros, los *reúne*.
 
-Whichever behavior you invoke, `...` makes working with arrays of arguments much easier. Gone are the days of `slice(..)`, `concat(..)` and `apply(..)` to wrangle our argument value arrays.
+Cualquiera sea el comportamiento que invoques, `...` hace que trabajar con arrays de argumentos sea mucho más fácil. Ya pasaron los días de `slice(..)`, `concat(..)` y `apply(..)` para controlar nuestros arrays de valores de argumentos.
 
-**Tip:** Actually, these methods are not entirely useless. There will be a few places we rely on them throughout the code in this book. But certainly in most places, `...` will be much more declaratively readable, and preferable as a result.
+**Consejo:** En realidad, estos métodos no son del todo inútiles. Habrá algunos lugares en los que confiaremos en ellos a lo largo del código de este libro. Pero sin duda, en la mayoría de los lugares, `...` será mucho más declarativamente legible y, como resultado, preferible a los metodos mencionados.
 
-### Parameter Destructuring
+### Destructuración de parámetros
 
-Consider the variadic `foo(..)` from the previous section:
+Considera la variadica `foo (..)` en la sección anterior:
 
 ```js
 function foo(...args) {
@@ -258,7 +258,7 @@ function foo(...args) {
 foo( ...[1,2,3] );
 ```
 
-What if we wanted to change that interaction so the caller of our function passes in an array of values instead of individual argument values? Just drop the two `...` usages:
+¿Qué pasaría si quisiéramos cambiar esa interacción, para que la persona que llama a nuestra funcion pase un array de valores en lugar de valores como argumentos individuales? Simplemente deja de usar los dos `...`:
 
 ```js
 function foo(args) {
@@ -268,11 +268,11 @@ function foo(args) {
 foo( [1,2,3] );
 ```
 
-Simple enough. But what if now we wanted to give a parameter name to each of the first two values in the passed in array? We aren't declaring individual parameters anymore, so it seems we lost that ability.
+Suficientemente simple. Pero, ¿y si ahora quisiéramos dar un nombre de parámetro a cada uno de los dos primeros valores pasados en el array? Ya no estamos declarando parámetros individuales, así que parece que perdimos esa habilidad.
 
-Thankfully, ES6 destructuring is the answer. Destructuring is a way to declare a *pattern* for the kind of structure (object, array, etc) that you expect to see, and how decomposition (assignment) of its individual parts should be processed.
+Afortunadamente, la desestructuración en ES6 es la respuesta. La desestructuración es una forma de declarar un *patrón* para el tipo de estructura (objeto, array, etc.) que esperas ver, y cómo debe de procesarse la descomposición (asignación) de sus partes individuales.
 
-Consider:
+Considera:
 
 ```js
 function foo( [x,y,...args] = [] ) {
@@ -282,37 +282,37 @@ function foo( [x,y,...args] = [] ) {
 foo( [1,2,3] );
 ```
 
-Do you spot the `[ .. ]` brackets around the parameter list now? This is called array parameter destructuring.
+¿Ves los corchetes `[ .. ]` alrededor de la lista de parámetros ahora? Esto se llama desestructuración de parámetros en arrays.
 
-In this example, destructuring tells the engine that an array is expected in this assignment position (aka parameter). The pattern says to take the first value of that array and assign to a local parameter variable called `x`, the second to `y`, and whatever is left is *gathered* into `args`.
+En este ejemplo, la desestructuración le dice al motor de JS que espere un array en esta posición de asignación (en otras palabras, en este parametro). El patrón dice que tome el primer valor de ese conjunto y lo asigne a una variable de parámetro local llamada `x`, el segundo a `y`, y los valores restantes, que se *reunan* en `args`.
 
-### The Importance Of Declarative Style
+### La importancia Del Estilo Declarativo
 
-Considering the destructured `foo(..)` we just looked at, we could instead have processed the parameters manually:
+Teniendo en cuenta el `foo(..)` desestructurado que acabamos de ver, podríamos haber procesado los parámetros manualmente:
 
 ```js
-function foo(params) {
-    var x = params[0];
-    var y = params[1];
-    var args = params.slice( 2 );
+function foo(parametros) {
+    var x = parametros[0];
+    var y = parametros[1];
+    var args = parametros.slice( 2 );
 
     // ..
 }
 ```
 
-But here we highlight a principle we only briefly introduced in Chapter 1: declarative code communicates more effectively than imperative code.
+Pero aquí destacamos un principio que presentamos brevemente en el Capítulo 1: el código declarativo comunica de una manera más efectiva que el código imperativo.
 
-Declarative code -- for example, the destructuring in the former `foo(..)` snippet, or the `...` operator usages -- focuses on what the outcome of a piece of code should be.
+El código declarativo -- por ejemplo, la desestructuración en el antiguo fragmento `foo(..)` o los usos del operador `...` -- se centra en cuál debe ser el resultado en una pieza de código.
 
-Imperative code -- such as the manual assignments in the latter snippet -- focuses more on how to get the outcome. If you later read such imperative code, you have to mentally execute all of it to understand the desired outcome. The outcome is *coded* there, but it's not as clear because it's clouded by the details of *how* we get there.
+El código imperativo -- como las asignaciones manuales en el último fragmento -- se centra más en cómo obtener el resultado. Si luego lees código imperativo como ese, debes ejecutarlo mentalmente para comprender cual es el resultado deseado. El resultado está *codificado* allí, pero no está tan claro porque está nublado por los detalles de *cómo* llegamos allí.
 
-The earlier `foo(..)` is regarded as more readable, because the destructuring hides the unnecessary details of *how* to manage the parameter inputs; the reader is free to focus only on *what* we will do with those parameters. That's clearly the most important concern, so it's what the reader should be focused on to understand the code most completely.
+El primer `foo(..)` se considera más legible, porque la desestructuración oculta los detalles innecesarios de *cómo* gestionar las entradas de los parámetros; el lector es libre de enfocarse solo en el *qué* haremos con esos parámetros. Esa es claramente la preocupación más importante, ya que eso es en lo que el lector debería centrarse para comprender el código más completamente.
 
-Wherever possible, and to whatever degrees our language and our libraries/frameworks will let us, **we should be striving for declarative, self-explanatory code.**
+Siempre que sea posible, y al grado en el que nuestro lenguaje y nuestras librerias/frameworks nos lo permitan, **debemos esforzarnos por escribir código declarativo y autoexplicativo.**
 
-## Named Arguments
+## Argumentos Nombrados
 
-Just as we can destructure array parameters, we can destructure object parameters:
+Del mismo modo en el que podemos desestructurar los parámetros de arrays, podemos desestructurar los parámetros de objetos:
 
 ```js
 function foo( {x,y} = {} ) {
@@ -324,9 +324,11 @@ foo( {
 } );                    // undefined 3
 ```
 
-We pass in an object as the single argument, and it's destructured into two separate parameter variables `x` and `y`, which are assigned the values of those corresponding property names from the object passed in. It didn't matter that the `x` property wasn't on the object; it just ended up as a variable with `undefined` like you'd expect.
+Pasamos un objeto como único argumento, y se desestructura en dos variables de parámetros separadas `x` y `y`, a las que se les asignan los valores de esos nombres de propiedades correspondientes al objeto pasado. No importo que la la propiedad `x` no estuviera en el objeto; simplemente terminó como una variable con el valor de `undefined` tal y como era de esperar.
 
-But the part of parameter object destructuring I want you to pay attention to is the object being passed into `foo(..)`.
+Pero la parte de desestructuración de objetos de parámetros a la que quiero que le prestes atención es al objeto que esta siendo pasado a `foo(..)`.
+
+Con un sitio de llamada normal como `foo (undefined, 3)`, position se usa para mapear de argumento a parámetro; ponemos el `3` en la segunda posición para asignarlo a un parámetro` y`. Pero en este nuevo tipo de call-site donde se involucra la desestructuración de parámetros, una simple propiedad de objeto indica a qué parámetro (`y`) se le debe asignar el valor de argumento` 3`.
 
 With a normal call-site like `foo(undefined,3)`, position is used to map from argument to parameter; we put the `3` in the second position to get it assigned to a `y` parameter. But at this new kind of call-site where parameter destructuring is involved, a simple object-property indicates which parameter (`y`) the argument value `3` should be assigned to.
 
