@@ -324,23 +324,21 @@ foo( {
 } );                    // undefined 3
 ```
 
-Pasamos un objeto como único argumento, y se desestructura en dos variables de parámetros separadas `x` y `y`, a las que se les asignan los valores de esos nombres de propiedades correspondientes al objeto pasado. No importo que la la propiedad `x` no estuviera en el objeto; simplemente terminó como una variable con el valor de `undefined` tal y como era de esperar.
+Pasamos un objeto como único argumento, y se desestructura en dos variables de parámetros separadas `x` y `y`, a las que se les asignan los valores de esos nombres con las propiedades correspondientes del objeto pasado. No importo que la la propiedad `x` no estuviera en el objeto; simplemente terminó como una variable con el valor de `undefined` tal y como era de esperar.
 
-Pero la parte de desestructuración de objetos de parámetros a la que quiero que le prestes atención es al objeto que esta siendo pasado a `foo(..)`.
+Pero la parte en desestructuración de objetos de parámetros a la que quiero que le prestes atención es al objeto que esta siendo pasado a `foo(..)`.
 
-Con un sitio de llamada normal como `foo (undefined, 3)`, position se usa para mapear de argumento a parámetro; ponemos el `3` en la segunda posición para asignarlo a un parámetro` y`. Pero en este nuevo tipo de call-site donde se involucra la desestructuración de parámetros, una simple propiedad de objeto indica a qué parámetro (`y`) se le debe asignar el valor de argumento` 3`.
+Con una invocacion de funcion normal como `foo(undefined, 3)`, las posiciones se usan para mapear los argumentos a los parámetros; ponemos el `3` en la segunda posición para asignarlo al parámetro `y`. Pero con este nuevo tipo de invocacion de funciones donde la desestructuración de parámetros esta involucrada, una simple propiedad de objeto indica a qué parámetro (`y`) se le debe de asignar el valor de argumento `3`.
 
-With a normal call-site like `foo(undefined,3)`, position is used to map from argument to parameter; we put the `3` in the second position to get it assigned to a `y` parameter. But at this new kind of call-site where parameter destructuring is involved, a simple object-property indicates which parameter (`y`) the argument value `3` should be assigned to.
+No tuvimos que preocuparnos por `x` en *esa* invocacion a la funcion porque en realidad no nos importaba `x`. Simplemente lo omitimos, en lugar de tener que hacer algo que nos distrayera tal y como pasar `undefined` como un marcador de posicion.
 
-We didn't have to account for `x` in *that* call-site because in effect we didn't care about `x`. We just omitted it, instead of having to do something distracting like passing `undefined` as a positional placeholder.
+Algunos lenguajes tienen una característica explícita para esto: argumentos nombrados. En otras palabras, en el sitio de la llamada a la funcion, se etiqueta un valor de entrada para indicar a qué parámetro sera asignado. JavaScript no tiene argumentos nombrados, pero la desestructuración de los objetos de parámetro es la mejor alternativa.
 
-Some languages have an explicit feature for this: named arguments. In other words, at the call-site, labeling an input value to indicate which parameter it maps to. JavaScript doesn't have named arguments, but parameter object destructuring is the next best thing.
+Otro beneficio relacionado con la PF es que utilizar la desestructuración de objetos para pasar argumentos potencialmente múltiples es que una función que solo toma un parámetro (el objeto) es mucho más fácil de componer con la salida única de otra función. Mucho más sobre eso en el Capítulo 4.
 
-Another FP-related benefit of using an object destructuring to pass in potentially multiple arguments is that a function that only takes one parameter (the object) is much easier to compose with another function's single output. Much more on that in Chapter 4.
+### Parámetros No Ordenados
 
-### Unordered Parameters
-
-Another key benefit is that named arguments, by virtue of being specified as object properties, are not fundamentally ordered. That means we can specify inputs in whatever order we want:
+Otro beneficio clave es que los argumentos nombrados, en virtud de ser especificados como propiedades del objeto, no están fundamentalmente ordenados. Eso significa que podemos especificar entradas en el orden que queramos:
 
 ```js
 function foo( {x,y} = {} ) {
@@ -352,17 +350,17 @@ foo( {
 } );                    // undefined 3
 ```
 
-We're skipping the `x` parameter by simply omitting it. Or we could specify an `x` argument if we cared to, even if we listed it after `y` in the object literal. The call-site is no longer cluttered by ordered-placeholders like `undefined` to skip a parameter.
+Estamos omitiendo el parámetro `x` simplemente omitiéndolo. O podríamos especificar un argumento `x` si asi quisieramos, incluso si lo enumeráramos después de `y` en la definicion del objeto. La invocacion a la funcion ya no se tiene que preocupar por marcadores de posición ordenados tales como `undefined` solo para omitir un parámetro.
 
-Named arguments are much more flexible, and attractive from a readability perspective, especially when the function in question can take 3, 4, or more inputs.
+Los argumentos nombrados son mucho más flexibles y atractivos desde una perspectiva de legibilidad, especialmente cuando la función en cuestión puede tomar 3, 4 o más entradas.
 
-**Tip:** If this style of function arguments seems useful or interesting to you, check out coverage of my "FPO" library in Appendix C.
+**Sugerencia:** Si este estilo de argumentos de función te parece útil o interesante, consulta la cobertura de mi biblioteca "FPO" en el Apéndice C.
 
-## Function Output
+## Salida de una Función
 
-Let's shift our attention from a function's inputs to its output.
+Cambiemos nuestra atención de las entradas de una función a su salida.
 
-In JavaScript, functions always return a value. These three functions all have identical `return` behavior:
+En JavaScript, las funciones siempre devuelven un valor. Estas tres funciones tienen un comportamiento idéntico de `devolucion` (`return` en ingles):
 
 ```js
 function foo() {}
@@ -376,36 +374,36 @@ function baz() {
 }
 ```
 
-The `undefined` value is implicitly `return`ed if you have no `return` or if you just have an empty `return;`.
+El valor `undefined` es implícitamente `retornado` si la funcion no tiene un valor de `return` explicito o si solo tiene un `return;` vacío.
 
-But keeping as much with the spirit of FP function definition as possible -- using functions and not procedures -- our functions should always have outputs, which means they should explicitly `return` a value, and usually not `undefined`.
+Pero manteniendo tanto como sea posible el espíritu de la definición de como deben de ser las funciónes en PF -- usando funciones y no procedimientos -- nuestras funciones siempre deben de tener salidas, lo que significa que deben `devolver` explícitamente un valor, y generalmente ese valor no deberia de ser `undefined`.
 
-A `return` statement can only return a single value. So if your function needs to return multiple values, your only viable option is to collect them into a compound value like an array or an object:
+Una declaración de `return` solo puede devolver un solo valor. Entonces, si tu función necesita devolver múltiples valores, la única opción viable es juntarlos en un valor compuesto como un array o un objeto:
 
 ```js
 function foo() {
-    var retValue1 = 11;
-    var retValue2 = 31;
-    return [ retValue1, retValue2 ];
+    var valorRetornado1 = 11;
+    var valorRetornado2 = 31;
+    return [ valorRetornado1, valorRetornado2 ];
 }
 ```
 
-Then, we'll assign `x` and `y` from two respective items in the array that comes back from `foo()`:
+Luego, asignamos `x` y `y` de los dos elementos provenientes del array retornado por `foo()`:
 
 ```js
 var [ x, y ] = foo();
 console.log( x + y );           // 42
 ```
 
-Collecting multiple values into an array (or object) to return, and subsequently destructuring those values back into distinct assignments, is a way to transparently express multiple outputs for a function.
+Recopilar valores múltiples en un array (u objeto) para que sean retornados, y posteriormente desestructurar esos valores nuevamente en asignaciones distintas, es una forma de expresar de forma transparente varias salidas para una función.
 
-**Tip:** I'd be remiss if I didn't suggest you take a moment to consider if a function needing multiple outputs could be refactored to avoid that, perhaps separated into two or more smaller single-purpose functions? Sometimes that will be possible, sometimes not; but you should at least consider it.
+**Consejo:** Sería negligente si no te sugiriera que te tomes un momento para considerar si una función que necesita múltiples salidas podría ser refactorizada para evitar eso, ¿tal vez separar esa funcion en dos o más funciones más pequeñas con un propósito único? A veces eso será posible, a veces no; pero al menos deberías considerarlo.
 
-### Early Returns
+### Returns Tempranos
 
-The `return` statement doesn't just return a value from a function. It's also a flow control structure; it ends the execution of the function at that point. A function with multiple `return` statements thus has multiple possible exit points, meaning that it may be harder to read a function to understand its output behavior if there are many paths that could produce that output.
+La declaración `return` no solo devuelve un valor de una función. También es una estructura de control de flujo; termina la ejecución de la función en ese punto. Una función con múltiples declaraciones `return` tiene múltiples puntos de salida posibles, lo que significa que puede ser más difícil de leer una función para comprender su comportamiento de salida si hay muchas rutas que podrían producir esa salida.
 
-Consider:
+Considera:
 
 ```js
 function foo(x) {
@@ -423,55 +421,56 @@ function foo(x) {
 }
 ```
 
-Pop quiz: without cheating and running this code in your browser, what does `foo(2)` return? What about `foo(4)`? And `foo(8)`? And `foo(12)`?
+Examen sorpresa: sin hacer trampa y ejecutar este código en tu navegador, ¿qué valor es retornado por `foo(2)`? ¿Qué pasa con `foo(4)`? Y `foo(8)`? Y `foo(12)`?
 
-How confident are you in your answers? How much mental tax did you pay to get those answers? I got it wrong the first two times I tried to think it through, and I wrote it!
+¿Qué tan seguro estás de tus respuestas? ¿De cuánto fue el impuesto mental que pagaste para obtener esas respuestas? Yo me equivoqué las primeras dos veces que traté de resolverlo, ¡y lo escribí!
 
-I think part of the readability problem here is that we're using `return` not just to return different values, but also as a flow control construct to quit a function's execution early in certain cases. There are obviously better ways to write that flow control (the `if` logic, etc), but I also think there are ways to make the output paths more obvious.
+Creo que parte del problema de legibilidad es que estamos utilizando `return` no solo para devolver valores diferentes, sino que también lo estamos utilizando para controlar el flujo de nuestro programa para salir de la ejecución de la función de una manera temprana en ciertos casos. Obviamente hay mejores formas de escribir ese control de flujo (la lógica `if`, etc.), pero también creo que hay formas de hacer que las rutas de salida sean más obvias.
 
-**Note:** The answers to the pop quiz are `2`, `2`, `8`, and `13`.
+**Nota:** Las respuestas al cuestionario son `2`, `2`, `8` y `13`.
 
-Consider this version of the code:
+Considere esta versión del código:
+
 
 ```js
 function foo(x) {
-    var retValue;
+    var valorRetornado;
 
-    if (retValue == undefined && x > 10) {
-        retValue = x + 1;
+    if (valorRetornado == undefined && x > 10) {
+        valorRetornado = x + 1;
     }
 
     var y = x / 2;
 
     if (y > 3) {
-        if (retValue == undefined && x % 2 == 0) {
-            retValue = x;
+        if (valorRetornado == undefined && x % 2 == 0) {
+            valorRetornado = x;
         }
     }
 
-    if (retValue == undefined && y > 1) {
-        retValue = y;
+    if (valorRetornado == undefined && y > 1) {
+        valorRetornado = y;
     }
 
-    if (retValue == undefined) {
-        retValue = x;
+    if (valorRetornado == undefined) {
+        valorRetornado = x;
     }
 
-    return retValue;
+    return valorRetornado;
 }
 ```
 
-This version is unquestionably more verbose. But I would argue it's slightly simpler logic to follow, because every branch where `retValue` can get set is *guarded* by the condition that checks if it's already been set.
+Esta versión es indudablemente más larga. Pero yo diría que es una lógica un poco más simple de seguir, porque en cada rama donde a `valorRetornado` se le puede asignar un valor es *protegida* por la condición que verifica si la variable de `valorRetornado` ya tiene un valor asignado.
 
-Rather than `return`ing from the function early, we used normal flow control (`if` logic) to determine the `retValue`'s assignment. At the end, we simply `return retValue`.
+En lugar de `regresar` de la función tempranamente, usamos el control de flujo normal (lógica `if`) para determinar la asignación de `valorRetornado`. Al final, simplemente escribimos `return valorRetornado`.
 
-I'm not unconditionally saying that you should always have a single `return`, or that you should never do early `return`s, but I do think you should be careful about the flow control part of `return` creating more implicitness in your function definitions. Try to figure out the most explicit way to express the logic; that will often be the best way.
+No estoy diciendo incondicionalmente que siempre debes de tener un solo `return`, o que nunca debes hacer un `retorno` temprano, pero sí creo que debes de tener cuidado con la parte de control de flujo de `return` que crea algo mas de confusion en las definiciones de funciones. Intenta descubrir la forma más explícita de expresar la lógica de tu programa; a menudo esa será la mejor manera.
 
-### Un`return`ed Outputs
+### Salidas sin ser `retorn`adas
 
-One technique that you've probably used in most code you've written, and maybe didn't even think about it much, is to have a function output some or all of its values by simply changing variables outside itself.
+Una técnica que probablemente hayas usado en la mayoría del código que has escrito, y tal vez ni siquiera lo hayas pensado demasiado, es hacer que una función genere algunos o todos sus valores simplemente cambiando variables fuera de sí misma.
 
-Remember our <code>f(x) = 2x<sup>2</sup> + 3</code> function from earlier in the chapter? We could have defined it like this in JS:
+¿Recuerdas nuestra función de <code>f(x) = 2x<sup>2</sup> + 3</code> de antes en este capítulo? Podríamos haberlo definido así en JS:
 
 ```js
 var y;
@@ -485,7 +484,7 @@ foo( 2 );
 y;                      // 11
 ```
 
-I know this is a silly example; we could just as easily have `return`d the value instead of setting it into `y` from within the function:
+Sé que este es un ejemplo tonto; podríamos simplemente 'devolver' el valor en lugar de asignarselo a `y` desde dentro de la función:
 
 ```js
 function foo(x) {
@@ -497,91 +496,91 @@ var y = foo( 2 );
 y;                      // 11
 ```
 
-Both functions accomplish the same task. Is there any reason we should pick one over the other? **Yes, absolutely.**
+Ambas funciones realizan la misma tarea. ¿Hay alguna razón por la que deberiamos elegir una sobre la otra? **Si, absolutamente.**
 
-One way to explain the difference is that the `return` in the latter version signals an explicit output, whereas the `y` assignment in the former is an implicit output. You may already have some intuition that guides you in such cases; typically, developers prefer explicit patterns over implicit ones.
+Una forma de explicar la diferencia es que el `retorno` en la segunda versión indica una salida explícita, mientras que la asignación a `y` en la primera funcion es una salida implícita. Es posible que ya tengas una intuición que te guíe en tales casos; típicamente, los programadores prefieren patrones explícitos sobre los implícitos.
 
-But changing a variable in an outer scope, as we did with the `y` assignment inside of `foo(..)`, is just one way of achieving an implicit output. A more subtle example is making changes to non-local values via reference.
+Pero cambiar una variable en un ámbito externo, como lo hicimos con la asignación de `y` dentro de `foo(..) `, es solo una forma de lograr un resultado implícito. Un ejemplo más sutil es hacer cambios a valores no locales a través de referencias.
 
-Consider:
+Considera:
 
 ```js
-function sum(list) {
+function suma(lista) {
     var total = 0;
-    for (let i = 0; i < list.length; i++) {
-        if (!list[i]) list[i] = 0;
+    for (let i = 0; i < lista.length; i++) {
+        if (!lista[i]) lista[i] = 0;
 
-        total = total + list[i];
+        total = total + lista[i];
     }
 
     return total;
 }
 
-var nums = [ 1, 3, 9, 27, , 84 ];
+var numeros = [ 1, 3, 9, 27, , 84 ];
 
-sum( nums );            // 124
+suma( numeros );            // 124
 ```
 
-The most obvious output from this function is the sum `124`, which we explicitly `return`ed. But do you spot the other output? Try that code and then inspect the `nums` array. Now do you spot the difference?
+El resultado más obvio de esta función es la suma `124`, que explícitamente `devolvemos`. Pero, ¿te diste cuenta de la otra salida? Prueba el código y luego inspecciona el array `numeros`. Ves ahora la diferencia?
 
-Instead of an `undefined` empty slot value in position `4`, now there's a `0`. The harmless looking `list[i] = 0` operation ended up affecting the array value on the outside, even though we operated on a local `list` parameter variable.
+En lugar de un valor de `undefined` en la ranura vacía en la posición `4`, ahora hay un `0`. La operación inofensiva de `lista[i] = 0` terminó afectando el valor del array en el exterior, aunque operamos en una variable de parámetro `lista` local.
 
-Why? Because `list` holds a reference-copy of the `nums` reference, not a value-copy of the `[1,3,9,..]` array value. JavaScript uses references and reference-copies for arrays, objects, and functions, so we may create an accidental output from our function all too easily.
+¿Por qué? Porque `lista` es una copia-de-referencia a la referencia de `numeros`, no una copia-de-valor del valor del `[1,3,9, ..]`. JavaScript utiliza referencias y copias-de-referencia para arrays, objetos y funciones, por lo que podemos crear una salida accidental desde nuestra función con demasiada facilidad.
 
-This implicit function output has a special name in the FP world: side effects. And a function that has *no side effects* also has a special name: pure function. We'll talk a lot more about these in Chapter 5, but the punchline is that we'll want to prefer pure functions and avoid side effects wherever possible.
+Esta salida de función implícita tiene un nombre especial en el mundo de la PF: efectos secundarios. Y una función que *no tiene efectos secundarios* también tiene un nombre especial: función pura. Hablaremos mucho más sobre esto en el Capítulo 5, pero la conclusion principal es que queremos preferir a las funciones puras y evitar los efectos secundarios en nuestro codigo siempre que sea posible.
 
-## Functions Of Functions
+## Funciones de funciones
 
-Functions can receive and return values of any type. A function that receives or returns one or more other function values has the special name: higher-order function.
+Las funciones pueden recibir y devolver valores de cualquier tipo. Una función que recibe o devuelve uno o más valores de función tiene el nombre especial: función de orden superior.
 
-Consider:
+Considera:
 
 ```js
-function forEach(list,fn) {
-    for (let v of list) {
-        fn( v );
+function forEach(lista,funcion) {
+    for (let v of lista) {
+        funcion( v );
     }
 }
 
-forEach( [1,2,3,4,5], function each(val){
-    console.log( val );
+forEach( [1,2,3,4,5], function cada(valor){
+    console.log( valor );
 } );
 // 1 2 3 4 5
 ```
 
-`forEach(..)` is a higher-order function because it receives a function as an argument.
+`forEach (..)` es una función de orden superior porque recibe una función como argumento.
 
-A higher-order function can also output another function, like:
+Una función de orden superior también puede generar otra función, como:
 
 ```js
 function foo() {
-    return function inner(msg){
-        return msg.toUpperCase();
+    return function interna(mensaje){
+        return mensaje.toUpperCase();
     };
 }
 
 var f = foo();
 
-f( "Hello!" );          // HELLO!
+f( "Hola!" );          // HOLA!
 ```
 
-`return` is not the only way to "output" an inner function:
+`return` no es la única forma de "generar" una función interna:
 
 ```js
 function foo() {
-    bar( function inner(msg){
-        return msg.toUpperCase();
+    bar( function interna(mensaje){
+        return mensaje.toUpperCase();
     } );
 }
 
-function bar(func) {
-    func( "Hello!" );
+function bar(funcion) {
+    funcion( "Hola!" );
 }
 
-foo();                  // HELLO!
+foo();                  // HOLA!
 ```
 
-Functions that treat other functions as values are higher-order functions by definition. FPers write these all the time!
+Las funciones que tratan otras funciones como valores son funciones de orden superior por definición. ¡Los Programadores Funcionales las escriben todo el tiempo!
 
 ### Keeping Scope
 
