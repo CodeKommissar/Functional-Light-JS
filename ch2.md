@@ -582,155 +582,159 @@ foo();                  // HOLA!
 
 Las funciones que tratan otras funciones como valores son funciones de orden superior por definición. ¡Los Programadores Funcionales las escriben todo el tiempo!
 
-### Keeping Scope
+### Manteniendo el alcance
 
-One of the most powerful things in all of programming, and especially in FP, is how a function behaves when it's inside another function's scope. When the inner function makes reference to a variable from the outer function, this is called closure.
+Una de las cosas más poderosas en toda la programación, y especialmente en la PF, es cómo se comporta una función cuando está dentro del alcance de otra función. Cuando la función interna hace referencia a una variable de la función externa, esto se llama cierre.
 
-Defined pragmatically:
+Definido pragmáticamente:
 
-> Closure is when a function remembers and accesses variables from outside of its own scope, even when that function is executed in a different scope.
+> Cierre es cuando una función recuerda y accede a las variables desde fuera de su propio alcance, incluso cuando esa función se ejecuta en un alcance diferente.
 
-Consider:
+Considera:
 
 ```js
-function foo(msg) {
-    var fn = function inner(){
-        return msg.toUpperCase();
+function foo(mensaje) {
+    var funcion = function interna(){
+        return mensaje.toUpperCase();
     };
 
-    return fn;
+    return funcion;
 }
 
-var helloFn = foo( "Hello!" );
+var funcionHola = foo( "Hola!" );
 
-helloFn();              // HELLO!
+funcionHola();              // HOLA!
 ```
 
-The `msg` parameter variable in the scope of `foo(..)` is referenced inside the inner function. When `foo(..)` is executed and the inner function is created, it captures the access to the `msg` variable, and retains that access even after being `return`d.
+La variable de parámetro `mensaje` en el alcance de `foo(..)` es referenciada dentro de la función interna. Cuando `foo(..)` es ejecutada y la función interna es creada, esta captura el acceso a la variable `mensaje`, y retiene ese acceso incluso después de ser `retornada`.
 
-Once we have `helloFn`, a reference to the inner function, `foo(..)` has finished and it would seem as if its scope should have gone away, meaning the `msg` variable would no longer exist. But that doesn't happen, because the inner function has a closure over `msg` that keeps it alive. The closed over `msg` variable survives for as long as the inner function (now referenced by `helloFn` in a different scope) stays around.
+Una vez que tenemos a `funcionHola`, una referencia a la función interna, `foo(..)` ha terminado y parecería que su alcance debería haber desaparecido, lo que significa que la variable `mensaje` ya no existe. Pero eso no sucede, porque la función interna tiene un cierre sobre `mensaje` que mantiene a la variable viva. La variable cerrada `mensaje` sobrevive tanto tiempo como la función interna (ahora referenciada por `funcionHola` en un alcance diferente) se mantenga.
 
-Let's look at a few more examples of closure in action:
-
-```js
-function person(name) {
-    return function identify(){
-        console.log( `I am ${name}` );
-    };
-}
-
-var fred = person( "Fred" );
-var susan = person( "Susan" );
-
-fred();                 // I am Fred
-susan();                // I am Susan
-```
-
-The inner function `identify()` has closure over the parameter `id`.
-
-The access that closure enables is not restricted to merely reading the variable's original value -- it's not just a snapshot but rather a live link. You can update the value, and that new current state remains remembered until the next access.
+Veamos algunos ejemplos más de cierre en acción:
 
 ```js
-function runningCounter(start) {
-    var val = start;
-
-    return function current(increment = 1){
-        val = val + increment;
-        return val;
+function persona(nombre) {
+    return function identificar(){
+        console.log( `Yo soy ${nombre}` );
     };
 }
 
-var score = runningCounter( 0 );
+var fred = persona( "Fred" );
+var susan = persona( "Susan" );
 
-score();                // 1
-score();                // 2
-score( 13 );            // 15
+fred();                 // Yo soy Fred
+susan();                // Yo soy Susan
 ```
 
-**Warning:** For reasons that we'll cover more later in the book, this example of using closure to remember a state that changes (`val`) is probably something you'll want to avoid where possible.
+La función interna `identificar()` tiene un cierre sobre el parámetro `nombre`.
 
-If you have an operation that needs two inputs, one of which you know now but the other will be specified later, you can use closure to remember the first input:
+El acceso que permite el cierre no solo se limita a leer el valor original de la variable -- no es solo una instantánea de la variable, sino mas como un enlace vivo. Puedes actualizar el valor, y ese nuevo estado actual permanece guardado hasta el siguiente acceso.
 
 ```js
-function makeAdder(x) {
-    return function sum(y){
+function corriendoContador(comienzo) {
+    var valor = comienzo;
+
+    return function actual(incremento = 1){
+        valor = valor + incremento;
+        return valor;
+    };
+}
+
+var puntuacion = corriendoContador( 0 );
+
+puntuacion();                // 1
+puntuacion();                // 2
+puntuacion( 13 );            // 15
+```
+
+**Advertencia:** Por razones que trataremos más adelante en el libro, este ejemplo de usar un cierre para recordar un estado que cambia (`valor`) probablemente sea algo que querrás evitar siempre que sea posible.
+
+Si tienes una operación que necesita dos entradas, una de las cuales conoces ahora, pero la otra sera especificada más adelante, puedes usar un cierre para recordar la primera entrada:
+
+```js
+function crearSumador(x) {
+    return function suma(y){
         return x + y;
     };
 }
 
-// we already know `10` and `37` as first inputs, respectively
-var addTo10 = makeAdder( 10 );
-var addTo37 = makeAdder( 37 );
+// ya conocemos `10` y `37` como las primeras entradas, respectivamente
+var sumarleA10 = crearSumador( 10 );
+var sumarleA37 = crearSumador( 37 );
 
-// later, we specify the second inputs
-addTo10( 3 );           // 13
-addTo10( 90 );          // 100
+// más tarde, especificamos las segundas entradas
+sumarleA10( 3 );           // 13
+sumarleA10( 90 );          // 100
 
-addTo37( 13 );          // 50
+sumarleA37( 13 );          // 50
 ```
 
-Normally, a `sum(..)` function would take both an `x` and `y` input to add them together. But in this example we receive and remember (via closure) the `x` value(s) first, while the `y` value(s) are separately specified later.
+Normalmente, una función `suma(..)` tomaría como entradas `x` y `y` para sumarlas. Pero en este ejemplo, recibimos y recordamos (a través del cierre) los valores de `x` primero, mientras que los valores `y` se especifican por separado más adelante.
 
-**Note:** This technique of specifying inputs in successive function calls is very common in FP, and comes in two forms: partial application and currying. We'll dive into them more thoroughly later in the text.
+**Nota:** Esta técnica de especificar entradas en llamadas sucesivas a funciones es muy común en Pf, y se presenta en dos formas: aplicación parcial y "currying". Nos sumergiremos más a fondo en ellas luego en el texto.
 
-Of course, since functions are just values in JS, we can remember function values via closure.
+Por supuesto, dado que las funciones son solo valores en JS, podemos recordar los valores de funciones haciendo uso del cierre.
+
+
 
 ```js
-function formatter(formatFn) {
-    return function inner(str){
-        return formatFn( str );
+function formateador(formatearFuncion) {
+    return function interna(texto){
+        return formatearFuncion( texto );
     };
 }
 
-var lower = formatter( function formatting(v){
-    return v.toLowerCase();
+var minuscula = formateador( function formateando(valor){
+    return valor.toLowerCase();
 } );
 
-var upperFirst = formatter( function formatting(v){
-    return v[0].toUpperCase() + v.substr( 1 ).toLowerCase();
+var mayusculaPrimero = formateador( function formateando(valor){
+    return valor[0].toUpperCase() + valor.substr( 1 ).toLowerCase();
 } );
 
-lower( "WOW" );             // wow
-upperFirst( "hello" );      // Hello
+minuscula( "WOW" );             // wow
+mayusculaPrimero( "hola" );      // Hola
 ```
 
-Instead of distributing/repeating the `toUpperCase()` and `toLowerCase()` logic all over our code, FP encourages us to create simple functions that encapsulate -- a fancy way of saying wrapping up -- that behavior.
+En lugar de distribuir/repetir la lógica de `toUpperCase()` y `toLowerCase()` en todo nuestro código, la PF nos alienta a crear funciones simples que encapsulen -- una forma elegante de decir envolver -- ese comportamiento.
 
-Specifically, we create two simple unary functions `lower(..)` and `upperFirst(..)`, because those functions will be much easier to wire up to work with other functions in the rest of our program.
+Específicamente, creamos dos funciones simples simples `minuscula(..)` y `mayusculaPrimero(..)`, porque esas funciones serán mucho más fáciles de crear para trabajar con otras funciones en el resto de nuestro programa.
 
-**Tip:** Did you spot how `upperFirst(..)` could have used `lower(..)`?
+**Consejo:** Te diste cuenta de cómo `mayusculaPrimero(..)` podría haber usado `minuscula(..)`?
 
-We'll use closure heavily throughout the rest of the text. It may just be the most important foundational practice in all of FP, if not programming as a whole. Make sure you're really comfortable with it!
+Utilizaremos cierres en gran medida durante el resto del texto. Simplemente puede ser la práctica fundacional más importante en toda la PF, si no lo es en la programación como un todo. ¡Asegúrate de estar realmente cómodo con el cierre!
 
-## Syntax
+## Sintaxis
 
-Before we move on from this primer on functions, let's take a moment to discuss their syntax.
+Antes de pasar de este manual sobre funciones, tomemos un momento para discutir su sintaxis.
 
-More than many other parts of this text, the discussions in this section are mostly opinion and preference, whether you agree with the views presented here or take opposite ones. These ideas are highly subjective, though many people seem to feel rather absolutely about them.
+Más que en muchas otras partes de este texto, las discusiones en esta sección son en su mayoría opiniones y preferencias, ya sea que estes de acuerdo con las opiniones presentadas aquí o tomes las opiniones opuestas. Estas ideas son altamente subjetivas, aunque muchas personas parecen sentirse bastante objetivos acerca de ellas.
 
-Ultimately, you get to decide.
+Al final, tu decides.
 
-### What's In A Name?
+### ¿Que hay en un nombre?
 
-Syntatically speaking, function declarations require the inclusion of a name:
+Desde un punto de vista sintáctico, las declaraciones de funciones requieren la inclusión de un nombre:
 
 ```js
-function helloMyNameIs() {
+function holaMiNombreEs() {
     // ..
 }
 ```
 
-But function expressions can come in both named and anonymous forms:
+Pero las expresiones de función pueden venir en formas nombradas y anónimas:
 
 ```js
-foo( function namedFunctionExpr(){
+foo( function expresionDeFuncionNombrada(){
     // ..
 } );
 
-bar( function(){    // <-- look, no name!
+bar( function(){    // <-- mira, no hay nombre!
     // ..
 } );
 ```
+
+¿A qué nos referimos exactamente por anónimo, por cierto? Específicamente, las funciones tienen una propiedad `name` que contiene el valor de cadena del nombre que la función recibió sintácticamente, como` "helloMyNameIs" `o` "namedFunctionExpr" `. Esta propiedad `name` es utilizada principalmente por las herramientas de consola / desarrollador de su entorno JS para listar la función cuando participa en un seguimiento de pila (generalmente a partir de una excepción).
 
 What exactly do we mean by anonymous, by the way? Specifically, functions have a `name` property that holds the string value of the name the function was given syntactically, such as `"helloMyNameIs"` or `"namedFunctionExpr"`. This `name` property is most notably used by the console/developer tools of your JS environment to list the function when it participates in a stack trace (usually from an exception).
 
