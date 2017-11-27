@@ -1,233 +1,235 @@
-# Functional-Light JavaScript
-# Chapter 3: Managing Function Inputs
+# Javascript Funcionalmente-Ligero
+# Capítulo 3: Gestión de Entradas de Funciones
 
-Chapter 2 explored the core nature of JS `function`s, and layed the foundation for what makes a `function` an FP *function*. But to leverage the full power of FP, we also need patterns and practices for manipulating functions to shift and adjust their interactions -- to bend them to our will.
+El Capítulo 2 exploró la naturaleza central de las `funciones` en JS, y sentó las bases para lo que hace que una `función` sea una *función* en el mundo de la PF. Pero para aprovechar todo el poder de la PF, también necesitamos patrones y prácticas para manipular a las funciones de forma que podamos cambiar y ajustar sus interacciones -- para someterlas a nuestra voluntad.
 
-Specifically, our attention for this chapter will be on the parameter inputs of functions. As you bring functions of all different shapes together in your programs, you'll quickly face incompatibilities in the number/order/type of inputs, as well as the need to specify some inputs at different times than others.
+Específicamente, nuestra atención para este capítulo estará en las entradas de los parámetros de las funciones. Al reunir funciones de todas las formas en tus programas, rápidamente te enfrentarás a incompatibilidades en el número/orden/tipo de entradas, así como con la necesidad de especificar algunas entradas en momentos diferentes a las de las demás.
 
-As a matter of fact, for stylistic purposes of readability, sometimes you'll want to define functions in a way that hides their inputs entirely!
+De hecho, para fines estilísticos de legibilidad, a veces querrás definir funciones de una manera que oculte sus entradas por completo!
 
-These kinds of techniques are absolutely essential to making functions truly *function*-al.
+Este tipo de técnicas son absolutamente esenciales para hacer que las funciones sean realmente *funcion*-ales.
 
-## All For One
+## Todos para uno
 
-Imagine you're passing a function to a utility, where the utility will send multiple arguments to that function. But you may only want the function to receive a single argument.
+Imagine que estás pasando una función a una utilidad, donde la utilidad enviará múltiples argumentos a esa función. Pero es posible que desees que la función reciba un solo argumento.
 
-We can design a simple helper that wraps a function call to ensure only one argument will pass through. Since this is effectively enforcing that a function is treated as unary, let's name it as such:
+Podemos diseñar un asistente simple que envuelva una llamada de función para asegurar que solo pase un argumento. Dado que esto efectivamente impone que una función sea tratada como una funcion unaria, asígnale un nombre:
 
 ```js
-function unary(fn) {
-    return function onlyOneArg(arg){
-        return fn( arg );
+function unaria(funcion) {
+    return function soloUnArgumento(argumento){
+        return funcion( argumento );
     };
 }
 ```
 
-Many FPers tend to prefer the shorter `=>` arrow function syntax for such code (see Chapter 1 "Syntax"), such as:
+Muchos Programadores-Funcionales tienden a preferir la sintaxis más corta de la función flecha `=>` para dicho código (consulta el Capítulo 1 "Sintaxis"), como por ejemplo:
 
 ```js
-var unary =
-    fn =>
-        arg =>
-            fn( arg );
+var unaria =
+    funcion =>
+        argumento =>
+            funcion( argumento );
 ```
 
-**Note:** No question this is more terse, sparse even. But I personally feel that whatever it may gain in symmetry with the mathematical notation, it loses more in overall readability with the functions all being anonymous, and by obscuring the scope boundaries, making deciphering closure a little more cryptic.
+**Nota:** Sin duda, esto es más breve, disperso incluso. Pero personalmente creo que sea lo que sea que gane en simetría con la notación matemática, pierde más en la legibilidad general ya que todas las funciones son anónimas y oscurece los límites del alcance, haciendo que descifrar los cierres sea un poco más críptico.
 
-A commonly cited example for using `unary(..)` is with the `map(..)` utility (see Chapter 9) and `parseInt(..)`. `map(..)` calls a mapper function for each item in a list, and each time it invokes the mapper function, it passes in 3 arguments: `value`, `idx`, `arr`.
+Un ejemplo comúnmente citado para usar `unaria(..)` es con la utilidad `map(..)` (ver Capítulo 9) y `parseInt(..)`. `map(..)` llama a una función de correlación para cada elemento en una lista, y cada vez que invoca esta función de correlación, pasa 3 argumentos: `valor`,` index` y `array`.
 
-That's usually not a big deal, unless you're trying to use something as a mapper function that will behave incorrectly if it's passed too many arguments. Consider:
+Por lo general, eso no es gran cosa, a menos que intentes usar algo como una función de correlación que se comportará incorrectamente si demasiados argumentos son pasados. Considera:
 
 ```js
 ["1","2","3"].map( parseInt );
 // [1,NaN,NaN]
 ```
 
-For the signature `parseInt(str,radix)`, it's clear that when `map(..)` passes `index` in the second argument position, it's interpreted by `parseInt(..)` as the `radix`, which we don't want.
+Para la firma de `parseInt(texto, base)`, está claro que cuando `map(..)` pasa `index` en la posición del segundo argumento, es interpretado por `parseInt(..)` como `base`, lo cual no queremos
 
-`unary(..)` creates a function that will ignore all but the first argument passed to it, meaning the passed in `index` is never received by `parseInt(..)` and mistaken as the `radix`:
+`unaria(..)` crea una función que ignorará todo menos el primer argumento que se le pase, lo que significa que el `índice` pasado no es recibido nunca por `parseInt(..)` (siendo confundido con la `base`):
 
 ```js
-["1","2","3"].map( unary( parseInt ) );
+["1","2","3"].map( unaria( parseInt ) );
 // [1,2,3]
 ```
 
-### One On One
+### Uno a uno
 
-Speaking of functions with only one argument, another common base utility in the FP toolbelt is a function that takes one argument and does nothing but return the value untouched:
+Hablando de funciones con un solo argumento, otra utilidad básica común en el cinturón de herramientas de la PF es una función que toma un argumento y no hace más que devolver el valor intacto:
 
 ```js
-function identity(v) {
-    return v;
+function identidad(valor) {
+    return valor;
 }
 
-// or the ES6 => arrow form
-var identity =
-    v =>
-        v;
+// y en su forma usando la funcion flecha => de ES6:
+var identidad =
+    valor =>
+        valor;
 ```
 
-This utility looks so simple as to hardly be useful. But even simple functions can be helpful in the world of FP. Like they say in acting: there are no small parts, only small actors.
+Esta utilidad parece tan simple que apenas puede ser útil. Pero incluso las funciones simples pueden ser útiles en el mundo de la PF. Como dicen en la actuación: no hay partes pequeñas, solo pequeños actores.
 
-For example, imagine you'd like to split up a string using a regular expression, but the resulting array may have some empty values in it. To discard those, we can use JS's `filter(..)` array operation (see Chapter 9) with `identity(..)` as the predicate:
+Por ejemplo, imagina que te gustaría dividir un texto utilizando una expresión regular, pero el array resultante puede tener algunos valores vacíos. Para descartarlos, podemos usar la operación de array `filter(..)` en JS (ver Capítulo 9) con `identidad(..)` como el predicado:
 
 ```js
-var words = "   Now is the time for all...  ".split( /\s|\b/ );
-words;
-// ["","Now","is","the","time","for","all","...",""]
+var palabras = "   Ahora es el tiempo de todo...  ".split( /\s|\b/ );
+palabras;
+// ["","Ahora","es","el","tiempo","de","todo","...",""]
 
-words.filter( identity );
-// ["Now","is","the","time","for","all","..."]
+palabras.filter( identidad );
+// [Ahora","es","el","tiempo","de","todo","..."]
 ```
 
-Since `identity(..)` simply returns the value passed to it, JS coerces each value into either `true` or `false`, and that determines whether to keep or exclude each value in the final array.
+Dado que `identidad(..)` simplemente devuelve el valor que se le pasó, JS coacciona cada valor como `true` o `false`, y eso determinara si mantener o excluir cada valor en el array final.
 
-**Tip:** Another unary function that can be used as the predicate in the previous example is JS's built-in `Boolean(..)` function, which explicitly coerces a value to `true` or `false`.
+**Sugerencia:** Otra función unaria que se puede usar como el predicado en el ejemplo anterior es la función `Boolean(..)` incorporada en JS, que coacciona explícitamente un valor a `true` o `false`.
 
-Another example of using `identity(..)` is as a default function in place of a transformation:
+Otro ejemplo del uso de `identitad(..)` es como una función predeterminada en lugar de una transformación:
 
 ```js
-function output(msg,formatFn = identity) {
-    msg = formatFn( msg );
-    console.log( msg );
+function salida(mensaje,funcionDeFormato = identidad) {
+    mensaje = funcionDeFormato( mensaje );
+    console.log( mensaje );
 }
 
-function upper(txt) {
-    return txt.toUpperCase();
+function mayusculas(texto) {
+    return texto.toUpperCase();
 }
 
-output( "Hello World", upper );     // HELLO WORLD
-output( "Hello World" );            // Hello World
+salida( "Hola Mundo", mayusculas );     // HOLA MUNDO
+salida( "Hola Mundo" );            // Hola Mundo
 ```
 
-You also may see `identity(..)` used as a default transformation function for `map(..)` calls or as the initial value in a `reduce(..)` of a list of functions; both of these utilities will be covered in Chapter 9.
+También puedes ver `identitad(..)` utilizado como una función de transformación predeterminada para llamadas de `map(..)` o como valor inicial en un `reduce(..)` de una lista de funciones; estas dos utilidades se tratarán en el Capítulo 9.
 
-### Unchanging One
+### Uno Inmutable
 
-Certain APIs don't let you pass a value directly into a method, but require you to pass in a function, even if that function literally just returns the value. One such API is the `then(..)` method on JS Promises:
+Ciertas APIs no te permiten pasar un valor directamente a un método, pero requieren que pases una función, incluso si esa función simplemente devuelve el valor. Una de esas API es el método `then(..)` en las Promesas de JS:
 
 ```js
-// doesn't work:
+// no funciona:
 p1.then( foo ).then( p2 ).then( bar );
 
-// instead:
+// en cambio:
 p1.then( foo ).then( function(){ return p2; } ).then( bar );
 ```
 
-Many claim that ES6 `=>` arrow functions are the best "solution":
+Muchos afirman que las funciones de flecha ES6 `=>` son la mejor "solución":
 
 ```js
 p1.then( foo ).then( () => p2 ).then( bar );
 ```
 
-But there's an FP utility that's more well suited for the task:
+Pero hay una utilidad de PF que es más adecuada para la tarea:
 
 ```js
-function constant(v) {
-    return function value(){
-        return v;
+function constante(valor) {
+    return function retornarValor(){
+        return valor;
     };
 }
 
-// or the ES6 => form
-var constant =
-    v =>
+// o la forma => en ES6
+var constante =
+    valor =>
         () =>
-            v;
+            valor;
 ```
 
-With this tidy little FP utility, we can solve our `then(..)` annoyance properly:
+Con esta pequeña utilidad de PF, podemos resolver nuestra molestia de `then(..)` correctamente:
 
 ```js
-p1.then( foo ).then( constant( p2 ) ).then( bar );
+p1.then( foo ).then( constante( p2 ) ).then( bar );
 ```
 
-**Warning:** Although the `() => p2` arrow function version is shorter than `constant(p2)`, I would encourage you to resist the temptation to use it. The arrow function is returning a value from outside of itself, which is a bit worse from the FP perspective. We'll cover the pitfalls of such actions later in the text, in Chapter 5 "Reducing Side Effects".
+**Advertencia:** Aunque la versión de la función de flecha `() => p2` es más corta que `constante(p2)`, te animo a resistir la tentación de usarla. La función de flecha está devolviendo un valor desde fuera de sí mismo, que es un poco peor desde la perspectiva de la PF. Cubriremos las trampas de tales acciones más adelante en el texto, en el Capítulo 5 "Reduciendo Efectos Secundarios".
 
-## Adapting Arguments To Parameters
+## Adaptando Argumentos a Parámetros
 
-There are a variety of patterns and tricks we can use to adapt a function's signature to match the kinds of arguments we want to provide to it.
+Hay una variedad de patrones y trucos que podemos usar para adaptar la firma de una función para que coincida con los tipos de argumentos que queremos proporcionarle.
 
-Recall this function signature from Chapter 2 which highlights using array parameter destructuring:
+Recuerda esta firma de función del Capítulo 2 que resalta el uso de la desestructuración de parámetros de arrays:
 
 ```js
-function foo( [x,y,...args] = [] ) {
+function foo( [x,y,...argumentos] = [] ) {
+  // ..
+}
 ```
 
-This pattern is handy if an array will be passed in but you want to treat its contents as individual parameters. `foo(..)` is thus technically unary -- when it's executed, only one argument (an array) will be passed to it. But inside the function, you get to address different inputs (`x`, `y`, etc) individually.
+Este patrón es útil si se va a pasar un array pero deseas tratar su contenido como parámetros individuales. `foo(..)` es por lo tanto técnicamente único: cuando se ejecuta, solo se le pasará un argumento (un array). Pero dentro de la función, puedes tener diferentes entradas (`x`, `y`, etc.) individuales.
 
-However, sometimes you won't have the ability to change the declaration of the function to use array parameter destructuring. For example, imagine these functions:
+Sin embargo, a veces no tendrás la capacidad de cambiar la declaración de la función para utilizar la desestructuración de los parámetros de arrays. Por ejemplo, imagina estas funciones:
 
 ```js
 function foo(x,y) {
     console.log( x + y );
 }
 
-function bar(fn) {
-    fn( [ 3, 9 ] );
+function bar(funcion) {
+    funcion( [ 3, 9 ] );
 }
 
-bar( foo );         // fails
+bar( foo );         // falla
 ```
 
-Do you spot why `bar(foo)` fails?
+¿Ves por qué `bar(foo)` falla?
 
-The array `[3,9]` is sent in as a single value to `fn(..)`, but `foo(..)` expects `x` and `y` separately. If we could change the declaration of `foo(..)` to be `function foo([x,y]) { ..`, we'd be fine. Or, if we could change the behavior of `bar(..)` to make the call as `fn(...[3,9])`, the values `3` and `9` would be passed in individually.
+El array `[3,9]` se envía como un valor único a `funcion(..)`, pero `foo(..)` espera `x` y `y` por separado. Si pudiéramos cambiar la declaración de `foo(..)` para que sea `function foo([x, y]) {..`, estaríamos bien. O bien, si pudiéramos cambiar el comportamiento de `bar(..)` para hacer que la llamada sea `funcion(...[3,9])`, y que los valores `3` y `9` sean pasados individualmente.
 
-There will be occasions when you have two functions that are imcompatible in this way, and you won't be able to change their declarations/definitions. So, how can you use them together?
+Habrá ocasiones en las que tiene dos funciones que son incompatibles de esta manera, y no podrá cambiar sus declaraciones/definiciones. Entonces, ¿cómo puedes usarlas juntas?
 
-We can define a helper to adapt a function so that it spreads out a single received array as its individual arguments:
+Podemos definir un asistente para adaptar una función para que esta distribuya un solo array recibido como sus argumentos individuales:
 
 ```js
-function spreadArgs(fn) {
-    return function spreadFn(argsArr) {
-        return fn( ...argsArr );
+function expandirArgumentos(funcion) {
+    return function funcionExpandir(arrayArgumento) {
+        return funcion( ...arrayArgumento );
     };
 }
 
-// or the ES6 => arrow form
-var spreadArgs =
-    fn =>
-        argsArr =>
-            fn( ...argsArr );
+// o la forma => en ES6
+var expandirArgumentos =
+    funcion =>
+        arrayArgumento =>
+            funcion( ...arrayArgumento );
 ```
 
-**Note:** I called this helper `spreadArgs(..)`, but in libraries like Ramda it's commonly called `apply(..)`.
+**Nota:** Llamé a este ayudante `expandirArgumentos(..)`, pero en libreroas como Ramda comúnmente se llama `apply(..)`.
 
-Now we can use `spreadArgs(..)` to adapt `foo(..)` to work as the proper input to `bar(..)`:
+Ahora podemos usar `expandirArgumentos(..)` para adaptar `foo (..)` y que funcione como la entrada adecuada para `bar(..)`:
 
 ```js
-bar( spreadArgs( foo ) );           // 12
+bar( expandirArgumentos( foo ) );           // 12
 ```
 
-It won't seem clear yet why these occassions will arise, but you will see them often. Essentially, `spreadArgs(..)` will allow us to define functions that `return` multiple values via an array, but still have those multiple values treated independently as inputs to another function.
+Puede que todavia no parezca claro por qué surgirán estas ocasiones, pero las verás a menudo. Esencialmente, `expandirArgumentos(..)` nos permitirá definir funciones que `regresen` múltiples valores a través de un array, pero aún tienen esos múltiples valores tratados de forma independiente como entradas a otra función.
 
-While we're talking about a `spreadArgs(..)` utility, let's also define a utility to handle the opposite action:
+Si bien estamos hablando de una utilidad `expandirArgumentos(..)`, definamos también una utilidad para manejar la acción opuesta:
 
 ```js
-function gatherArgs(fn) {
-    return function gatheredFn(...argsArr) {
-        return fn( argsArr );
+function reunirArgumentos(funcion) {
+    return function funcionReunir(...arrayArgumento) {
+        return funcion( arrayArgumento );
     };
 }
 
-// or the ES6 => arrow form
-var gatherArgs =
-    fn =>
-        (...argsArr) =>
-            fn( argsArr );
+// o la forma => en ES6
+var reunirArgumentos =
+    funcion =>
+        (...arrayArgumento) =>
+            funcion( arrayArgumento );
 ```
 
-**Note:** In Ramda, this utility is referred to as `unapply(..)`, being that it's the opposite of `apply(..)`. I think the "spread" / "gather" terminology is a little more descriptive for what's going on.
+**Nota:** En Ramda, esta utilidad se conoce como `unapply(..)`, ya que es lo opuesto a `apply(..)`. Creo que la terminología de "expandir" / "reunir" es un poco más descriptiva de lo que está sucediendo.
 
-We can use this utility to gather individual arguments into a single array, perhaps because we want to adapt a function with array parameter destructuring to another utility that passes arguments separately. We will cover `reduce(..)` in Chapter 9, but briefly: it repeatedly calls its reducer function with two individual parameters, which we can now *gather* together:
+Podemos utilizar esta utilidad para reunir argumentos individuales en un array unico, tal vez porque queremos adaptar una función con la desestructuración de parámetros de array a otra utilidad que transfiere argumentos por separado. Cubriremos `reduce(..)` en el Capítulo 9, pero brevemente: esta llama repetidamente a su función reductora con dos parámetros individuales, que ahora podemos *reunir* juntos:
 
 ```js
-function combineFirstTwo([ v1, v2 ]) {
-    return v1 + v2;
+function combinarPrimerosDos([ valor1, valor2 ]) {
+    return valor1 + valor2;
 }
 
-[1,2,3,4,5].reduce( gatherArgs( combineFirstTwo ) );
+[1,2,3,4,5].reduce( reunirArgumentos( combinarPrimerosDos ) );
 // 15
 ```
 
