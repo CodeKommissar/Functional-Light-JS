@@ -233,269 +233,268 @@ function combinarPrimerosDos([ valor1, valor2 ]) {
 // 15
 ```
 
-## Some Now, Some Later
+## Algunos Ahora, Algunos Después
 
-If a function takes multiple arguments, you may want to specify some of those upfront and leave the rest to be specified later.
+Si una función toma múltiples argumentos, es posible que desees especificar algunos de ellos por adelantado y dejar el resto para que sean especificados más adelante.
 
-Consider this function:
+Considera esta función:
 
 ```js
-function ajax(url,data,callback) {
+function ajax(url,data, callback) {
     // ..
 }
 ```
 
-Let's imagine you'd like to set up several API calls where the URLs are known upfront, but the data and the callback to handle the response won't be known until later.
+Imaginemos que deseas configurar varias llamadas a la API donde las URL son conocidas por adelantado, pero los datos y la devolución de llamada (funcion callback) para manejar la respuesta no se conocerán hasta más adelante.
 
-Of course, you can just defer making the `ajax(..)` call until all the bits are known, and refer to some global constant for the URL at that time. But another way is to create a function reference that already has the `url` argument preset.
+Por supuesto, puedes diferir la realización de la llamada `ajax(..)` hasta conocer todos los argumentos, y hacer referencia a alguna constante global para la URL en ese momento. Pero otra forma es crear una referencia de función que ya tenga preestablecido el argumento `url`.
 
-What we're going to do is make a new function that still calls `ajax(..)` under the covers, and it manually sets the first argument to the API URL you care about, while waiting to accept the other two arguments later.
-
-```js
-function getPerson(data,cb) {
-    ajax( "http://some.api/person", data, cb );
-}
-
-function getOrder(data,cb) {
-    ajax( "http://some.api/order", data, cb );
-}
-```
-
-Manually specifying these function call wrappers is certainly possible, but it may get quite tedious, especially if there will also be variations with different arguments preset, like:
+Lo que vamos a hacer es crear una nueva función que todavía llama a `ajax(..)` por debajo de las sábanas, y establece manualmente el primer argumento para la URL de la API que te interesa, mientras esperas aceptar los otros dos argumentos después.
 
 ```js
-function getCurrentUser(cb) {
-    getPerson( { user: CURRENT_USER_ID }, cb );
+function obtenerPersona(data,callback) {
+    ajax( "http://alguna.api/persona", data, callback );
+}
+
+function obtenerOrden(data,callback) {
+    ajax( "http://alguna.api/orden", data, callback );
 }
 ```
 
-One practice an FPer gets very used to is looking for patterns where we do the same sorts of things repeatedly, and trying to turn those actions into generic reusable utilities. As a matter of fact, I'm sure that's already the instinct for many of you readers, so that's not uniquely an FP thing. But it's unquestionably important for FP.
-
-To conceive such a utility for argument presetting, let's examine conceptually what's going on, not just looking at the manual implementations above.
-
-One way to articulate what's going on is that the `getOrder(data,cb)` function is a *partial application* of the `ajax(url,data,cb)` function. This terminology comes from the notion that arguments are *applied* to parameters at the function call-site. And as you can see, we're only applying some of the arguments upfront -- specifically the argument for the `url` parameter -- while leaving the rest to be applied later.
-
-To be a tiny bit more formal about this pattern, partial application is strictly a reduction in a function's arity; remember, that's the number of expected parameter inputs. We reduced the original `ajax(..)` function's arity from 3 to 2 for the `getOrder(..)` function.
-
-Let's define a `partial(..)` utility:
+La especificación manual de estas "envolturas" de llamada de función es ciertamente posible, pero puede ser bastante tedioso, especialmente si también habrán variaciones con diferentes argumentos preestablecidos, como:
 
 ```js
-function partial(fn,...presetArgs) {
-    return function partiallyApplied(...laterArgs){
-        return fn( ...presetArgs, ...laterArgs );
+function obtenerUsuarioActual(callback) {
+    obtenerPersona( { usuario: ID_USUARIO_ACTUAL }, callback );
+}
+```
+
+Una práctica a la que un Programador-Funcional se acostumbra mucho es buscar patrones en los que hagamos el mismo tipo de cosas repetidas veces, e intentar convertir esas acciones en utilidades genéricas reutilizables. De hecho, estoy seguro de que ya es instinto para muchos de ustedes lectores, así que eso no es únicamente una cuestión de PF. Pero es incuestionablemente importante para la PF.
+
+Para concebir tal utilidad para el preajuste de argumentos, examinemos conceptualmente lo que está sucediendo, no solo mirando las implementaciones manuales anteriores.
+
+Una forma de articular lo que está sucediendo es que la función `obtenerOrden(data,callback)` es una *aplicación parcial* de la función `ajax(url, data, callback)`. Esta terminología proviene de la noción de que los argumentos *se aplican* a los parámetros en el sitio de llamada a la función. Y como puedes ver, solo estamos aplicando algunos de los argumentos por adelantado, específicamente el argumento para el parámetro `url`, mientras dejamos el resto para ser aplicados más tarde.
+
+Para ser un poco más formal sobre este patrón, la aplicación parcial es estrictamente una reducción en la aridad de una función; recuerda, ese es el número de entradas de parámetros esperadas. Redujimos la aridad de la función `ajax(..)` original de 3 a 2 para la función `obtenerOrden(..)`.
+
+Definamos una utilidad `parcial(..)`:
+
+```js
+function parcial(funcion,...argumentosPredefinidos) {
+    return function parcialmenteAplicada(...argumentosTardios){
+        return funcion( ...argumentosPredefinidos, ...argumentosTardios );
     };
 }
 
-// or the ES6 => arrow form
-var partial =
-    (fn,...presetArgs) =>
-        (...laterArgs) =>
-            fn( ...presetArgs, ...laterArgs );
+// o en la forma de flecha => ES6
+var parcial =
+    (funcion,...argumentosPredefinidos) =>
+        (...argumentosTardios) =>
+            funcion( ...argumentosPredefinidos, ...argumentosTardios );
 ```
 
-**Tip:** Don't just take this snippet at face value. Take a few moments to digest what's going on with this utility. Make sure you really *get it*.
+**Consejo:** No te tomes este fragmento a la ligera. Tomate unos minutos para digerir lo que está pasando con esta utilidad. Asegúrate de realmente *entenderlo*.
 
-The `partial(..)` function takes an `fn` for which function we are partially applying. Then, any subsequent arguments passed in are gathered into the `presetArgs` array and saved for later.
+La función `parcial(..)` toma una `funcion` para la funcion que estamos aplicando parcialmente. Luego, los argumentos subsiguientes pasados ​​son reunidos en el array `argumentosPredefinidos` y son guardados para más adelante.
 
-A new inner function (called `partiallyApplied(..)` just for clarity) is created and `return`ed, whose own arguments are gathered into an array called `laterArgs`.
+Se crea una nueva función interna (llamada `parcialmenteAplicada(..)` solo para mayor claridad) la cual es `retorn`ada, cuyos propios argumentos son reunidos en un array llamado `argumentosTardios`.
 
-Notice the references to `fn` and `presetArgs` inside this inner function? How does that work? After `partial(..)` finishes running, how does the inner function keep being able to access `fn` and `presetArgs`? If you answered **closure**, you're right on track! The inner function `partiallyApplied(..)` closes over both the `fn` and `presetArgs` variables so it can keep accessing them later, no matter where the function runs. This is why understanding closure is critical!
+Observas las referencias a `funcion` y `argumentosPredefinidos` dentro de esta función interna? ¿Cómo funciona? Después de que `parcial(..)` termina de ejecutarse, ¿cómo es que la función interna sigue siendo capaz de acceder a `funcion` y `argumentosPredefinidos`? Si respondiste **cierre**, ¡estás bien encaminado! La función interna `parcialmenteAplicada(..)` se cierra sobre las variables `funcion` y `argumentosPredefinidos` para que esta pueda seguir accediendo a estas variables más adelante, sin importar dónde se ejecute la función. ¡Esta es la razón por la cual entender como funcionan los cierres en JavaScript es crítico!
 
-When the `partiallyApplied(..)` function is later executed somewhere else in your program, it uses the closed over `fn` to execute the original function, first providing any of the (closed over) `presetArgs` partial application arguments, then any further `laterArgs` arguments.
+Cuando la función `parcialmenteAplicada(..)` es ejecutada más tarde en algun otro lugar de tu programa, esta utiliza el cierre sobre `funcion` para ejecutar la función original, proporcionando primero cualquiera de los `argumentosPredefinidos` de la aplicación parcial, y luego cualquier argumento adicional en `argumentosTardios`.
 
-If any of that was confusing, stop and go re-read it. Trust me, you'll be glad you did as we get further into the text.
+Si algo de eso es confuso, detente e y vuelve a leer la explicacion. Créeme, estarás feliz de haberlo hecho a medida que avanzamos en el texto.
 
-Let's now use the `partial(..)` utility to make those earlier partially-applied functions:
+Ahora usemos la utilidad `parcial(..)` para hacer esas funciones anteriores parcialmente-aplicadas:
 
 ```js
-var getPerson = partial( ajax, "http://some.api/person" );
+var obtenerPersona = parcial( ajax, "http://alguna.api/persona" );
 
-var getOrder = partial( ajax, "http://some.api/order" );
+var obtenerOrden = parcial( ajax, "http://alguna.api/orden" );
 ```
 
-Stop and think about the shape/internals of `getPerson(..)`. It will look sorta like this:
+Detente y piensa en la forma interna de `obtenerPersona(..)`. Se verá algo así:
 
 ```js
-var getPerson = function partiallyApplied(...laterArgs) {
-    return ajax( "http://some.api/person", ...laterArgs );
+var obtenerPersona = function parcialmenteAplicada(...argumentosTardios) {
+    return ajax( "http://alguna.api/persona", ...argumentosTardios );
 };
 ```
 
-The same will be true of `getOrder(..)`. But what about `getCurrentUser(..)`?
+Lo mismo ocurrirá con `obtenerOrden(..)`. ¿Pero qué tal con `obtenerUsuarioActual(..)`?
 
 ```js
 // version 1
-var getCurrentUser = partial(
+var obtenerUsuarioActual = parcial(
     ajax,
-    "http://some.api/person",
-    { user: CURRENT_USER_ID }
+    "http://alguna.api/persona",
+    { usuario: ID_USUARIO_ACTUAL }
 );
 
 // version 2
-var getCurrentUser = partial( getPerson, { user: CURRENT_USER_ID } );
+var obtenerUsuarioActual = parcial( obtenerPersona, { usuario: ID_USUARIO_ACTUAL } );
 ```
 
-We can either (version 1) define `getCurrentUser(..)` with both the `url` and `data` arguments specified directly, or (version 2) we can define `getCurrentUser(..)` as a partial application of the `getPerson(..)` partial application, specifying only the additional `data` argument.
+Podemos (versión 1) definir `obtenerUsuarioActual(..)` con los argumentos `url` y `data` especificados directamente, o (versión 2) podemos definir `obtenerUsuarioActual(..)` como una aplicación parcial de `obtenerPersona(..)`, especificando solo el argumento adicional `data`.
 
-Version 2 is a little cleaner to express because it reuses something already defined. As such, I think it fits a little closer to the spirit of FP.
+La versión 2 es un poco más limpia para expresar porque reutiliza algo ya definido. Como tal, creo que se ajusta un poco más al espíritu de la PF.
 
-Just to make sure we understand how these two versions will work under the covers, they look respectively kinda like:
+Solo para asegurarnos de que entendemos cómo funcionan estas dos versiones debajo de la superficie, respectivamente se ven mas o menos como:
 
 ```js
 // version 1
-var getCurrentUser = function partiallyApplied(...laterArgs) {
+var obtenerUsuarioActual = function parcialmenteAplicada(...argumentosTardios) {
     return ajax(
-        "http://some.api/person",
-        { user: CURRENT_USER_ID },
-        ...laterArgs
+        "http://alguna.api/persona",
+        { usuario: ID_USUARIO_ACTUAL },
+        ...argumentosTardios
     );
 };
 
 // version 2
-var getCurrentUser = function outerPartiallyApplied(...outerLaterArgs) {
-    var getPerson = function innerPartiallyApplied(...innerLaterArgs){
-        return ajax( "http://some.api/person", ...innerLaterArgs );
+var obtenerUsuarioActual = function parcialmenteAplicadaFuera(...argumentosTardiosFuera) {
+    var obtenerPersona = function parcialmenteAplicadaDentro(...argumentosTardiosDentro){
+        return ajax( "http://alguna.api/persona", ...argumentosTardiosDentro );
     };
 
-    return getPerson( { user: CURRENT_USER_ID }, ...outerLaterArgs );
+    return obtenerPersona( { user: ID_USUARIO_ACTUAL }, ...argumentosTardiosFuera );
 }
 ```
 
-Again, stop and re-read those code snippets to make sure you understand what's going on there.
+Una vez más, deténte y vuelve a leer esos fragmentos de código para asegurarte de que entiendes lo que sucede allí.
 
-**Note:** The second version has an extra layer of function wrapping involved. That may smell strange and unnecessary, but this is just one of those things in FP that you'll want to get really comfortable with. We'll be wrapping many layers of functions onto each other as we progress through the text. Remember, this is *function*al programming!
+**Nota:** La segunda versión tiene una capa adicional de envoltura de funciones involucrada. Eso puede sonar extraño e innecesario, pero esta es solo una de esas cosas en PF con las que querrás sentirte realmente cómodo. Vamos a envolver muchas capas de funciones a medida que avanzemos en el texto. Recuerde, esto es programacion *función* al!
 
-Let's take a look at another example of the usefulness of partial application. Consider an `add(..)` function which takes two arguments and adds them together:
+Echemos un vistazo a otro ejemplo de lo util que es la aplicación parcial. Considera una función `sumar(..)` que toma dos argumentos y los suma:
 
 ```js
-function add(x,y) {
+function sumar(x,y) {
     return x + y;
 }
 ```
 
-Now, imagine we'd like take a list of numbers and add a certain number to each of them. We'll use the `map(..)` (see Chapter 9) utility built into JS arrays:
+Ahora, imagina que nos gustaría tomar una lista de números y agregar un cierto número a cada uno de ellos. Usaremos la utilidad `map(..)` (ver el Capítulo 9) integrada en los arrays de JS:
 
 ```js
-[1,2,3,4,5].map( function adder(val){
-    return add( 3, val );
+[1,2,3,4,5].map( function añadir(valor){
+    return sumar( 3, valor );
 } );
 // [4,5,6,7,8]
 ```
 
-The reason we can't pass `add(..)` directly to `map(..)` is because the signature of `add(..)` doesn't match the mapping function that `map(..)` expects. That's where partial application can help us: we can adapt the signature of `add(..)` to something that will match.
+La razón por la cual no podemos pasar `sumar(..)` directamente a `map(..)` es porque la firma de `sumar(..)` no coincide con la función de asignación que `map(..)` espera. Ahí es donde la aplicación parcial puede ayudarnos: podemos adaptar la firma de `sumar(..)` a algo que coincida.
 
 ```js
-[1,2,3,4,5].map( partial( add, 3 ) );
+[1,2,3,4,5].map( parcial( sumar, 3 ) );
 // [4,5,6,7,8]
 ```
+La llamada `parcial(sumar, 3)` produce una nueva función unaria que espera solo un argumento más.
 
-The `partial(add,3)` call produces a new unary function which is expecting only one more argument.
-
-The `map(..)` utility will loop through the array (`[1,2,3,4,5]`) and repeatedly call this unary function, once for each of those values, respectively. So, the calls made will effectively be `add(3,1)`, `add(3,2)`, `add(3,3)`, `add(3,4)`, and `add(3,5)`. The array of those results is `[4,5,6,7,8]`.
+La utilidad `map(..)` recorrerá el array (`[1,2,3,4,5]`) y repetidamente llamará a esta función unaria, una vez para cada uno de esos valores, respectivamente. Entonces, las llamadas hechas serán efectivamente `sumar(3,1)`, `sumar(3,2)`, `sumar(3,3)`, `sumar(3,4)`, y `sumar(3,5)`. El array resultante entonces seria `[4,5,6,7,8]`.
 
 ### `bind(..)`
 
-JavaScript functions all have a built-in utility called `bind(..)`. It has two capabilities: presetting the `this` context and partially applying arguments.
+Todas las funciones de JavaScript tienen una utilidad incorporada llamada `bind(..)`. Esta tiene dos capacidades: preajustar el contexto de `this` y parcialmente aplicar argumentos.
 
-I think this is incredibly misguided to conflate these two capabilities in one utility. Sometimes you'll want to hard-bind the `this` context and not partially apply arguments. Other times you'll want to partially apply arguments but not care about `this` binding at all. I have never needed both at the same time.
+Creo que es increíblemente erróneo combinar estas dos capacidades en una sola utilidad. A veces querrás enlazar el contexto `this` y no parcialmente aplicar argumentos. Otras veces, querrás aplicar argumentos parcialmente, pero no te importara el enlace de `this`. Nunca he necesitado estas dos capacidades al mismo tiempo..
 
-The latter scenario (partial application without setting `this` context) is awkward because you have to pass an ignorable placeholder for the `this`-binding argument (the first one), usually `null`.
+Este último escenario (aplicación parcial sin establecer el contexto `this`) es incómodo porque tienes que pasar un marcador de posición ignorable para el argumento del enlace-`this` (el primero), generalmente como `null`.
 
-Consider:
+Considera:
 
 ```js
-var getPerson = ajax.bind( null, "http://some.api/person" );
+var obtenerPersona = ajax.bind( null, "http://alguna.api/persona" );
 ```
 
-That `null` just bugs me to no end. Despite this *this* annoyance, it's mildly convenient that JS has a built-in utility for partial application. However, most FP programmers prefer using the dedicated `partial(..)` utility in their chosen FP library.
+Ese `null` simplemente me molesta. A pesar de esta molestia *this*, es medianamente conveniente que JS tenga una utilidad incorporada para aplicaciones parciales. Sin embargo, la mayoría de los programadores de PF prefieren usar la utilidad dedicada a `parcial(..)` en su biblioteca de PF elegida.
 
-### Reversing Arguments
+### Revirtiendo Argumentos
 
-Recall that the signature for our Ajax function is: `ajax( url, data, cb )`. What if we wanted to partially apply the `cb` but wait to specify `data` and `url` later? We could create a utility that wraps a function to reverse its argument order:
+Recuerda que la firma de nuestra función Ajax es: `ajax( url, data, callback )`. ¿Qué pasa si queremos aplicar parcialmente el `callback`, pero esperar para especificar `data` y `url` más tarde? Podríamos crear una utilidad que envuelva una función para invertir el orden de sus argumentos:
 
 ```js
-function reverseArgs(fn) {
-    return function argsReversed(...args){
-        return fn( ...args.reverse() );
+function revertirArgumentos(funcion) {
+    return function argumentosRevertidos(...argumentos){
+        return funcion( ...argumentos.reverse() );
     };
 }
 
 // or the ES6 => arrow form
-var reverseArgs =
-    fn =>
-        (...args) =>
-            fn( ...args.reverse() );
+var revertirArgumentos =
+    funcion =>
+        (...argumentos) =>
+            funcion( ...argumentos.reverse() );
 ```
 
-Now we can reverse the order of the `ajax(..)` arguments, so that we can then partially apply from the right rather than the left. To restore the expected order, we'll then reverse the subsequent partially-applied function:
+Ahora podemos invertir el orden de los argumentos de `ajax(..)`, de modo que podamos aplicar parcialmente desde la derecha en lugar de la izquierda. Para restablecer el orden esperado, luego invertiremos la siguiente función parcialmente aplicada:
 
 ```js
 var cache = {};
 
-var cacheResult = reverseArgs(
-    partial( reverseArgs( ajax ), function onResult(obj){
-        cache[obj.id] = obj;
+var cacheResultado = revertirArgumentos(
+    parcial( revertirArgumentos( ajax ), function enResultado(objeto){
+        cache[objeto.id] = objeto;
     } )
 );
 
-// later:
-cacheResult( "http://some.api/person", { user: CURRENT_USER_ID } );
+// despues:
+cacheResultado( "http://alguna.api/persona", { usuario: ID_USUARIO_ACTUAL } );
 ```
 
-Instead of manually using `reverseArgs(..)` (twice!) for this purpose, we could define a `partialRight(..)` which partially applies from the right. Under the covers, it could use the same double-reverse trick:
+En lugar de usar manualmente `revertirArgumentos(..)` (¡dos veces!) Para este fin, podríamos definir un `parcialDerecha(..)` que se aplica parcialmente desde la derecha. Debajo de la superficie, podría usar el mismo truco de doble inversión:
 
 ```js
-function partialRight(fn,...presetArgs) {
-    return reverseArgs(
-        partial( reverseArgs( fn ), ...presetArgs.reverse() )
+function parcialDerecha(funcion,...argumentosPredefinidos) {
+    return revertirArgumentos(
+        parcial( revertirArgumentos( funcion ), ...argumentosPredefinidos.reverse() )
     );
 }
 
-var cacheResult = partialRight( ajax, function onResult(obj){
-    cache[obj.id] = obj;
+var cacheResultado = parcialDerecha( ajax, function enResultado(objeto){
+    cache[objeto.id] = objeto;
 });
 
 // later:
-cacheResult( "http://some.api/person", { user: CURRENT_USER_ID } );
+cacheResultado( "http://alguna.api/persona", { user: ID_USUARIO_ACTUAL } );
 ```
 
-Another more straightforward (and certainly more performant) implementation of `partialRight(..)` that doesn't use the double-reverse trick:
+Otra implementación más directa (y ciertamente más eficiente) de `parcialDerecha(..)` que no usa el truco de inversión doble:
 
 ```js
-function partialRight(fn,...presetArgs) {
-    return function partiallyApplied(...laterArgs) {
-        return fn( ...laterArgs, ...presetArgs );
+function parcialDerecha(funcion,...argumentosPredefinidos) {
+    return function parcialmenteAplicada(...argumentosTardios) {
+        return funcion( ...argumentosTardios, ...argumentosPredefinidos );
     };
 }
 
-// or the ES6 => arrow form
-var partialRight =
-    (fn,...presetArgs) =>
-        (...laterArgs) =>
-            fn( ...laterArgs, ...presetArgs );
+// on en la forma de funcion flecha => en ES6
+var parcialDerecha =
+    (funcion,...argumentosPredefinidos) =>
+        (...argumentosTardios) =>
+            funcion( ...argumentosTardios, ...argumentosPredefinidos );
 ```
 
-None of these implementations of `partialRight(..)` guarantee that a specific parameter will receive a specific partially-applied value; it only ensures that the partially-applied value(s) appear as the right-most (aka, last) argument(s) passed to the original function.
+Ninguna de estas implementaciones de `parcialDerecha(..)` garantiza que un parámetro específico recibirá un valor específico aplicado parcialmente; solo garantiza que los valores parcialmente aplicados aparezcan como los argumentos más a la derecha (es decir, los últimos) pasados ​​a la función original.
 
-For example:
+Por ejemplo:
 
 ```js
-function foo(x,y,z,...rest) {
-    console.log( x, y, z, rest );
+function foo(x,y,z,...parametrosRest) {
+    console.log( x, y, z, parametrosRest );
 }
 
-var f = partialRight( foo, "z:last" );
+var f = parcialDerecha( foo, "z:ultimo" );
 
-f( 1, 2 );          // 1 2 "z:last" []
+f( 1, 2 );          // 1 2 "z:ultimo" []
 
-f( 1 );             // 1 "z:last" undefined []
+f( 1 );             // 1 "z:ultimo" undefined []
 
-f( 1, 2, 3 );       // 1 2 3 ["z:last"]
+f( 1, 2, 3 );       // 1 2 3 ["z:ultimo"]
 
-f( 1, 2, 3, 4 );    // 1 2 3 [4,"z:last"]
+f( 1, 2, 3, 4 );    // 1 2 3 [4,"z:ultimo"]
 ```
 
-The value `"z:last"` is only applied to the `z` parameter in the case where `f(..)` is called with exactly two arguments (matching `x` and `y` parameters). In all other cases, the `"z:last"` will just be the right-most argument, however many arguments precede it.
+El valor `"z:ultimo"` solo se aplica al parámetro `z` en el caso en que `f(..)` se invoque con exactamente dos argumentos (que coincidan con los parámetros `x` y `y`). En todos los demás casos, el `"z:ultimo"` será el argumento más a la derecha, sin importar cuantos argumentos lo precedan.
 
 ## One At A Time
 
