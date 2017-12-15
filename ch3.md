@@ -716,157 +716,157 @@ De eso se trata la abstracción: separar dos conjuntos de detalles, en este caso
 
 Ya sea que uses currying o una aplicación parcial, crear funciones especializadas a partir de generalizadas es una técnica poderosa para la abstracción semántica y legibilidad mejorada.
 
-### Currying More Than One Argument?
+### ¿Currying más de un argumento?
 
-The definition and implementation I've given of currying thus far is, I believe, as true to the spirit as we can likely get in JavaScript.
+La definición y la implementación que he dado de currying hasta ahora es, creo, tan fiel al espíritu de su definicion a lo que podamos representar en JavaScript.
 
-Specifically, if we look briefly at how currying works in Haskell, we can observe that multiple arguments always go in to a function one at a time, one per curried call -- other than tuples (analogus to arrays for our purposes) that transport multiple values in a single argument.
+Específicamente, si miramos brevemente cómo funciona el currying en Haskell, podemos observar que los argumentos múltiples siempre van a una función de uno en uno, uno por llamada al curry -- con tal de que no sean "tuples" (análogos a los arrays para nuestros propósitos) que transportan múltiples valores en un solo argumento.
 
-For example, in Haskell:
+Por ejemplo, en Haskell:
 
 ```js
 foo 1 2 3
 ```
 
-This calls the `foo` function, and has the result of passing in three values `1`, `2`, and `3`. But functions are automatically curried in Haskell, which means each value goes in as a separate curried-call. The JS equivalent of that would look like `foo(1)(2)(3)`, which is the same style as the `curry(..)` I presented above.
+Esto llama a la función `foo`, y tiene el resultado de pasar tres valores `1`, `2` y `3`. Pero las funciones son automáticamente "al curry" en Haskell, lo que significa que cada valor entra como una llamada-al-curry por separado. El equivalente en JS de eso seria algo como `foo(1)(2)(3)`, que es el mismo estilo que el `curry(..)` presentado arriba.
 
-**Note:** In Haskell, `foo (1,2,3)` is not passing in those 3 values at once as three separate arguments, but a tuple (kinda like a JS array) as a single argument. To work, `foo` would need to be altered to handle a tuple in that argument position. As far as I can tell, there's no way in Haskell to pass all three arguments separately with just one function call; each argument gets its own curried-call. Of course, the presence of multiple calls is transparent to the Haskell developer, but it's a lot more syntactically obvious to the JS developer.
+**Nota:** En Haskell, `foo (1,2,3)` no está pasando en esos 3 valores a la vez como tres argumentos separados, sino como una sola tupla (algo así como un array en JS). Para trabajar, `foo` necesitaría ser alterado para manejar una tupla en esa posición de argumento. Por lo que puedo decir, no hay forma en Haskell para pasar los tres argumentos por separado con solo una llamada a función; cada argumento tiene su propio llamada-al-curry. Por supuesto, la presencia de llamadas múltiples es transparente para el desarrollador de Haskell, pero es mucho más sintáctica para el desarrollador de JS.
 
-For these reasons, I think the earlier `curry(..)` that I demonstrated is a faithful adaptation, or what I might call "strict currying". However, it's important to note that there's a looser definition used in most popular JavaScript FP libraries.
+Por estas razones, creo que el anterior `curry(...)` que demostré es una adaptación fiel, o lo que podría llamarse "estricto currying". Sin embargo, es importante tener en cuenta que hay una definición más flexible utilizada en la mayoría de las libreroas populares de PF en JavaScript.
 
-Specifically, JS currying utilities typically allow you to specify multiple arguments for each curried-call. Revisiting our `sum(..)` example from before, this would look like:
+Específicamente, las utilidades de currying en JS generalmente te permiten especificar múltiples argumentos para cada llamada-al-curry. Revisando nuestro ejemplo `sumar(..)` de antes, esto se vería así:
 
 ```js
-var curriedSum = looseCurry( sum, 5 );
+var sumaAlCurry = curryFlexible( sumar, 5 );
 
-curriedSum( 1 )( 2, 3 )( 4, 5 );            // 15
+sumaAlCurry( 1 )( 2, 3 )( 4, 5 );            // 15
 ```
 
-We see a slight syntax savings of fewer `( )`, and an implied performance benefit of now having three function calls instead of five. But other than that, using `looseCurry(..)` is identical in end result to the narrower `curry(..)` definition from earlier. I would guess the convenience/performance factor is probably why frameworks allow multiple arguments. This seems mostly like a matter of taste.
+Vemos un ligero ahorro de sintaxis de menos `( )`, y un beneficio de rendimiento implícito de tener ahora tres llamadas de función en lugar de cinco. Pero aparte de eso, el uso de `curryFlexible(..)` es idéntico en el resultado final a la definición más estrecha de `curry(..)` de antes. Supongo que el factor de conveniencia/rendimiento es probablemente la razón por la cual los frameworks permiten múltiples argumentos. Esto parece ser una cuestión de gusto.
 
-We can adapt our previous currying implementation to this common looser definition:
+Podemos adaptar nuestra implementación de currying anterior a esta definición común más flexible:
 
 ```js
-function looseCurry(fn,arity = fn.length) {
-    return (function nextCurried(prevArgs){
-        return function curried(...nextArgs){
-            var args = [ ...prevArgs, ...nextArgs ];
+function curryFlexible(funcion,aridad = funcion.length) {
+    return (function siguienteAlCurry(argumentosPrevios){
+        return function alCurry(...siguientesArgumentos){
+            var argumentos = [ ...argumentosPrevios, ...siguientesArgumentos ];
 
-            if (args.length >= arity) {
-                return fn( ...args );
+            if (argumentos.length >= aridad) {
+                return funcion( ...argumentos );
             }
             else {
-                return nextCurried( args );
+                return siguienteAlCurry( argumentos );
             }
         };
     })( [] );
 }
 ```
 
-Now each curried-call accepts one or more arguments (as `nextArgs`). We'll leave it as an exercise for the interested reader to define the ES6 `=>` version of `looseCurry(..)` similar to how we did it for `curry(..)` earlier.
+Ahora cada llamada-al-curry acepta uno o más argumentos (como `siguientesArgumentos`). Lo dejaremos como ejercicio para que el lector interesado defina la versión ES6 `=>` de `curryFlexible(..)` similar a como lo hicimos para `curry(..)` anteriormente.
 
-### No Curry For Me, Please
+### No Curry Para Mí, Por Favor
 
-It may also be the case that you have a curried function that you'd like to essentially un-curry -- basically, to turn a function like `f(1)(2)(3)` back into a function like `g(1,2,3)`.
+También puede darse el caso de que tengas una función al curry que desees esencialmente sin curry, básicamente, convertir una función como `f(1)(2)(3)` a una función como `g(1,2,3)`.
 
-The standard utility for this is (un)shockingly typically called `uncurry(..)`. Here's a simple naive implementation:
+La utilidad estándar para esto es (no) sorpresivamente llamada `uncurry(..)`. Aquí hay una implementación bastante simple:
 
 ```js
-function uncurry(fn) {
-    return function uncurried(...args){
-        var ret = fn;
+function uncurry(funcion) {
+    return function sinCurry(...argumentos){
+        var retornar = funcion;
 
-        for (let arg of args) {
-            ret = ret( arg );
+        for (let argumento of argumentos) {
+            retornar = retornar( argumento );
         }
 
-        return ret;
+        return retornar;
     };
 }
 
-// or the ES6 => arrow form
+// on en la forma de ES6:
 var uncurry =
-    fn =>
-        (...args) => {
-            var ret = fn;
+    funcion =>
+        (...argumentos) => {
+            var retornar = funcion;
 
-            for (let arg of args) {
-                ret = ret( arg );
+            for (let argumento of argumentos) {
+                retornar = retornar( argumento );
             }
 
-            return ret;
+            return retornar;
         };
 ```
 
-**Warning:** Don't just assume that `uncurry(curry(f))` has the same behavior as `f`. In some libs the uncurrying would result in a function like the original, but not all of them; certainly our example here does not. The uncurried function acts (mostly) the same as the original function if you pass as many arguments to it as the original function expected. However, if you pass fewer arguments, you still get back a partially curried function waiting for more arguments; this quirk is illustrated in the next snippet.
+**Advertencia:** No asumas que `uncurry(curry(f))` tiene el mismo comportamiento que `f`. En algunas librerías, esta accion daría lugar a una función como la original, pero no a todas; Ciertamente nuestro ejemplo aquí no. La función no ejecutada actúa (en su mayoría) igual que la función original si le pasa tantos argumentos como se esperaba de la función original. Sin embargo, si pasa menos argumentos, obtienes todavía un función parcialmente al curry esperando por más argumentos; esta peculiaridad se ilustra en el siguiente fragmento.
 
 ```js
-function sum(...nums) {
-    var sum = 0;
-    for (let num of nums) {
-        sum += num;
+function sumar(...numeros) {
+    var suma = 0;
+    for (let numero of numeros) {
+        suma += numero;
     }
-    return sum;
+    return suma;
 }
 
-var curriedSum = curry( sum, 5 );
-var uncurriedSum = uncurry( curriedSum );
+var sumaAlCurry = curry( sum, 5 );
+var sumaSinCurry = uncurry( sumaAlCurry );
 
-curriedSum( 1 )( 2 )( 3 )( 4 )( 5 );        // 15
+sumaAlCurry( 1 )( 2 )( 3 )( 4 )( 5 );        // 15
 
-uncurriedSum( 1, 2, 3, 4, 5 );              // 15
-uncurriedSum( 1, 2, 3 )( 4 )( 5 );          // 15
+sumaSinCurry( 1, 2, 3, 4, 5 );              // 15
+sumaSinCurry( 1, 2, 3 )( 4 )( 5 );          // 15
 ```
 
-Probably the more common case of using `uncurry(..)` is not with a manually curried function as just shown, but with a function that comes out curried as a result of some other set of operations. We'll illustrate that scenario later in this chapter in the "No Points" discussion.
+Probablemente el caso más común de usar `uncurry (..)` no es con una función manualmente al curry como se acaba de mostrar, sino con una función que sale ya con "currying" como resultado de algún otro conjunto de operaciones. Ilustraremos ese escenario más adelante en este capítulo en la discusión "Sin puntos".
 
-## Order Matters
+## El orden importa
 
-In Chapter 2, we explored the named arguments pattern. One primary advantage of named arguments is not needing to juggle argument ordering, thereby improving readability.
+En el Capítulo 2, exploramos el patrón de argumentos nombrado. Una ventaja principal de los argumentos nombrados es no tener que hacer malabarismos con el orden de los argumentos, lo que mejora la legibilidad.
 
-Now, we've looked at the advantages of using currying/partial application to provide individual arguments to a function separately. But the downside is that these techniques are traditionally based on positional arguments; argument ordering is thus an inevitable headache.
+Ahora, hemos analizado las ventajas de usar currying / aplicacion parcial para proporcionar argumentos individuales a una función por separado. Pero la desventaja es que estas técnicas se basan tradicionalmente en argumentos posicionales; el orden de los argumentos es, por lo tanto, un dolor de cabeza inevitable.
 
-Utilities like `reverseArgs(..)` (and others) are necessary to juggle arguments to get them into the right order. Sometimes we get lucky and define a function with parameters in the order that we later want to curry them, but other times that order is incompatible and we have to jump through hoops to reorder.
+Las utilidades como `reverseArgs (..)` (y otras) son necesarias para hacer malabares con los argumentos para colocarlos en el orden correcto. A veces tenemos suerte y definimos una función con parámetros en el orden en que luego queremos aplicar currying, pero otras veces ese orden es incompatible y tenemos que pasar por aros para reordenar.
 
-The frustration is not merely that we need to use some utility to juggle the properties, but the fact that the usage of the utility clutters up our code a bit with extra noise. These kinds of things are like little paper cuts; one here or there isn't a showstopper, but the pain can certainly add up.
+La frustración no es simplemente que necesitemos usar alguna utilidad para hacer malabarismos con las propiedades, sino el hecho de que el uso de la utilidad complica un poco nuestro código con un ruido extra. Este tipo de cosas son como pequeños recortes de papel; uno aquí o allá no es demasiado incoveniente, pero el dolor puede sin duda sumarse con el tiempo.
 
-Can we improve currying/partial application to free it from these ordering concerns? Let's apply the tricks from named arguments style and invent some helper utilities for this adaptation:
+¿Podemos mejorar la aplicación de currying/aplicacion parcial para liberarlo de estas preocupaciones de orden? Vamos a aplicar los trucos del estilo de argumentos con nombre e inventar algunas utilidades de ayuda para esta adaptación:
 
 ```js
-function partialProps(fn,presetArgsObj) {
-    return function partiallyApplied(laterArgsObj){
-        return fn( Object.assign( {}, presetArgsObj, laterArgsObj ) );
+function propiedadesParciales(funcion,objetoDeArgumentosPredefinidos) {
+    return function parcialmenteAplicada(objetoDeArgumentosTardios){
+        return funcion( Object.assign( {}, objetoDeArgumentosPredefinidos, objetoDeArgumentosTardios ) );
     };
 }
 
-function curryProps(fn,arity = 1) {
-    return (function nextCurried(prevArgsObj){
-        return function curried(nextArgObj = {}){
-            var [key] = Object.keys( nextArgObj );
-            var allArgsObj = Object.assign( {}, prevArgsObj, { [key]: nextArgObj[key] } );
+function propiedadesAlCurry(funcion,aridad = 1) {
+    return (function siguienteAlCurry(objetoDeArgumentosPrevios){
+        return function alCurry(objetoDeArgumentosSiguiente = {}){
+            var [llave] = Object.keys( objetoDeArgumentosSiguiente );
+            var objetoDeArgumentosTotal = Object.assign( {}, objetoDeArgumentosPrevios, { [llave]: objetoDeArgumentosSiguiente[llave] } );
 
-            if (Object.keys( allArgsObj ).length >= arity) {
-                return fn( allArgsObj );
+            if (Object.keys( objetoDeArgumentosTotal ).length >= aridad) {
+                return funcion( objetoDeArgumentosTotal );
             }
             else {
-                return nextCurried( allArgsObj );
+                return siguienteAlCurry( objetoDeArgumentosTotal );
             }
         };
     })( {} );
 }
 ```
 
-**Tip:** We don't even need a `partialPropsRight(..)` because we don't need care about what order properties are being mapped; the name mappings make that ordering concern moot!
+**Sugerencia:** Ni siquiera necesitamos un `propiedadesParcialesDerecha(..)` porque no necesitamos tener cuidado acerca de en qué orden se están mapeando las propiedades; ¡las asignaciones de nombres hacen que la preocupación por ordenar sea nula!
 
-Here's how to use those helpers:
+Aquí se explica cómo usar esos ayudantes:
 
 ```js
 function foo({ x, y, z } = {}) {
     console.log( `x:${x} y:${y} z:${z}` );
 }
 
-var f1 = curryProps( foo, 3 );
-var f2 = partialProps( foo, { y: 2 } );
+var f1 = propiedadesAlCurry( foo, 3 );
+var f2 = propiedadesParciales( foo, { y: 2 } );
 
 f1( {y: 2} )( {x: 1} )( {z: 3} );
 // x:1 y:2 z:3
@@ -875,13 +875,13 @@ f2( { z: 3, x: 1 } );
 // x:1 y:2 z:3
 ```
 
-Even with currying or partial application, order doesn't matter anymore! We can now specify which arguments we want in whatever sequence makes sense. No more `reverseArgs(..)` or other nuisances. Cool!
+¡Incluso con currying o aplicación parcial, el orden ya no importa! Ahora podemos especificar qué argumentos queremos en cualquier secuencia que tenga sentido. No más `argumentosRevertidos(..)` u otras molestias. ¡Cool!
 
-**Tip:** If this style of function arguments seems useful or interesting to you, check out coverage of my "FPO" library in Appendix C.
+**Sugerencia:** Si este estilo de argumentos de funcióntle parece útil o interesante, consulta la cobertura de mi libreria "FPO" en el Apéndice C.
 
-### Spreading Properties
+### Esparciendo Propiedades
 
-Unfortunately, we can only take advantage of currying with named arguments if we have control over the signature of `foo(..)` and define it to destructure its first parameter. What if we wanted to use this technique with a function that had its parameters indivdually listed (no parameter destructuring!), and we couldn't change that function signature? For example:
+Desafortunadamente, solo podemos aprovechar el currying con argumentos con nombre si tenemos control sobre la firma de `foo(..)` y definirla para desestructurar su primer parámetro. ¿Qué pasaría si quisiéramos utilizar esta técnica con una función que tuviera sus parámetros enumerados individualmente (sin desestructuración de parámetros!) y no pudiéramos cambiar la firma de esa función? Por ejemplo:
 
 ```js
 function bar(x,y,z) {
@@ -889,43 +889,43 @@ function bar(x,y,z) {
 }
 ```
 
-Just like the `spreadArgs(..)` utility earlier, we could define a `spreadArgProps(..)` helper that takes the `key: value` pairs out of an object argument and "spreads" the values out as individual arguments.
+Al igual que la utilidad `expandirArgumentos(..)` anteriormente, podríamos definir un helper llamado `expandirArgumentosDePropiedad(..)` que tome los pares `llave: valor` de un argumento de objeto y "extienda" estos valores como argumentos individuales.
 
-There are some quirks to be aware of, though. With `spreadArgs(..)`, we were dealing with arrays, where ordering is well defined and obvious. However, with objects, property order is less clear and not necessarily reliable. Depending on how an object is created and properties set, we cannot be absolutely certain what enumeration order properties would come out.
+Sin embargo, hay algunas peculiaridades que debes tener en cuenta. Con `expandirArgumentos(..)`, nos ocupamos de arrays, donde el orden es bien definido y obvio. Sin embargo, con objetos, el orden de las propiedades es menos claro y no necesariamente confiable. Dependiendo de cómo se crea el objeto y de sus propiedades establecidas, no podemos estar absolutamente seguros del orden en el que saldran las propiedades.
 
-Such a utility needs a way to let you define what order the function in question expects its arguments (e.g., property enumeration order). We can pass an array like `["x","y","z"]` to tell the utility to pull the properties off the object argument in exactly that order.
+Dicha utilidad necesita una forma de permitirte definir en qué orden la función en cuestión espera sus argumentos (por ejemplo, orden de enumeración de la propiedad). Podemos pasar un array como `["x", "y", "z"]` para decirle a la utilidad que retire las propiedades del argumento del objeto exactamente en ese orden.
 
-That's decent, but it's also unfortunate that we kinda *have* to do add that property-name array even for the simplest of functions. Is there any kind of trick we could use to detect what order the parameters are listed for a function, in at least the common simple cases? Fortunately, yes!
+Eso es decente, pero también es desafortunado que tengamos que *agregar* ese array de nombre-propiedad incluso para las funciones más sencillas. ¿Hay algún tipo de truco que podamos usar para detectar qué orden se enumeran los parámetros para una función, al menos en los casos simples mas comunes? Afortunadamente, ¡sí!
 
-JavaScript functions have a `.toString()` method that gives a string representation of the function's code, including the function declaration signature. Dusting off our regular expression parsing skills, we can parse the string representation of the function, and pull out the individually named parameters. The code looks a bit gnarly, but it's good enough to get the job done:
+Las funciones de JavaScript tienen un método `.toString()` que da una representación en forma de "string" del código de la función, incluyendo la firma de declaración de la función. Sacando a relucir nuestras habilidades de análisis de expresiones regulares, podemos analizar la representación en forma de "string" de la función y extraer los parámetros nombrados individualmente. El código parece un poco retorcido, pero es lo suficientemente bueno como para realizar el trabajo:
 
 ```js
-function spreadArgProps(
-    fn,
-    propOrder =
-        fn.toString()
+function expandirArgumentosDePropiedad(
+    funcion,
+    ordenDePropiedades =
+        funcion.toString()
         .replace( /^(?:(?:function.*\(([^]*?)\))|(?:([^\(\)]+?)
             \s*=>)|(?:\(([^]*?)\)\s*=>))[^]+$/, "$1$2$3" )
         .split( /\s*,\s*/ )
         .map( v => v.replace( /[=\s].*$/, "" ) )
 ) {
-    return function spreadFn(argsObj) {
-        return fn( ...propOrder.map( k => argsObj[k] ) );
+    return function expandirFuncion(objetoDeArgumentos) {
+        return funcion( ...ordenDePropiedades.map( llave => objetoDeArgumentos[llave] ) );
     };
 }
 ```
 
-**Note:** This utility's parameter parsing logic is far from bullet-proof; we're using regular expressions to parse code, which is already a faulty premise! But our only goal here is to handle the common cases, which this does reasonably well. We only need a sensible default detection of parameter order for functions with simple parameters (including those with default parameter values). We don't, for example, need to be able to parse out a complex destructured parameter, because we wouldn't likely be using this utility with such a function, anyway. So, this logic gets the 80% job done; it lets us override the `propOrder` array for any other more complex function signature that wouldn't otherwise be correctly parsed. That's the kind of pragmatic balance this book seeks to find wherever possible.
+**Nota:** La lógica de análisis de parámetros de esta utilidad está lejos de ser a prueba de balas; estamos usando expresiones regulares para analizar el código, ¡que ya es una premisa defectuosa! Pero nuestro único objetivo aquí es manejar los casos comunes, lo que hace bastante bien. Solo necesitamos una detección por defecto sensata del orden de parámetros para funciones con parámetros simples (incluidos aquellos con valores de parámetros predeterminados). No es necesario, por ejemplo, poder analizar un parámetro desestructurado complejo, porque de todos modos no es probable que usemos esta utilidad con esa función. Entonces, esta lógica obtiene el 80% del trabajo hecho; nos permite sobreescribir el array `ordenDePropiedades` para cualquier otra firma de función más compleja que de otro modo no se analizaría correctamente. Ese es el tipo de equilibrio pragmático que este libro busca encontrar siempre que sea posible.
 
-Let's illustrate using our `spreadArgProps(..)` utility:
+Vamos a ilustrar esto usando nuestra utilidad `expandirArgumentosDePropiedad(..)`:
 
 ```js
 function bar(x,y,z) {
     console.log( `x:${x} y:${y} z:${z}` );
 }
 
-var f3 = curryProps( spreadArgProps( bar ), 3 );
-var f4 = partialProps( spreadArgProps( bar ), { y: 2 } );
+var f3 = propiedadesAlCurry( expandirArgumentosDePropiedad( bar ), 3 );
+var f4 = propiedadesParciales( expandirArgumentosDePropiedad( bar ), { y: 2 } );
 
 f3( {y: 2} )( {x: 1} )( {z: 3} );
 // x:1 y:2 z:3
@@ -934,196 +934,195 @@ f4( { z: 3, x: 1 } );
 // x:1 y:2 z:3
 ```
 
-While order is no longer a concern, usage of functions defined in this style requires you to know what each argument's exact name is. You can't just remember, "oh, the function goes in as the first argument" anymore. Instead you have to remember, "the function parameter is called 'fn'." Conventions can create consistency of naming that lessens this burden, but it's still something to be aware of.
+Si bien el orden ya no es una preocupación, el uso de las funciones definidas en este estilo requiere que sepas cuál es el nombre exacto de cada argumento. No puedes simplemente recordar, "oh, la función entra como el primer argumento" más. En su lugar, debe recordar que "el parámetro de función se llama 'funcion'". Las convenciones pueden crear consistencia en el nombramiento lo que disminuye esta carga cognitiva, pero aún es algo de lo que debes tener en cuenta.
 
-Weigh these tradeoffs carefully.
+Pondera estas concesiones cuidadosamente.
 
-## No Points
+## Sin puntos
 
-A popular style of coding in the FP world aims to reduce some of the visual clutter by removing unnecessary parameter-argument mapping. This style is formally called tacit programming, or more commonly: point-free style. The term "point" here is referring to a function's parameter input.
+Un estilo popular de programar en el mundo de la PF tiene como objetivo reducir parte del desorden visual eliminando el mapeo innecesario de parámetros y argumentos. Este estilo se llama formalmente programación tácita, o más comúnmente: estilo sin puntos. El término "punto" aquí se refiere a la entrada de parámetros de una función.
 
-**Warning:** Stop for a moment. Let's make sure we're careful not to take this discussion as an unbounded suggestion that you go overboard trying to be point-free in your FP code at all costs. This should be a technique for improving readability, when used in moderation. But as with most things in software development, you can definitely abuse it. If your code gets harder to understand because of the hoops you have to jump through to be point-free, stop. You won't win a blue ribbon just because you found some clever but esoteric way to remove another "point" from your code.
+**Advertencia:** Detente por un momento. Asegurémonos de tener cuidado de no tomar esta discusión como una sugerencia sin limites de que debes de tratar de estar libre de puntos en todo tu código de PF a toda costa. Esta debería ser una técnica para mejorar la legibilidad, cuando se usa con moderación. Pero como con la mayoría de las cosas en el desarrollo de software, definitivamente puedes llegar a abusar de ella. Si tu código se vuelve más difícil de entender debido a los aros por los que debes saltar para no tener puntos, detente. No ganarás un premio solo porque hayas encontrado una forma inteligente pero esotérica de eliminar otro "punto" de tu código.
 
-Let's start with a simple example:
+Comencemos con un ejemplo simple:
 
 ```js
-function double(x) {
+function doble(x) {
     return x * 2;
 }
 
-[1,2,3,4,5].map( function mapper(v){
-    return double( v );
+[1,2,3,4,5].map( function mapear(valor){
+    return doble( valor );
 } );
 // [2,4,6,8,10]
 ```
 
-Can you see that `mapper(..)` and `double(..)` have the same (or compatible, anyway) signatures? The parameter ("point") `v` can directly map to the corresponding argument in the `double(..)` call. As such, the `mapper(..)` function wrapper is unnecessary. Let's simplify with point-free style:
+¿Puedes ver que `mapear(..)` y `doble(..)` tienen las mismas firmas (firmas compatibles, de todos modos)? El parámetro ("punto") `valor` se puede asignar directamente al argumento correspondiente en la llamada a `doble(..)`. Como tal, el contenedor de la función `mapear(..)` no es necesario. Simplifiquemos con el estilo sin puntos:
 
 ```js
-function double(x) {
+function doble(x) {
     return x * 2;
 }
 
-[1,2,3,4,5].map( double );
+[1,2,3,4,5].map( doble );
 // [2,4,6,8,10]
 ```
-
-Let's revisit an example from earlier:
+Repasemos un ejemplo de antes:
 
 ```js
-["1","2","3"].map( function mapper(v){
-    return parseInt( v );
+["1","2","3"].map( function mapear(valor){
+    return parseInt( valor );
 } );
 // [1,2,3]
 ```
 
-In this example, `mapper(..)` is actually serving an important purpose, which is to discard the `index` argument that `map(..)` would pass in, because `parseInt(..)` would incorrectly interpret that value as a `radix` for the parsing.
+En este ejemplo, `mapear(..)` está cumpliendo un propósito importante, que es descartar el argumento `index` que `map(..)` pasaría, porque `parseInt (..)` interpretaría incorrectamente ese valor como la 'base' para procesar los strings a integers.
 
-If you recall from the beginning of this chapter, this was an example where `unary(..)` helps us out:
+Si recuerdas desde el comienzo de este capítulo, este fue un ejemplo donde `unaria(..)` nos ayuda:
 
 ```js
-["1","2","3"].map( unary( parseInt ) );
+["1","2","3"].map( unaria( parseInt ) );
 // [1,2,3]
 ```
 
-Point-free!
+Sin puntos!
 
-The key thing to look for is if you have a function with parameter(s) that is/are directly passed to an inner function call. In both the above examples, `mapper(..)` had the `v` parameter that was passed along to another function call. We were able to replace that layer of abstraction with a point-free expression using `unary(..)`.
+La clave a tener en cuenta es si tienes una función con un parámetro que se transfiera directamente a una llamada de función interna. En los dos ejemplos anteriores, `mapear(..)` tenía el parámetro `valor` que era pasado a otra llamada de función. Pudimos reemplazar esa capa de abstracción con una expresión sin puntos usando `unaria(..)`.
 
-**Warning:** You might have been tempted, as I was, to try `map(partialRight(parseInt,10))` to right-partially apply the `10` value as the `radix`. However, as we saw earlier, `partialRight(..)` only guarantees that `10` will be the last argument passed in, not that it will be specifically the second argument. Since `map(..)` itself passes three arguments (`value`, `index`, `arr`) to its mapping function, the `10` value would just be the fourth argument to `parseInt(..)`; it only pays attention to the first two.
+**Advertencia:** Es posible que hayas tenido la tentación, como yo, de probar `map(parcialDerecha(parseInt, 10))` para aplicar parcialmente desde la derecha el valor `10` como la `base`. Sin embargo, como vimos anteriormente, `parcialDerecha(..)` solo garantiza que `10` será el último argumento pasado, no que será específicamente el segundo argumento. Como `map(..)` pasa tres argumentos (`valor`,` index`, `array`) a su función de mapeo, el valor `10` sería el cuarto argumento de `parseInt(..)`; mientras que esta solo le presta atención a los dos primeros.
 
-Here's another example:
+Aquí hay otro ejemplo:
 
 ```js
-// convenience to avoid any potential binding issue
-// with trying to use `console.log` as a function
-function output(txt) {
-    console.log( txt );
+// conveniencia para evitar cualquier posible problema de "binding"
+// cuando se intenta usar `console.log` como una función
+function salida(texto) {
+    console.log( texto );
 }
 
-function printIf( predicate, msg ) {
-    if (predicate( msg )) {
-        output( msg );
+function imprimirSi( predicado, mensaje ) {
+    if (predicado( mensaje )) {
+        salida( mensaje );
     }
 }
 
-function isShortEnough(str) {
-    return str.length <= 5;
+function esLoSuficientementeCorto(string) {
+    return string.length <= 5;
 }
 
-var msg1 = "Hello";
-var msg2 = msg1 + " World";
+var mensaje1 = "Hola";
+var mensaje2 = mensaje1 + " Mundo";
 
-printIf( isShortEnough, msg1 );         // Hello
-printIf( isShortEnough, msg2 );
+imprimirSi( esLoSuficientementeCorto, mensaje1 );         // Hola
+imprimirSi( esLoSuficientementeCorto, mensaje2 );
 ```
 
-Now let's say you want to print a message only if it's long enough; in other words, if it's `!isShortEnough(..)`. Your first thought is probably this:
+Ahora digamos que deseas imprimir un mensaje solo si es lo suficientemente largo; en otras palabras, si es `!esLoSuficientementeCorto(..)`. Tu primer pensamiento es probablemente algo como esto:
 
 ```js
-function isLongEnough(str) {
-    return !isShortEnough( str );
+function esLoSuficientementeLargo(string) {
+    return !esLoSuficientementeCorto( string );
 }
 
-printIf( isLongEnough, msg1 );
-printIf( isLongEnough, msg2 );          // Hello World
+imprimirSi( esLoSuficientementeLargo, mensaje1 );
+imprimirSi( esLoSuficientementeLargo, mensaje2 );          // Hola Mundo
 ```
 
-Easy enough... but "points" now! See how `str` is passed through? Without re-implementing the `str.length` check, can we refactor this code to point-free style?
+¡Bastante fácil ... pero hay "puntos" ahora! ¿Ves cómo `string` es pasado? Sin volver a implementar la verificación de `string.length`, ¿podemos refactorizar este código para un estilo sin puntos?
 
-Let's define a `not(..)` negation helper (often referred to as `complement(..)` in FP libraries):
+Definamos un asistente de negación `no(..)` (a menudo denominado `complemento(..)` en las librerias de PF):
 
 ```js
-function not(predicate) {
-    return function negated(...args){
-        return !predicate( ...args );
+function no(predicado) {
+    return function negada(...argumentos){
+        return !predicado( ...argumentos );
     };
 }
 
-// or the ES6 => arrow form
-var not =
-    predicate =>
-        (...args) =>
-            !predicate( ...args );
+// O usando ES6:
+var no =
+    predicado =>
+        (...argumentos) =>
+            !predicado( ...argumentos );
 ```
 
-Next, let's use `not(..)` to alternately define `isLongEnough(..)` without "points":
+A continuación, usemos `no(..)` para definir alternativamente `esLoSuficientementeLargo(..)` sin "puntos":
 
 ```js
-var isLongEnough = not( isShortEnough );
+var esLoSuficientementeLargo = not( esLoSuficientementeCorto );
 
-printIf( isLongEnough, msg2 );          // Hello World
+printIf( esLoSuficientementeLargo, mensaje2 );          // Hola Mundo
 ```
 
-That's pretty good, isn't it? But we *could* keep going. The definition of the `printIf(..)` function can actually be refactored to be point-free itself.
+Eso es bastante bueno, ¿no? Pero *podríamos* seguir. La definición de la función `imprimirSi(..)` en realidad se puede refactorizar para que esté libre de puntos.
 
-We can express the `if` conditional part with a `when(..)` utility:
+Podemos expresar la parte condicional de `if` con una utilidad `cuando(..)`:
 
 ```js
-function when(predicate,fn) {
-    return function conditional(...args){
-        if (predicate( ...args )) {
-            return fn( ...args );
+function cuando(predicado,funcion) {
+    return function condicional(...argumentos){
+        if (predicado( ...argumentos )) {
+            return funcion( ...argumentos );
         }
     };
 }
 
-// or the ES6 => form
-var when =
-    (predicate,fn) =>
-        (...args) =>
-            predicate( ...args ) ? fn( ...args ) : undefined;
+// o en la forma de funcion flecha => ES6
+var cuando =
+    (predicado,funcion) =>
+        (...argumentos) =>
+            predicado( ...argumentos ) ? funcion( ...argumentos ) : undefined;
 ```
 
-Let's mix `when(..)` with a few other helper utilities we've seen earlier in this chapter, to make the point-free `printIf(..)`:
+Vamos a mezclar `cuando(..)` con algunas otras utilidades de ayuda que hemos visto anteriormente en este capítulo, para hacer el `imprimirSi(..)` sin puntos:
 
 ```js
-var printIf = uncurry( rightPartial( when, output ) );
+var imprimirSi = sinCurry(parcialDerecha( cuando, salida ) );
 ```
 
-Here's how we did it: we right-partially-applied the `output` method as the second (`fn`) argument for `when(..)`, which leaves us with a function still expecting the first argument (`predicate`). *That* function when called produces another function expecting the message string; it would look like this: `fn(predicate)(str)`.
+Así es como lo hicimos: aplicamos parcialmente el método `salida` como el segundo argumento (`funcion`) para `cuando(..)`, lo que nos deja con una función que todavía espera el primer argumento (`predicado`) *Esa* función cuando se llama produce otra función esperando el mensaje como string; se vería así: `funcion(predicado)(string)`.
 
-A chain of multiple (two) function calls like that looks an awful lot like a curried function, so we `uncurry(..)` this result to produce a single function that expects the two `str` and `predicate` arguments together, which matches the original `printIf(predicate,str)` signature.
+Una cadena de llamadas a funciones múltiples (dos) se parece mucho a una función que hace uso del curry, por lo que usamos `sinCurry (...)` con este resultado para producir una función única que espera los dos argumentos `string` y` predicado` juntos, lo que coincide con la firma original `imprimirSi(predicado, string)`.
 
-Here's the whole example put back together (assuming various utilities we've already detailed in this chapter are present):
+Aquí está todo el ejemplo reunido nuevamente (suponiendo que varias utilidades que ya hemos detallado en este capítulo están presentes):
 
 ```js
-function output(msg) {
-    console.log( msg );
+function salida(mensaje) {
+    console.log( mensaje );
 }
 
-function isShortEnough(str) {
-    return str.length <= 5;
+function esLoSuficientementeCorto(string) {
+    return string.length <= 5;
 }
 
-var isLongEnough = not( isShortEnough );
+var esLoSuficientementeLargo = no( esLoSuficientementeCorto );
 
-var printIf = uncurry( partialRight( when, output ) );
+var imprimirSi = sinCurry( parcialDerecha( cuando, salida ) );
 
-var msg1 = "Hello";
-var msg2 = msg1 + " World";
+var mensaje1 = "Hola";
+var mensaje2 = mensaje1 + " Mundo";
 
-printIf( isShortEnough, msg1 );         // Hello
-printIf( isShortEnough, msg2 );
+imprimirSi( esLoSuficientementeCorto, mensaje1 );         // Hola
+imprimirSi( esLoSuficientementeCorto, mensaje2 );
 
-printIf( isLongEnough, msg1 );
-printIf( isLongEnough, msg2 );          // Hello World
+imprimirSi( esLoSuficientementeLargo, mensaje1 );
+imprimirSi( esLoSuficientementeLargo, mensaje2 );          // Hola Mundo
 ```
 
-Hopefully the FP practice of point-free style coding is starting to make a little more sense. It'll still take a lot of practice to train yourself to think this way naturally. **And you'll still have to make judgement calls** as to whether point-free coding is worth it, as well as what extent will benefit your code's readability.
+Espero que la práctica de la PF con el estilo sin puntos está empezando a tener un poco más de sentido. Todavía requerirás de mucha práctica para entrenarte con esta manera de pensar de una forma natural. **Y aún tendrás que usar tu propio juicio** sobre si vale la pena la codificación sin puntos, y en qué medida esta beneficiará la legibilidad de tu código.
 
-What do you think? Points or no points for you?
+¿Qué piensas? Con puntos o sin puntos para ti?
 
-**Note:** Want more practice with point-free style coding? We'll revisit this technique in "Revisiting Points" in Chapter 4, based on new-found knowledge of function composition.
+**Nota:** ¿Deseas prácticar más con la el estilo sin puntos? Revisaremos esta técnica en "Revisitando Puntos" en el Capítulo 4, basado en el nuevo conocimiento de la composición de funciones.
 
-## Summary
+## Resumen
 
-Partial Application is a technique for reducing the arity -- expected number of arguments to a function -- by creating a new function where some of the arguments are preset.
+La Aplicación parcial es una técnica para reducir el número de argumentos esperado para una función, creando una nueva función donde algunos de los argumentos están preestablecidos.
 
-Currying is a special form of partial application where the arity is reduced to 1, with a chain of successive chained function calls, each which takes one argument. Once all arguments have been specified by these function calls, the original function is executed with all the collected arguments. You can also undo a currying.
+Currying es una forma especial de aplicación parcial donde la aridad se reduce a 1, con una cadena de sucesivas llamadas a funciones encadenadas, cada una de las cuales toma un argumento. Una vez que todos los argumentos han sido especificados por estas llamadas a funciones, la función original se ejecuta con todos los argumentos recopilados. También puedes deshacer un currying.
 
-Other important utilities like `unary(..)`, `identity(..)`, and `constant(..)` are part of the base toolbox for FP.
+Otras utilidades importantes como `unaria(..)`, `identidad(..)` y `constante(..)` son parte de la caja de herramientas básica para la PF.
 
-Point-free is a style of writing code that eliminates unnecessary verbosity of mapping parameters ("points") to arguments, with the goal of making easier to read/understand code.
+"Libre-de-Puntos" es un estilo de escritura de código que elimina la verbosidad innecesaria de los parámetros de mapeo ("puntos") a los argumentos, con el objetivo de facilitar la lectura/comprensión del código.
 
-All of these techniques twist functions around so they can work together more naturally. With your functions shaped compatibly now, the next chapter will teach you how to combine them to model the flows of data through your program.
+Todas estas técnicas cambian las funciones para que puedan funcionar juntas de forma más natural. Con tus funciones configuradas de una manera compatible ahora, el siguiente capítulo te enseñará cómo combinarlas para modelar los flujos de datos a través de tu programa.
