@@ -1,187 +1,187 @@
-# Functional-Light JavaScript
-# Chapter 4: Composing Functions
+# Javascript Funcionalmente-Ligero
+# Capítulo 4: Componiendo Funciones
 
-By now, I hope you're feeling much more comfortable with what it means to use functions for functional programming.
+Por ahora, espero que te sientas mucho más cómodo con lo que significa usar funciones para la programación funcional.
 
-A functional programmer sees every function in their program like a little simple lego piece. They recognize the blue 2x2 brick at a glance, and know exactly how it works and what they can do with it. As they go about building a bigger complex lego model, as they need each next piece, they already have an instinct for which of their many spare pieces to grab.
+Un programador funcional ve cada función en su programa como una pequeña pieza de lego simple. Reconocen el ladrillo azul 2x2 de un vistazo, y saben exactamente cómo funciona y qué pueden hacer con él. A medida que avanzan en la construcción de un modelo de lego complejo más grande, mientras van necesitando cada siguiente pieza, ya tienen un instinto de cuantas piezas de repuesto van a agarrar.
 
-But sometimes you take the blue 2x2 brick and the gray 4x1 brick and put them together in a certain way, and you realize, "that's a useful piece that I need often".
+Pero a veces tomas el ladrillo azul de 2x2 y el ladrillo gris de 4x1, los unes de cierta manera, y te das cuenta, "esa es una pieza útil que necesito a menudo".
 
-So now you've come up with a new "piece", a combination of two other pieces, and you can reach for that kind of piece now anytime you need it. It's more effective to recognize and use this compound blue-gray L-brick thing where it's needed than to separately think about assembling the two individual bricks each time.
+Así que ahora se te ha ocurrido una nueva "pieza", una combinación de otras dos piezas, y puedes obtener ese tipo de pieza ahora en cualquier momento que lo necesites. Es más efectivo reconocer y usar este compuesto azul-gris en forma de "ladrillo en forma de L" donde sea necesario que pensar por separado sobre el ensamblaje de los dos ladrillos individuales cada vez.
 
-Functions come in a variety of shapes and sizes. And we can define a certain combination of them to make a new compound function that will be handy in various parts of the program. This process of using functions together is called composition.
+Las funciones vienen en una variedad de formas y tamaños. Y podemos definir una cierta combinación de ellos para hacer una nueva función compuesta que será útil en varias partes del programa. Este proceso de usar funciones en conjunto se llama composición.
 
-Composition is how an FPer models the flow of data through the program. In some senses, it's the most foundational concept in all of FP, because without it, you can't declaratively model data and state changes. In other words, everything else in FP would collapse without composition.
+La composición es cómo un Programador-Funcional modela el flujo de datos a través del programa. En algunos sentidos, es el concepto más fundamental en toda la PF, porque sin él, no se podrian modelar los datos y los cambios de estado de forma declarativa. En otras palabras, todo lo demás en la PF colapsaría sin composición.
 
-## Output To Input
+## Salida a Entrada
 
-We've already seen a few examples of composition. For example, in Chapter 3 our discussion of `unary(..)` included this expression: `unary(adder(3))`. Think about what's happening there.
+Ya hemos visto algunos ejemplos de composición. Por ejemplo, en el Capítulo 3, nuestra discusión sobre `unaria(..)` incluyó esta expresión: `unaria(sumar(3))`. Piensa en lo que está pasando allí.
 
-To compose two functions together, pass the output of the first function call as the input of the second function call. In `unary(adder(3))`, the `adder(3)` call returns a value (a function); that value is directly passed as an argument to `unary(..)`, which also returns a value (another function).
+Para componer dos funciones juntas, pasa la salida de la primera llamada de función como la entrada de la segunda llamada de función. En `unaria(sumar(3))`, la llamada `sumar(3)` devuelve un valor (una función); ese valor se pasa directamente como argumento a `unaria(..)`, que también devuelve un valor (otra función).
 
-To take a step back and visualize the conceptual flow of data, consider:
+Para dar un paso atrás y visualizar el flujo conceptual de datos, considera:
 
 ```
-functionValue <-- unary <-- adder <-- 3
+valorFuncion <-- unaria <-- sumar <-- 3
 ```
 
-`3` is the input to `adder(..)`. The output of `adder(..)` is the input to `unary(..)`. The output of `unary(..)` is `functionValue`. This is the composition of `unary(..)` and `adder(..)`.
+`3` es la entrada a `sumar(..)`. La salida de `sumar(..)` es la entrada a `unaria(..)`. La salida de `unaria(..)` es `valorFuncion`. Esta es la composición de `unaria(..)` y `sumar(..)`.
 
-**Note:** The right-to-left orientation here is on purpose, though it may seem strange at this point in your learning. We'll come back to explain that more fully later.
+**Nota:** La orientación de derecha a izquierda aquí es a propósito, aunque podria parecer extraño en este punto de tu aprendizaje. Volveremos para explicar esto más completamente luego.
 
-Think of this flow of data like a conveyor belt in a candy factory, where each operation is a step in the process of cooling, cutting, and wrapping a piece of candy. We'll use the candy factory metaphor throughout this chapter to explain what composition is.
+Piensa en este flujo de datos como una cinta transportadora en una fábrica de dulces, donde cada operación es un paso en el proceso de enfriamiento, corte y envoltura de un dulce. Utilizaremos la metáfora de la fábrica de dulces a lo largo de este capítulo para explicar qué es la composición.
 
 <p align="center">
     <img src="fig2.png">
 </p>
 
-Let's examine composition in action one step at a time. Consider these two utilitites you might have in your program:
+Examinemos la composición en acción un paso a la vez. Considera estas dos utilidades que podrías tener en su programa:
 
 ```js
-function words(str) {
-    return String( str )
+function palabras(texto) {
+    return String( texto )
         .toLowerCase()
         .split( /\s|\b/ )
-        .filter( function alpha(v){
-            return /^[\w]+$/.test( v );
+        .filter( function alfa(valor){
+            return /^[\w]+$/.test( valor );
         } );
 }
 
-function unique(list) {
-    var uniqList = [];
+function unica(lista) {
+    var listaUnica = [];
 
-    for (let v of list) {
-        // value not yet in the new list?
-        if (uniqList.indexOf( v ) === -1 ) {
-            uniqList.push( v );
+    for (let valor of lista) {
+        // el valor aun no esta en la nueva lista?
+        if (listaUnica.indexOf( valor ) === -1 ) {
+            listaUnica.push( valor );
         }
     }
 
-    return uniqList;
+    return listaUnica;
 }
 ```
 
-`words(..)` splits of a string into an array of words. `unique(..)` takes a list of words and filters it to not have any repeat words in it.
+`palabras(..)` divide un valor de tipo string en un array de palabras. `unica(..)` toma una lista de palabras y la filtra para que no tenga palabras repetidas.
 
-To use these two utilities to analyze a string of text:
+Para usar estas dos utilidades para analizar una cadena de texto:
 
 ```js
-var text = "To compose two functions together, pass the \
-output of the first function call as the input of the \
-second function call.";
+var texto = "Para componer dos funciones juntas, pase la \
+salida de la primera llamada de funcion como entrada de la \
+segunda llamada de funcion.";
 
-var wordsFound = words( text );
-var wordsUsed = unique( wordsFound );
+var palabrasEncontradas = palabras( texto );
+var palabrasUsadas = unica( palabrasEncontradas );
 
-wordsUsed;
-// ["to","compose","two","functions","together","pass",
-// "the","output","of","first","function","call","as",
-// "input","second"]
+palabrasUsadas;
+// ["para","componer","dos","funciones","juntas","pase",
+// "la","salida","de","primera","llamada","funcion","como",
+// "entrada","segunda"]
 ```
 
-We name the array output of `words(..)` as `wordsFound`. The input of `unique(..)` is also an array, so we can pass the `wordsFound` into it.
+Llamamos `palabrasEncontradas` a la salida del array proveniente de `palabras(..)`. La entrada de `unica(..)` también es un array, por lo que podemos pasarle `palabrasEncontradas`.
 
-Back to the candy factory assembly line: the first machine takes as "input" the melted chocolate, and its "output" is a chunk of formed and cooled chocolate. The next machine a little down the assembly line takes as its "input" the chunk of chocolate, and its "output" is a cut-up of piece of chocolate candy. Next, a machine on the line takes small pieces of chocolate candy from the conveyor belt and outputs wrapped candies ready to bag and ship.
+De vuelta a la línea de montaje de la fábrica de dulces: la primera máquina toma como "entrada" el chocolate derretido, y su "salida" es un trozo de chocolate formado y enfriado. La siguiente máquina, un poco más abajo de la línea de montaje, toma como "entrada" el trozo de chocolate, y su "salida" es un trozo de trozo de chocolate. A continuación, una máquina en la línea toma pequeños trozos de caramelo de chocolate de la cinta transportadora y saca caramelos envueltos listos para ensacar y enviar.
 
 <img src="fig3.png" align="right" width="70" hspace="20">
 
-The candy factory is fairly successful with this process, but as with all businesses, management keeps searching for ways to grow.
+La fábrica de dulces es bastante exitosa con este proceso, pero al igual que con todas las empresas, la administración siempre esta buscando formas de crecer.
 
-To keep up with demand for more candy production, they decide to take out the conveyor belt contraption and just stack all three machines on top of each other, so that the output valve of one is connected directly to the input valve of the one below it. There's no longer sprawling wasted space where a chunk of chocolate slowly and noisly rumbles down a conveyor belt from the first machine to the second.
+Para mantenerse al día con la demanda de más producción de dulces, deciden sacar el artilugio de la cinta transportadora y simplemente apilar las tres máquinas una encima de la otra, de modo que la válvula de salida de uno se conecte directamente a la válvula de entrada del que está debajo. Ya no hay un espacio desperdiciado en el que un trozo de chocolate rebote lenta y ruidosamente por una cinta transportadora desde la primera máquina hasta la segunda.
 
-This innovation saves a lot of room on the factory floor, so management is happy they'll get to make more candy each day!
+Esta innovación ahorra mucho espacio en la fábrica, por lo que la gerencia está contenta de que puedan hacer más dulces todos los días.
 
-The code equivalent of this improved candy factory configuration is to skip the intermediate step (the `wordsFound` variable in the earlier snippet), and just use the two function calls together:
+El código equivalente a esta configuración mejorada de la fábrica de dulces es omitir el paso intermedio (la variable `palabrasEncontradas` en el fragmento anterior), y simplemente usar las dos llamadas a la función juntas:
 
 ```js
-var wordsUsed = unique( words( text ) );
+var palabrasUsadas = unica( palabras( texto ) );
 ```
 
-**Note:** Though we typically read the function calls left-to-right -- `unique(..)` and then `words(..)` -- the order of operations will actually be more right-to-left, or inner-to-outer. `words(..)` will run first and then `unique(..)`. Later we'll talk about a pattern that matches the order of execution to our natural left-to-right reading, called `pipe(..)`.
+**Nota:** Aunque normalmente leemos las llamadas de función de izquierda a derecha -- `unica(..)` y luego `palabras(..)` -- el orden de las operaciones será más derecha a izquierda, o interna a externa. `palabras(..)` se ejecutará primero y luego `unica(..)`. Más adelante hablaremos sobre un patrón que coincide con el orden de ejecución de nuestra lectura natural de izquierda a derecha, llamado `conducto(..)`.
 
-The stacked machines are working fine, but it's kind of clunky to have the wires hanging out all over the place. The more of these machine-stacks they create, the more cluttered the factory floor gets. And the effort to assemble and maintain all these machine stacks is awfully time intensive.
+Las máquinas apiladas funcionan bien, pero es un poco torpe tener los cables colgando por todos lados. Cuantas más pilas de máquinas sean creadas, más abarrotada estara la fábrica. Y el esfuerzo para ensamblar y mantener todas estas pilas de máquinas requiere mucho tiempo.
 
 <img src="fig4.png" align="left" width="130" hspace="20">
 
-One morning, an engineer at the candy factory has a great idea. She figures that it'd be much more efficient if she made an outer box to hide all the wires; on the inside, all three of the machines are hooked up together, and on the outside everything is now neat and tidy. On the top of this fancy new machine is a valve to pour in melted chocolate and on the bottom is a valve that spits out wrapped chocolate candies. Brilliant!
+Una mañana, un ingeniero en la fábrica de dulces tiene una gran idea. Se imagina que sería mucho más eficiente si hiciera una caja exterior para ocultar todos los cables; en el interior, las tres máquinas están conectadas entre sí, y en el exterior todo está limpio y ordenado. En la parte superior de esta nueva y elegante máquina hay una válvula para verter el chocolate derretido y en el fondo una válvula que escupe dulces de chocolate envueltos. ¡Brillante!
 
-This single compound machine is much easier to move around and install wherever the factory needs it. The workers on the factory floor are even happier because they don't need to fidget with buttons and dials on three individual machines anymore; they quickly prefer using the single fancy machine.
+Esta máquina compuesta individual es mucho más fácil de mover e instalar donde la fábrica lo necesite. Los trabajadores en la fábrica son aún más felices porque ya no necesitan juguetear con botones y diales en tres máquinas individuales; ellos prefieren rápidamente usar la única máquina elegante.
 
-Relating back to the code: we now realize that the pairing of `words(..)` and `unique(..)` in that specific order of execution -- think: compound lego -- is something we could use in several other parts of our application. So, let's define a compound function that combines them:
+Volviendo al código: ahora nos damos cuenta de que el emparejamiento de `palabras(..)` y `unica(..)` en ese orden específico de ejecución -- piensa: legos compuestos -- es algo que podríamos usar en varias otros partes de nuestra aplicación. Entonces, definamos una función compuesta que las combine:
 
 ```js
-function uniqueWords(str) {
-    return unique( words( str ) );
+function palabrasUnicas(texto) {
+    return unica( palabras( texto ) );
 }
 ```
 
-`uniqueWords(..)` takes a string and returns an array. It's a composition of `unique(..)` and `words(..)`, as it fulfills the data flow:
+`palabrasUnicas(..)` toma un string y devuelve un array. Es una composición de `unica(..)` y `palabras(..)`, ya que cumple con el flujo de datos:
 
 ```
-wordsUsed <-- unique <-- words <-- text
+palabrasUsadas <-- unica <-- palabras <-- texto
 ```
 
-You certainly get it by now: the unfolding revolution in candy factory design is function composition.
+Seguramente ya lo entiendes: la revolución que se desarrolla en el diseño de la fábrica de dulces es la composición de funciones.
 
-### Machine Making
+### Fabricación de Máquinas
 
-The candy factory is humming along nicely, and thanks to all the saved space, they now have plenty of room to try out making new kinds of candies. Building on the earlier success, management is keen to keep inventing new fancy compound machines for their growing candy assortment.
+La fábrica de dulces está zumbando muy bien, y gracias a todo el espacio ahorrado, ahora tienen mucho espacio para probar la fabricación de nuevos tipos de dulces. Sobre la base del éxito anterior, la administración está interesada en seguir inventando nuevas máquinas compuestas de lujo para su creciente variedad de dulces.
 
-But the factory engineers struggle to keep up, because each time a new kind of fancy compound machine needs to be made, they spend quite a bit of time making the new outer box and fitting the individual machines into it.
+Pero los ingenieros de la fábrica luchan por mantenerse al día, porque cada vez que se necesita fabricar un nuevo tipo de maquinaria compuesta de lujo, pasan bastante tiempo fabricando la nueva caja exterior y colocando las máquinas individuales en ella.
 
-So the factory engineers contact an industrial machine vendor for help. They're amazed to find out that this vendor offers a **machine-making** machine! As incredible as it sounds, they purchase a machine that can take a couple of the factory's smaller machines -- the chocolate cooling one and the cutting one, for example -- and wire them together automatically, even wrapping a nice clean bigger box around them. This is surely going to make the candy factory really take off!
+Por lo tanto, los ingenieros de la fábrica se ponen en contacto con un vendedor de maquinaria industrial para obtener ayuda. ¡Están asombrados de descubrir que este vendedor ofrece una **máquina que fabrica máquinas**! Por increíble que parezca, compran una máquina que puede llevar un par de las máquinas más pequeñas de la fábrica (la de refrigeración de chocolate y la de corte, por ejemplo) y unirlas automáticamente, incluso envolviendo una bonita y limpia caja más grande a su alrededor. ¡Esto seguramente hará que la fábrica de dulces realmente despegue!
 
 <p align="center">
     <img src="fig5.png" width="300">
 </p>
 
-Back to code land, let's consider a utility called `compose2(..)` that creates a composition of two functions automatically, exactly the same way we did manually:
+De vuelta a la tierra del código, consideremos una utilidad llamada `componer2(..)` que crea una composición de dos funciones automáticamente, exactamente de la misma manera que lo hicimos manualmente:
 
 ```js
-function compose2(fn2,fn1) {
-    return function composed(origValue){
-        return fn2( fn1( origValue ) );
+function componer2(funcion2,funcion1) {
+    return function compuesta(valorOriginal){
+        return funcion2( funcion1( valorOriginal ) );
     };
 }
 
-// or the ES6 => form
-var compose2 =
-    (fn2,fn1) =>
-        origValue =>
-            fn2( fn1( origValue ) );
+// o escrita con ES6
+var componer2 =
+    (funcion2,funcion1) =>
+        valorOriginal =>
+            funcion2( funcion1( valorOriginal ) );
 ```
 
-Did you notice that we defined the parameter order as `fn2,fn1`, and furthermore that it's the second function listed (aka `fn1` parameter name) that runs first, then the first function listed (`fn2`)? In other words, the functions compose from right-to-left.
+¿Notaste que definimos el orden de los parámetros como `funcion2,funcion1`, y además que es la segunda función listada (también conocida con el nombre de parámetro `funcion1`) la que se ejecuta primero y luego la primera función listada (`funcion2`)? En otras palabras, las funciones se componen de derecha a izquierda.
 
-That may seem like a strange choice, but there are some reasons for it. Most typical FP libraries define their `compose(..)` to work right-to-left in terms of ordering, so we're sticking with that convention.
+Puede que esta te parecezca una elección extraña, pero hay algunas razones para ello. La mayoría de las librerias de PF típicamente definen su `componer(..)` para trabajar de derecha a izquierda en términos de ordenamiento, por lo que nos mantendremos fieles a esa convención.
 
-But why? I think the easiest explanation (but perhaps not the most historically accurate) is that we're listing them to match the order they are written in code manually, or rather the order we encounter them when reading from left-to-right.
+¿Pero por qué? Creo que la explicación más fácil (pero quizás no la más históricamente precisa) es que los enumeramos para que coincidan con el orden en el que están escritos en el código de forma manual, o más bien el orden en que los encontramos al leer de izquierda a derecha.
 
-`unique(words(str))` lists the functions in the left-to-right order `unique, words`, so we make our `compose2(..)` utility accept them in that order, too. The execution order is right-to-left, but the code order is left-to-right. Pay close attention to keep those distinct in your mind.
+`unica(palabras(texto))` enumera las funciones en el orden de izquierda a derecha `unica, palabras`, por lo que hacemos que nuestra utilidad` componer2(..)` las acepte en ese orden también. El orden de ejecución es de derecha a izquierda, pero el orden del código es de izquierda a derecha. Presta mucha atención para mantener esos distintos en tu mente.
 
-Now, the more efficient definition of the candy making machine is:
+Ahora, la definición más eficiente de la máquina de hacer dulces es:
 
 ```js
-var uniqueWords = compose2( unique, words );
+var palabrasUnicas = componer2( unica, palabras );
 ```
 
-### Composition Variation
+### Variación de Composición
 
-It may seem like the `<-- unique <-- words` combination is the only order these two functions can be composed. But we could actually compose them in the opposite order to create a utility with a bit of a different purpose:
+Puede parecer que la combinación `<- unica <- palabras` es el único orden en que se pueden componer estas dos funciones. Pero podríamos componerlas en el orden opuesto para crear una utilidad con un propósito diferente:
 
 ```js
-var letters = compose2( words, unique );
+var letras = componer2( palabras, unica );
 
-var chars = letters( "How are you Henry?" );
-chars;
-// ["h","o","w","a","r","e","y","u","n"]
+var caracteres = letras( "Como estas Henry?" );
+caracteres;
+// ["c", "o", "m", "e", "s", "t", "a", "h", "n", "r", "y", "?"]
 ```
 
-This works because the `words(..)` utility, for value-type safety sake, first coerces its input to a string using `String(..)`. So the array that `unique(..)` returns -- now the input to `words(..)` -- becomes the string `"H,o,w, ,a,r,e,y,u,n,?"`, and then the rest of the behavior in `words(..)` processes that string into the `chars` array.
+Esto funciona porque la utilidad `palabras(..)`, solo por seguridad del tipo de valor, primero coacciona su entrada a un string usando `String(..)`. Entonces el array que `unica(..)` devuelve -- ahora la entrada a `palabras(..)` -- se convierte en el string `"c,o,m, ,e,s,t,a,h,n,r,y,?`, y luego el resto del comportamiento en `palabras(..)` procesa este string en el array `caracteres`.
 
-Admittedly, this is a contrived example. But the point is that function compositions are not always unidirectional. Sometimes we put the gray brick on top of the blue brick, and sometimes we put the blue brick on top.
+Es cierto que este es un ejemplo artificial. Pero el punto es que las composiciones de funciones no siempre son unidireccionales. A veces ponemos el ladrillo gris encima del ladrillo azul, y a veces ponemos el ladrillo azul encima.
 
-The candy factory better be careful if they try to feed the wrapped candies into the machine that mixes and cools the chocolate!
+¡La fábrica de dulces debe tener más cuidado si tratan de enviar los caramelos envueltos a la máquina que mezcla y enfría el chocolate!
 
 ## General Composition
 
