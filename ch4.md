@@ -183,374 +183,374 @@ Es cierto que este es un ejemplo artificial. Pero el punto es que las composicio
 
 ¡La fábrica de dulces debe tener más cuidado si tratan de enviar los caramelos envueltos a la máquina que mezcla y enfría el chocolate!
 
-## General Composition
+## Composición general
 
-If we can define the composition of two functions, we can just keep going to support composing any number of functions. The general data visualization flow for any number of functions being composed looks like this:
+Si podemos definir la composición de dos funciones, podemos continuar apoyando la composición de cualquier cantidad de funciones. El flujo de visualización de datos generales para cualquier cantidad de funciones que se componen se ve así:
 
 ```
-finalValue <-- func1 <-- func2 <-- ... <-- funcN <-- origValue
+valorFinal <-- funcion1 <-- funcion2 <-- ... <-- funcionN <-- valorOriginal
 ```
 
 <p align="center">
     <img src="fig6.png" width="300">
 </p>
 
-Now the candy factory owns the best machine of all: a machine that can take any number of separate smaller machines and spit out a big fancy machine that does every step in order. That's one heck of a candy operation! It's Willy Wonka's dream!
+Ahora la fábrica de dulces posee la mejor máquina de todas: una máquina que puede llevar cualquier cantidad de máquinas más pequeñas por separado y escupir una gran máquina elegante que hace cada paso en orden. Esa es una genial operación de dulces! Es el sueño de Willy Wonka!
 
-We can implement a general `compose(..)` utility like this:
+Podemos implementar una utilidad general `componer(..)` como esta:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        // copy the array of functions
-        var list = fns.slice();
+function componer(...funciones) {
+    return function compuesta(resultado){
+        // copia el array de funciones
+        var lista = funciones.slice();
 
-        while (list.length > 0) {
-            // take the last function off the end of the list
-            // and execute it
-            result = list.pop()( result );
+        while (lista.length > 0) {
+            // quita la ultima funcion del final de la list
+            // y la ejecuta
+            resultado = lista.pop()( resultado );
         }
 
-        return result;
+        return resultado;
     };
 }
 
-// or the ES6 => form
-var compose =
-    (...fns) =>
-        result => {
-            var list = fns.slice();
+// o en la forma ES6 =>
+var componer =
+    (...funciones) =>
+        resultado => {
+            var lista = funciones.slice();
 
-            while (list.length > 0) {
-                // take the last function off the end of the list
-                // and execute it
-                result = list.pop()( result );
+            while (lista.length > 0) {
+                // quita la ultima funcion del final de la list
+                // y la ejecuta
+                resultado = lista.pop()( resultado );
             }
 
-            return result;
+            return resultado;
         };
 ```
 
-**Warning:** `...fns` is a collected array of arguments, not a passed-in array, and as such, it's local to `compose(..)`. It may be tempting to think the `fns.slice()` would thus be unnecessary. However, in this particular implementation, `.pop()` inside the inner `composed(..)` function is mutating the list, so if we didn't make a copy each time, the returned composed function could only be used reliably once. We'll revisit this hazard in Chapter 6.
+**Advertencia:** `...funciones` es un array de argumentos recopilados, no un array pasado, y como tal, es local para` componer(..) `. Puede ser tentador pensar que `funciones.slice()` sería entonces innecesario. Sin embargo, en esta implementación particular, `.pop()` dentro de la función interna `compuesta(..)` está mutando la lista, por lo que si no hiciéramos una copia cada vez, la función compuesta devuelta solo podría usarse de manera confiable una vez. Revisaremos este peligro en el Capítulo 6.
 
-Now let's look at an example of composing more than two functions. Recalling our `uniqueWords(..)` composition example, let's add a `skipShortWords(..)` to the mix:
+Ahora veamos un ejemplo de composición de más de dos funciones. Recordando nuestro ejemplo de composición `palabrasUnicas(..)`, agreguemos un `saltarPalabrasCortas(..)` a la mezcla:
 
 ```js
-function skipShortWords(words) {
-    var filteredWords = [];
+function saltarPalabrasCortas(palabras) {
+    var palabrasFiltradas = [];
 
-    for (let word of words) {
-        if (word.length > 4) {
-            filteredWords.push( word );
+    for (let palabra of palabras) {
+        if (palabra.length > 4) {
+            palabrasFiltradas.push( palabra );
         }
     }
 
-    return filteredWords;
+    return palabrasFiltradas;
 }
 ```
 
-Let's define `biggerWords(..)` that includes `skipShortWords(..)`. The manual composition equivalent we're looking for is `skipShortWords(unique(words(text)))`, so let's do it with `compose(..)`:
+Definamos `palabrasGrandes(..)` que incluye `saltarPalabrasCortas(..)`. El equivalente de composición manual que estamos buscando es `saltarPalabrasCortas(unica(palabras(texto)))`, así que hagámoslo con `componer(..)`:
 
 ```js
-var text = "To compose two functions together, pass the \
-output of the first function call as the input of the \
-second function call.";
+var texto = "Para componer dos funciones juntas, pasa la \
+salida de la llamada de la primera funcion como la entrada de \
+la segunda llamada de funcion.";
 
-var biggerWords = compose( skipShortWords, unique, words );
+var palabrasGrandes = componer( saltarPalabrasCortas, unica, palabras );
 
-var wordsUsed = biggerWords( text );
+var palabrasUsadas = palabrasGrandes( texto );
 
-wordsUsed;
-// ["compose","functions","together","output","first",
-// "function","input","second"]
+palabrasUsadas;
+// ["componer","funciones","juntas","salida","llamada",
+// "primera","funcion","entrada", "segunda"]
 ```
 
-Now, let's recall `partialRight(..)` from Chapter 3 to do something more interesting with composition. We can build a right-partial application of `compose(..)` itself, pre-specifying the second and third arguments (`unique(..)` and `words(..)`, respectively); we'll call it `filterWords(..)` (see below).
+Ahora, recordemos `parcialDerecha(..)` del Capítulo 3 para hacer algo más interesante con la composición. Podemos construir una aplicación parcial derecha de `componer(..)` en sí mismo, preespecificando los argumentos segundo y tercero (`unica(..)` y `palabras(..)`, respectivamente); lo llamaremos `filtrarPalabras(..)` (ver a continuación).
 
-Then, we can complete the composition multiple times by calling `filterWords(..)`, but with different first-arguments respectively:
+Luego, podemos completar la composición varias veces llamando `filtrarPalabras(..)`, pero con diferentes primeros argumentos, respectivamente:
 
 ```js
-// Note: uses a `<= 4` check instead of the `> 4` check
-// that `skipShortWords(..)` uses
-function skipLongWords(list) { /* .. */ }
+// Nota: usa un chequeo `<= 4` en vez del chequeo `> 4`
+// que `saltarPalabrasCortas(..)` usa
+function saltarPalabrasLargas(lista) { /* .. */ }
 
-var filterWords = partialRight( compose, unique, words );
+var filtrarPalabras = parcialDerecha( componer, unica, palabras );
 
-var biggerWords = filterWords( skipShortWords );
-var shorterWords = filterWords( skipLongWords );
+var palabrasGrandes = filtrarPalabras( saltarPalabrasCortas );
+var palabrasCortas = filtrarPalabras( saltarPalabrasLargas );
 
-biggerWords( text );
-// ["compose","functions","together","output","first",
-// "function","input","second"]
+palabrasGrandes( texto );
+// ["componer","funciones","juntas","salida","llamada",
+// "primera","funcion","entrada", "segunda"]
 
-shorterWords( text );
-// ["to","two","pass","the","of","call","as"]
+palabrasCortas( texto );
+// ["para","dos","pasa","la","de","como"]
 ```
 
-Take a moment to consider what the right-partial application on `compose(..)` gives us. It allows us to specify ahead of time the first step(s) of a composition, and then create specialized variations of that composition with different subsequent steps (`biggerWords(..)` and `shorterWords(..)`). This is one of the most powerful tricks of FP!
+Tomate un momento para considerar qué nos ofrece la aplicación parcial correcta en `componer(..)`. Nos permite especificar con anticipación los primeros pasos de una composición y luego crear variaciones especializadas de esa composición con diferentes pasos posteriores (`palabrasGrandes(..)` y `palabrasCortas(..)`). ¡Este es uno de los trucos más poderosos de la PF!
 
-You can also `curry(..)` a composition instead of partial application, though because of right-to-left ordering, you might more often want to `curry( reverseArgs(compose), ..)` rather than just `curry( compose, ..)` itself.
+También puedes usar `curry(..)` con una composición en lugar de una aplicación parcial, aunque debido a un orden de derecha a izquierda, es posible que desees `curry(argumentosRevertidos (componer), ..)` en lugar de simplemente `curry (componer, ..)` en sí.
 
-**Note:** Since `curry(..)` (at least the way we implemented it in Chapter 3) relies on either detecting the arity (`length`) or having it manually specified, and `compose(..)` is a variadic function, you'll need to manually specify the intended arity like `curry(.. , 3)`.
+**Nota:** Dado que `curry(..)` (al menos la forma en que lo implementamos en el Capítulo 3) se basa en la detección de la aridad (`length`) o en especificarla manualmente, y `componer(..)` es una función variadica, tendrás que especificar manualmente la aridad deseada como por ejemplo `curry(.., 3)`.
 
-### Alternate Implementations
+### Implementaciones alternativas
 
-While you may very well never implement your own `compose(..)` to use in production, and rather just use a library's implementation as provided, I've found that understanding how it works under the covers actually helps solidify general FP concepts very well.
+Si bien es muy posible que nunca implementes tu propio `componer(..)` para usar en producción, sino que simplemente uses la implementación de una libreria tal y como se te proporciona, he descubierto que comprender cómo funciona debajo de la superficie realmente ayuda a solidificar los conceptos generales de la PF bastante bien.
 
-So let's examine some different implementation options for `compose(..)`. We'll also see there are some pros/cons to each implementation, especially performance.
+Así que vamos a examinar algunas opciones de implementación diferentes para `componer(..)`. También veremos que hay algunas ventajas y desventajas para cada implementación, especialmente en el rendimiento.
 
-We'll be looking at the `reduce(..)` utility in detail later in the text, but for now, just know that it reduces a list (array) to a single finite value. It's like a fancy loop.
+Vamos a ver la utilidad `reducir(..)` en detalle más adelante en el texto, pero por ahora, solo tienes que saber que reduce una lista (array) a un único valor finito. Es como un ciclo de lujo.
 
-For example, if you did an addition-reduction across the list of numbers `[1,2,3,4,5,6]`, you'd be looping over them adding them together as you go. The reduction would add `1` to `2`, and add that result to `3`, and then add that result to `4`, and so on, resulting in the final summation: `21`.
+Por ejemplo, si hiciera una reducción de la suma en la lista de números `[1, 2, 3, 4, 5, 6]`, estaría repitiéndolos y agregándolos juntos sobre la marcha. La reducción agregaría `1` a` 2`, y agregaría ese resultado a `3`, y luego agregaría ese resultado a `4`, y así sucesivamente, lo que daría como resultado la suma final: `21`.
 
-The original version of `compose(..)` uses a loop and eagerly (aka, immediately) calculates the result of one call to pass into the next call. We can do that same thing with `reduce(..)`:
+La versión original de `componer(..)` usa un ciclo e impaciencientemente (en otras palabras, inmediatamente) calcula el resultado de una llamada para pasar a la siguiente llamada. Podemos hacer lo mismo con `reducir(..)`:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        return fns.reverse().reduce( function reducer(result,fn){
-            return fn( result );
-        }, result );
+function componer(...funciones) {
+    return function compuesta(resultado){
+        return funciones.reverse().reducir( function reductor(resultado,funcion){
+            return funcion( resultado );
+        }, resultado );
     };
 }
 
-// or the ES6 => form
-var compose = (...fns) =>
-    result =>
-        fns.reverse().reduce(
-            (result,fn) =>
-                fn( result )
-            , result
+// en la forma de ES6 =>
+var componer = (...funciones) =>
+    resultado =>
+        funciones.reverse().reducir(
+            (resultado,funcion) =>
+                funcion( resultado )
+            , resultado
         );
 ```
 
-Notice that the `reduce(..)` looping happens each time the final `composed(..)` function is run, and that each intermediate `result(..)` is passed along to the next iteration as the input to the next call.
+Observa que el bucle `reducir(..)` ocurre cada vez que se ejecuta la función `compuesta(..)` final, y que cada `resultado(..)` intermedio se pasa a la siguiente iteración como la entrada a la próxima llamada.
 
-The advantage of this implementation is that the code is more concise and also that it uses a well-known FP construct: `reduce(..)`. And the performance of this implementation is also similar to the original `for`-loop version.
+La ventaja de esta implementación es que el código es más conciso y también que usa una construcción de la PF muy conocida: `reducir(..)`. Y el rendimiento de esta implementación también es similar a la versión original del `for`-loop.
 
-However, this implementation is limited in that the outer composed function (aka, the first function in the composition) can only receive a single argument. Most other implementations pass along all arguments to that first call. If every function in the composition is unary, this is no big deal. But if you need to pass multiple arguments to that first call, you'd want a different implementation.
+Sin embargo, esta implementación está limitada porque la función compuesta externa (es decir, la primera función en la composición) solo puede recibir un único argumento. La mayoría de las otras implementaciones transmiten todos los argumentos a esa primera llamada. Si cada función en la composición es única, esto no es gran cosa. Pero si necesitas pasar múltiples argumentos a esa primera llamada, querrías una implementación diferente.
 
-To fix that first call single-argument limitation, we can still use `reduce(..)` but produce a lazy-evaluation function wrapping:
+Para arreglar esa limitación de primera llamada de un solo argumento, aún podemos usar `reducir(..)` pero producimos un ajuste de la función de evaluación diferida:
 
 ```js
-function compose(...fns) {
-    return fns.reverse().reduce( function reducer(fn1,fn2){
-        return function composed(...args){
-            return fn2( fn1( ...args ) );
+function componer(...funciones) {
+    return funciones.reverse().reducir( function reductor(funcion1,funcion2){
+        return function compuesta(...argumentos){
+            return funcion2( funcion1( ...argumentos ) );
         };
     } );
 }
 
-// or the ES6 => form
-var compose =
-    (...fns) =>
-        fns.reverse().reduce( (fn1,fn2) =>
-            (...args) =>
-                fn2( fn1( ...args ) )
+// o en la forma de ES6
+var componer =
+    (...funciones) =>
+        funciones.reverse().reducir( (funcion1,funcion2) =>
+            (...argumentos) =>
+                funcion2( funcion1( ...argumentos ) )
         );
 ```
 
-Notice that we return the result of the `reduce(..)` call directly, which is itself a function, not a computed result. *That* function lets us pass in as many arguments as we want, passing them all down the line to the first function call in the composition, then bubbling up each result through each subsequent call.
+Observa que devolvemos el resultado de la llamada `reducir(..)` directamente, que es en sí mismo una función, no un resultado calculado. *Esa* función nos permite pasar tantos argumentos como queramos, pasándolos a lo largo de la línea hasta la primera llamada a la función en la composición, luego burbujeando cada resultado a través de cada llamada posterior.
 
-Instead of calculating the running result and passing it along as the `reduce(..)` looping proceeds, this implementation runs the `reduce(..)` looping **once** up front at composition time, and defers all the function call calculations -- referred to as lazy calculation. Each partial result of the reduction is a successively more wrapped function.
+En lugar de calcular el resultado de ejecución y pasarlo a medida que avanza el bucle `reducir(..)`, esta implementación ejecuta el bucle `reducir(..)` **una vez** de una vez en el tiempo de composición, y difiere todos los cálculos de llamadas de funcion -- denominado como cálculo diferido. Cada resultado parcial de la reducción es una función sucesivamente más envuelta.
 
-When you call the final composed function and provide one or more arguments, all the levels of the big nested function, from the inner most call to the outer, are executed in reverse succession (not via a loop).
+Cuando llamas a la función compuesta final y proporcionas uno o más argumentos, todos los niveles de la gran función anidada, desde la llamada más interna a la externa, se ejecutan en sucesión inversa (no a través de un bucle).
 
-The performance characteristics will potentially be different than in the previous `reduce(..)`-based implementation. Here, `reduce(..)` only runs once to produce a big composed function, and then this composed function call simply executes all its nested functions each call. In the former version, `reduce(..)` would be run for every call.
+Las características de rendimiento serán potencialmente diferentes a las de la implementación usando `reducir(..)` previa. Aquí, `reducir(..)` solo se ejecuta una vez para producir una gran función compuesta, y luego esta llamada de función compuesta simplemente ejecuta todas sus funciones anidadas en cada llamada. En la versión anterior, `reducir(..)` se ejecutará para cada llamada.
 
-Your mileage may vary on which implementation is better, but keep in mind that this latter implementation isn't limited in argument count the way the former one is.
+Tu kilometraje puede variar según la implementación que sea mejor, pero ten en cuenta que esta última implementación no está limitada en el recuento de argumentos de la misma forma que la anterior.
 
-We could also define `compose(..)` using recursion. The recursive definition for `compose(fn1,fn2, .. fnN)` would look like:
+También podríamos definir `componer(..)` usando recursión. La definición recursiva para `componer(funcion1, funcion2, .. funcionN)` se vería así:
 
 ```
-compose( compose(fn1,fn2, .. fnN-1), fnN );
+componer( componer(funcion1,funcion2, .. funcionN-1), funcionN );
 ```
 
-**Note:** We will cover recursion in deep detail in Chapter 8, so if this approach seems confusing, feel free to skip it for now and come back later after reading that chapter.
+**Nota:** Cubriremos la recursión con gran detalle en el Capítulo 8, por lo que si este enfoque parece confuso, siéntete libre de omitirlo por el momento y regresar más tarde después de leer ese capítulo.
 
-Here's how we implement `compose(..)` with recursion:
+Así es como implementamos `componer(..)` con recursión:
 
 ```js
-function compose(...fns) {
-    // pull off the last two arguments
-    var [ fn1, fn2, ...rest ] = fns.reverse();
+function componer(...funciones) {
+    // saca los dos ultimos argumentos
+    var [ funcion1, funcion2, ...resto ] = funciones.reverse();
 
-    var composedFn = function composed(...args){
-        return fn2( fn1( ...args ) );
+    var funcionCompuesta = function compuesta(...argumentos){
+        return funcion2( funcion1( ...argumentos ) );
     };
 
-    if (rest.length == 0) return composedFn;
+    if (resto.length == 0) return funcionCompuesta;
 
-    return compose( ...rest.reverse(), composedFn );
+    return componer( ...resto.reverse(), funcionCompuesta );
 }
 
-// or the ES6 => form
-var compose =
-    (...fns) => {
-        // pull off the last two arguments
-        var [ fn1, fn2, ...rest ] = fns.reverse();
+// en la forma ES6 =>
+var componer =
+    (...funciones) => {
+        // saca los dos ultimos argumentos
+        var [ funcion1, funcion2, ...resto ] = funciones.reverse();
 
-        var composedFn =
-            (...args) =>
-                fn2( fn1( ...args ) );
+        var funcionCompuesta =
+            (...argumentos) =>
+                funcion2( funcion1( ...argumentos ) );
 
-        if (rest.length == 0) return composedFn;
+        if (resto.length == 0) return funcionCompuesta;
 
-        return compose( ...rest.reverse(), composedFn );
+        return componer( ...resto.reverse(), funcionCompuesta );
     };
 ```
 
-I think the benefit of a recursive implementation is mostly conceptual. I personally find it much easier to think about a repetitive action in recursive terms instead of in a loop where I have to track the running result, so I prefer the code to express it that way.
+Creo que el beneficio de una implementación recursiva es principalmente conceptual. Personalmente, me resulta mucho más fácil pensar en una acción repetitiva en términos recursivos en lugar de un bucle en el que tengo que seguir el resultado de la ejecución, por lo que prefiero que el código lo exprese de esa manera.
 
-Others will find the recursive approach quite a bit more daunting to mentally juggle. I invite you to make your own evaluations.
+Otros encontrarán el enfoque recursivo un poco más desalentador para malabarear mentalmente. Te invito a que hagas tus propias evaluaciones.
 
-## Reordered Composition
+## Composición reordenada
 
-We talked earlier about the right-to-left ordering of standard `compose(..)` implementations. The advantage is in listing the arguments (functions) in the same order they'd appear if doing the composition manually.
+Hablamos anteriormente sobre el ordenamiento de derecha a izquierda de las implementaciones de `componer(..)` estándar. La ventaja está en enumerar los argumentos (funciones) en el mismo orden en que aparecerían si se realizara la composición de forma manual.
 
-The disadvantage is they're listed in the reverse order that they execute, which could be confusing. It was also more awkward to have to use `partialRight(compose, ..)` to pre-specify the *first* function(s) to execute in the composition.
+La desventaja es que se enumeran en el orden inverso en el que se ejecutan, lo que podría ser confuso. También fue más incómodo tener que usar `parcialDerecha(componer, ..)` para especificar previamente la *primera* función a ejecutar en la composición.
 
-The reverse ordering, composing from left-to-right, has a common name: `pipe(..)`. This name is said to come from Unix/Linux land, where multiple programs are strung together by "pipe"ing (`|` operator) the output of the first one in as the input of the second, and so on (i.e., `ls -la | grep "foo" | less`).
+El orden inverso, componiendo de izquierda a derecha, tiene un nombre común: `tuberia(..)`. Se dice que este nombre proviene de la tierra de Unix/Linux land, donde se conectan múltiples programas mediante "tuberias" (con el operador `|`) asi el resultado del primero funciona como entrada del segundo, y así sucesivamente (es decir, `ls -la | grep "foo" | less`).
 
-`pipe(..)` is identical to `compose(..)` except it processes through the list of functions in left-to-right order:
+`tuberia(..)` es idéntico a `componer(..)`, excepto que procesa a través de la lista de funciones en orden de izquierda a derecha:
 
 ```js
-function pipe(...fns) {
-    return function piped(result){
-        var list = fns.slice();
+function tuberia(...funciones) {
+    return function conectado(resultado){
+        var lista = funciones.slice();
 
-        while (list.length > 0) {
-            // take the first function from the list
-            // and execute it
-            result = list.shift()( result );
+        while (lista.length > 0) {
+            // toma la primera funcion de la lista
+            // y la ejecuta
+            resultado = lista.shift()( resultado );
         }
 
-        return result;
+        return resultado;
     };
 }
 ```
 
-In fact, we could just define `pipe(..)` as the arguments-reversal of `compose(..)`:
+De hecho, podríamos simplemente definir `tuberia(..)` como `componer(..)` con los argumentosen reversa:
 
 ```js
-var pipe = reverseArgs( compose );
+var tuberia = argumentosRevertidos( componer );
 ```
 
-That was easy!
+¡Eso fue fácil!
 
-Recall this example from general composition earlier:
+Recuerde este ejemplo de la composición general anterior:
 
 ```js
-var biggerWords = compose( skipShortWords, unique, words );
+var palabrasGrandes = componer( saltarPalabrasCortas, unica, palabras );
 ```
 
-To express that with `pipe(..)`, we just reverse the order we list them in:
+Para expresar lo mismo con `tuberia(..)`, simplemente invertimos el orden en que incluimos los argumentos:
 
 ```js
-var biggerWords = pipe( words, unique, skipShortWords );
+var palabrasGrandes = tuberia( palabras, unica, saltarPalabrasCortas );
 ```
 
-The advantage of `pipe(..)` is that it lists the functions in order of execution, which can sometimes reduce reader confusion. It may be simpler to see `pipe(words,unique,skipShortWords)` and read that we do `words(..)` first, then `unique(..)`, and finally `skipShortWords(..)`.
+La ventaja de `tuberia(..)` es que enumera las funciones en orden de ejecución, lo que a veces puede reducir la confusión del lector. Puede ser más simple ver `tuberia( palabras, unica, saltarPalabrasCortas )` y leer que hacemos `palabras(..)` first, luego `unica(..)`, y finalmente `saltarPalabrasCortas(..)`.
 
-`pipe(..)` is also handy if you're in a situation where you want to partially apply the *first* function(s) that execute. Earlier we did that with right-partial application of `compose(..)`.
+`tuberia(..)` también es útil si te encuentras en una situación en la que desees aplicar parcialmente la *primera* función que se ejecuta. Anteriormente lo hicimos con la aplicación parcial derecha de `componer(..)`.
 
-Compare:
+Compara:
 
 ```js
-var filterWords = partialRight( compose, unique, words );
+var filtrarPalabras = parcialDerecha( componer, unica, palabras );
 
 // vs
 
-var filterWords = partial( pipe, words, unique );
+var filtrarPalabras = parcial( pipe, palabras, unica );
 ```
 
-As you may recall from our first implementation of `partialRight(..)` in Chapter 3, it uses `reverseArgs(..)` under the covers, just as our `pipe(..)` now does. So we get the same result either way.
+Como puedes recordar de nuestra primera implementación de `parcialDerecha(..)` en el Capítulo 3, esta funcion usa `argumentosRevertidos(..)` por debajo de la superficie, al igual que nuestro `tuberia(..)` lo hace ahora. Entonces obtenemos el mismo resultado de cualquier manera.
 
-*In this specific case*, the slight performance advantage to using `pipe(..)` is, since we're not trying to preserve the right-to-left argument order of `compose(..)`, we don't need to reverse the argument order back, like we do inside `partialRight(..)`. So `partial(pipe, ..)` is a little more efficient here than `partialRight(compose, ..)`.
+*En este caso específico*, la ligera ventaja de rendimiento al usar `tuberia(..)` es, que como ya no estamos tratando de preservar el orden de los argumentos de derecha a izquierda de `componer(..)`, no necesitamos invertir el orden de los argumentos hacia atrás, como hacemos dentro de `parcialDerecha(..)`. Entonces `parcial(tuberia, ..)` es un poco más eficiente aquí que `parcialDerecha(componer, ..)`.
 
-## Abstraction
+## Abstracción
 
-Abstraction plays heavily into our reasoning about composition, so let's examine it in more detail.
+La abstracción juega un papel importante en nuestro razonamiento sobre la composición, así que vamos a examinarla con más detalle.
 
-Similar to how partial application and currying (see Chapter 3) allow a progression from generalized to specialized functions, we can abstract by pulling out the generality between two or more tasks. The general part is defined once, so as to avoid repetition. To perform each task's specialization, the general part is parameterized.
+Similar a cómo la aplicación parcial y el currying (ver Capítulo 3) permiten una progresión de funciones generalizadas a funciones especializadas, podemos abstraer al sacar la generalidad entre dos o más tareas. La parte general se define una vez, para evitar la repetición. Para realizar la especialización de cada tarea, la parte general está parametrizada.
 
-For example, consider this (obviously contrived) code:
+Por ejemplo, considera este código (obviamente artificial):
 
 ```js
-function saveComment(txt) {
-    if (txt != "") {
-        comments[comments.length] = txt;
+function guardarComentario(texto) {
+    if (texto != "") {
+        comentarios[comentarios.length] = texto;
     }
 }
 
-function trackEvent(evt) {
-    if (evt.name !== undefined) {
-        events[evt.name] = evt;
+function rastrearEvento(evento) {
+    if (evento.nombre !== undefined) {
+        eventos[evento.nombre] = evento;
     }
 }
 ```
 
-Both of these utilities are storing a value in a data source. That's the generality. The specialty is that one of them sticks the value at the end of an array, while the other sets the value at a property name of an object.
+Ambas utilidades están almacenando un valor en una fuente de datos. Esa es la generalidad. La especialidad es que uno de ellos adhiere el valor al final de una matriz, mientras que el otro establece el valor en el nombre de propiedad de un objeto.
 
-So let's abstract:
+Así que vamos a abstraer:
 
 ```js
-function storeData(store,location,value) {
-    store[location] = value;
+function almacenarInformacion(archivo,localizacion,valor) {
+    archivo[localizacion] = valor;
 }
 
-function saveComment(txt) {
-    if (txt != "") {
-        storeData( comments, comments.length, txt );
+function guardarComentario(texto) {
+    if (texto != "") {
+        almacenarInformacion( comentarios, comentarios.length, texto );
     }
 }
 
-function trackEvent(evt) {
-    if (evt.name !== undefined) {
-        storeData( events, evt.name, evt );
+function rastrearEvento(evento) {
+    if (evento.nombre !== undefined) {
+        almacenarInformacion( eventos, evento.nombre, evento );
     }
 }
 ```
 
-The general task of referencing a property on an object (or array, thanks to JS's convenient operator overloading of `[ ]`) and setting its value is abstracted into its own function `storeData(..)`. While this utility only has a single line of code right now, one could envision other general behavior that was common across both tasks, such as generating a unique numeric ID or storing a timestamp with the value.
+La tarea general de hacer referencia a una propiedad en un objeto (o array, gracias a la conveniente sobrecarga del operador de JS de `[]`) y establecer su valor se abstrae en su propia función `almacenarInformacion(..)`. Si bien esta utilidad solo tiene una sola línea de código en este momento, uno podría imaginar otro comportamiento general común en ambas tareas, como generar un ID numérico único o almacenar una marca de tiempo con el valor.
 
-If we repeat the common general behavior in multiple places, we run the maintenance risk of changing some instances but forgetting to change others. There's a principle at play in this kind of abstraction, often referred to as DRY (don't repeat yourself).
+Si repetimos el comportamiento general común en varios lugares, corremos el riesgo de mantenimiento de cambiar algunas instancias, pero olvidando cambiar otras. Hay un principio en juego en este tipo de abstracción, a menudo llamado DRY ("don't repeat yourself" o no te repitas a ti mismo en ingles).
 
-DRY strives to have only one definition in a program for any given task. An alternate aphorism to motivate DRY coding is that programmers are just generally lazy and don't want to do unnecessary work.
+DRY se esfuerza por tener una sola definición en un programa para cualquier tarea determinada. Un aforismo alternativo para motivar la programacion con DRY es que los programadores son generalmente flojos y no quieren hacer un trabajo innecesario.
 
-Abstraction can be taken too far. Consider:
+La abstracción puede llevarse demasiado lejos. Considera:
 
 ```js
-function conditionallyStoreData(store,location,value,checkFn) {
-    if (checkFn( value, store, location )) {
-        store[location] = value;
+function condicionalmenteGuardarInformacion(archivo,localizacion,valor,funcionChequear) {
+    if (funcionChequear( valor, archivo, localizacion )) {
+        archivo[localizacion] = valor;
     }
 }
 
-function notEmpty(val) { return val != ""; }
+function noVacio(valor) { return valor != ""; }
 
-function isUndefined(val) { return val === undefined; }
+function esUndefined(valor) { return valor === undefined; }
 
-function isPropUndefined(val,obj,prop) {
-    return isUndefined( obj[prop] );
+function propiedadEsUndefined(valor,objeto,propiedad) {
+    return esUndefined( objeto[propiedad] );
 }
 
-function saveComment(txt) {
-    conditionallyStoreData( comments, comments.length, txt, notEmpty );
+function guardarComentario(texto) {
+    condicionalmenteGuardarInformacion( comentarios, comentarios.length, texto, noVacio );
 }
 
-function trackEvent(evt) {
-    conditionallyStoreData( events, evt.name, evt, isPropUndefined );
+function rastrearEvento(evento) {
+    condicionalmenteGuardarInformacion( eventos, evento.nombre, evento, propiedadEsUndefined );
 }
 ```
 
-In an effort to be DRY and avoid repeating an `if` statement, we moved the conditional into the general abstraction. We also assumed that we *may* have checks for non-empty strings or non-`undefined` values elsewhere in the program in the future, so we might as well DRY those out, too!
+En un esfuerzo por ser DRY y evitar repetir una declaración `if`, trasladamos el condicional a la abstracción general. También supusimos que *puede* tengamos controles para strings no-vacías o valores no-`undefined` en otro lugar en el programa en el futuro, ¡así que también podríamos eliminarlos!
 
-This code *is* more DRY, but to an overkill extent. Programmers must be careful to apply the appropriate levels of abstraction to each part of their program, no more, no less.
+Este código *es* más DRY, pero en una medida exagerada. Los programadores deben tener cuidado de aplicar los niveles apropiados de abstracción a cada parte de su programa, ni más ni menos.
 
-Regarding our greater discussion of function composition in this chapter, it might seem like its benefit is this kind of DRY abstraction. But let's not jump to that conclusion, because I think composition actually serves a more important purpose in our code.
+Con respecto a nuestra mayor discusión sobre la composición de funciones en este capítulo, podría parecer que su beneficio es parecido a este tipo de abstracción DRY. Pero no saltemos a esa conclusión, porque creo que la composición realmente cumple un propósito más importante en nuestro código.
 
-Moreover, **composition is helpful even if there's only one occurrence of something** (no repetition to DRY out).
+Además, **la composición es útil incluso si solo hay una ocurrencia de algo** (sin repetición para aplicar el principio de DRY).
 
 ### Separation Enables Focus
 
