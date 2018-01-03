@@ -552,287 +552,288 @@ Con respecto a nuestra mayor discusión sobre la composición de funciones en es
 
 Además, **la composición es útil incluso si solo hay una ocurrencia de algo** (sin repetición para aplicar el principio de DRY).
 
-### Separation Enables Focus
+### La separación permite el enfoque
 
-Aside from generalization vs specialization, I think there's another more useful definition for abstraction, as revealed by this quote:
+Aparte de la generalización frente a la especialización, creo que hay otra definición más útil para la abstracción, como lo revela esta cita:
 
-> ... abstraction is a process by which the programmer associates a name with a potentially complicated program fragment, which can then be thought of in terms of its purpose of function, rather than in terms of how that function is achieved. By hiding irrelevant details, abstraction reduces conceptual complexity, making it possible for the programmer to focus on a manageable subset of the program text at any particular time.
+> ... la abstracción es un proceso mediante el cual el programador asocia un nombre con un fragmento de programa potencialmente complicado, que luego puede pensarse en términos de su propósito de función, en lugar de en términos de cómo se logra esa función. Al ocultar detalles irrelevantes, la abstracción reduce la complejidad conceptual, haciendo posible que el programador se concentre en un subconjunto manejable del texto del programa en un momento determinado.
 >
-> Scott, Michael L. “Chapter 3: Names, Scopes, and Bindings.” Programming Language Pragmatics, 4th ed., Morgan Kaufmann, 2015, pp. 115.
+> Scott, Michael L. "Capítulo 3: Nombres, alcances y enlaces." Programming Language Pragmatics, 4ta ed., Morgan Kaufmann, 2015, pp. 115.
 
-The point this quote makes is that abstraction -- generally, pulling out some piece of code into its own function -- serves the primary purpose of separating apart two pieces of functionality so that each piece can be focused on independent of the other.
+El punto que hace esta cita es que la abstracción -- generalmente, extraer algún fragmento de código en su propia función -- tiene el propósito principal de separar dos piezas de funcionalidad para que cada pieza se pueda enfocar independientemente una de la otra.
 
-Note that abstraction in this sense is not really intended to *hide* details, as if to treat things as black boxes we *never* examine.
+Ten en cuenta que la abstracción en este sentido no está realmente destinada a *ocultar* detalles, como si tratara las cosas como cajas negras que *nunca* examinamos.
 
-In this quote, "irrelevant", in terms of what is hidden, shouldn't be thought of as an absolute qualitative judgement, but rather relative to what you want to focus on at any given moment. In other words, when we separate X from Y, if I want to focus on X, Y is irrelevant at that moment. At another time, if I want to focus on Y, X is irrelevant at that moment.
+En esta cita, "detalles irrelevantes", en términos de lo que está oculto, no se debe de considerar como un juicio cualitativo absoluto, sino más bien en relación con lo que se quiere enfocar en un momento dado. En otras palabras, cuando separamos X de Y, si quiero centrarme en X, Y es irrelevante en ese momento. En otro momento, si quiero centrarme en Y, X es irrelevante en ese momento.
 
-**We're not abstracting to hide, but to separate to improve focus**.
+**No estamos abstrayendo para ocultar, sino para separar y asi mejorar el enfoque**.
 
-Recall that at the outset of this text I described the goal of FP as creating more readable, understandable code. One effective way of doing that is untangling complected -- read: tightly braided, as in strands of rope -- code into separate, simpler -- read: loosely bound -- pieces of code. In that way, the reader isn't distracted by the details of one part while looking for the details of the other part.
+Recordemos que al comienzo de este texto describí el objetivo de la PF como la creación de un código más comprensible y legible. Una manera efectiva de hacerlo es desenredando codigo compuesto -- léase: bien trenzado, como en las hebras de una cuerda -- en partes separadas, más simples -- léase: débilmente unidas -- piezas de codigo. De esa manera, el lector no se distrae con los detalles de una parte mientras busca los detalles de la otra parte.
 
-Our higher goal is not to implement something only once, as it is with the DRY mindset. As a matter of fact, sometimes we'll actually repeat ourselves in code.
+Nuestra meta más alta no es implementar algo solo una vez, como lo es con la mentalidad DRY. De hecho, algunas veces nos repetiremos en el código.
 
-As we asserted in Chapter 3, the main goal with abstraction is to implement separate things, separately. We're trying to improve focus, because that improves readability.
+Como afirmamos en el Capítulo 3, el objetivo principal con la abstracción es implementar cosas separadas, por separado. Estamos tratando de mejorar el enfoque, ya que esto mejora la legibilidad.
 
-By separating two ideas, we insert a semantic boundary between them, which affords us the ability to focus on each side independent of the other. In many cases, that semantic boundary is something like the name of a function. The function's implementation is focused on *how* to compute something, and the call-site using that function by name is focused on *what* to do with its output. We abstract the *how* from the *what* so they are separate and separately reason'able.
+Al separar dos ideas, insertamos un límite semántico entre ellas, lo que nos permite concentrarnos en cada lado independientemente del otro. En muchos casos, ese límite semántico es algo así como el nombre de una función. La implementación de la función se centra en *cómo* calcular algo, y el sitio de llamada que utiliza esa función por su nombre se centra en *qué* hacer con su resultado. Abstraemos el *cómo* del *qué* para que estos estén separados y puedan razonarse por separado.
 
-Another way of describing this goal is with imperative vs declarative programming style. Imperative code is primarily concerned with explicitly stating *how* to accomplish a task. Declarative code states *what* the outcome should be, and leaves the implementation to some other responsibility.
+Otra forma de describir este objetivo es con un estilo de programación imperativo vs declarativo. El código imperativo se refiere principalmente a declarar explícitamente *cómo* lograr una tarea. El código declarativo indica *cual* deberia ser el resultado, y deja la implementación a alguna otra responsabilidad.
 
-Declarative code abstracts the *what* from the *how*. Typically declarative coding is favored in readability over imperative, though no program (except of course machine code 1's and 0's) is ever entirely one or the other. The programmer must seek balance between them.
+El código declarativo abstrae el *qué* del *cómo*. Por lo general, la programacion declarativa es favorecida en legibilidad sobre la imperativa, aunque ningún programa (excepto, por supuesto, los códigos de máquina 1 y 0) es totalmente uno o el otro. El programador debe buscar el equilibrio entre ellos.
 
-ES6 added many syntactic affordances that transform old imperative operations into newer declarative forms. Perhaps one of the clearest is destructuring. Destructuring is a pattern for assignment that describes how a compound value (object, array) is taken apart into its constituent values.
+ES6 agregó muchas posibilidades sintácticas que transforman antiguas operaciones imperativas en formas declarativas más nuevas. Quizás una de los más claras es desestructurar. La desestructuración es un patrón de asignación que describe cómo se separa un valor compuesto (objeto, array) en sus valores constituyentes.
 
-Here's an example of array destructuring:
+Aquí hay un ejemplo de desestructuración de arrays:
 
 ```js
-function getData() {
+function conseguirData() {
     return [1,2,3,4,5];
 }
 
-// imperative
-var tmp = getData();
+// imperativo
+var tmp = conseguirData();
 var a = tmp[0];
 var b = tmp[3];
 
-// declarative
-var [ a ,,, b ] = getData();
+// declarativo
+var [ a ,,, b ] = conseguirData();
 ```
 
-The *what* is assigning the first value of the array to `a` and the fourth value to `b`. The *how* is getting a reference to the array (`tmp`) and manually referencing indexes `0` and `3` in assignments to `a` and `b`, respectively.
+El *qué* está asignando el primer valor del array a `a` y el cuarto valor a `b`. El *cómo* está obteniendo una referencia al array (`tmp`) y hace referencia manual a los índices `0` y `3` en las asignaciones a `a` y `b`, respectivamente.
 
-Does the array destructuring *hide* the assignment? Depends on your perspective. I'm asserting that it simply separates the *what* from the *how*. The JS engine still does the assignments, but it prevents you from having to be distracted by *how* it's done.
+¿Desestructurar el array *oculta* la tarea? Depende de tu perspectiva. Estoy afirmando que simplemente separa el *qué* del *cómo*. El motor de JS todavía hace las asignaciones, pero evita que tengas que distraerse con *cómo* se esta haciendo.
 
-Instead, you read `[ a ,,, b ] = ..` and can see the assignment pattern merely telling you *what* will happen. Array destructuring is an example of declarative abstraction.
+En su lugar, lees `[a ,,, b] = ..` y puedes ver el patrón de asignación simplemente diciéndote *qué* sucederá. La desestructuración de arrays es un ejemplo de abstracción declarativa.
 
-### Composition As Abstraction
+### Composición como abstracción
 
-What's all this have to do with function composition? Function composition is also declarative abstraction.
+¿Qué tiene que ver todo esto con la composición de funciones? La composición de funciones también es abstracción declarativa.
 
-Recall the `shorterWords(..)` example from earlier. Let's compare an imperative and declarative definition for it:
+Recuerde el ejemplo de `palabrasCortas(..)` de antes. Comparemos una definición imperativa y declarativa para ello:
 
 ```js
-// imperative
-function shorterWords(text) {
-    return skipLongWords( unique( words( text ) ) );
+// imperativa
+function palabrasCortas(texto) {
+    return saltarPalabrasLargas( unica( palabras( texto ) ) );
 }
 
-// declarative
-var shorterWords = compose( skipLongWords, unique, words );
+// declarativa
+var palabrasCortas = componer( saltarPalabrasLargas, unica, palabras );
 ```
 
-The declarative form focuses on the *what* -- these 3 functions pipe data from a string to a list of shorter words -- and leaves the *how* to the internals of `compose(..)`.
+La forma declarativa se enfoca en el *qué* -- estas 3 funciones conectan los datos de un string a una lista de palabras más cortas -- y deja el *cómo* a las partes internas de `componer(..)`.
 
-In a bigger sense, the `shorterWords = compose(..)` line explains the *how* for defining a `shorterWords(..)` utility, leaving this declarative line somewhere else in the code to focus only on the *what*:
+En un sentido más amplio, la línea `palabrasCortas = componer(..)` explica el *cómo* definir la utilidad `palabrasCortas(..)`, dejando esta línea declarativa en otro lugar del código para enfocarnos solo en el *qué*:
 
 ```js
-shorterWords( text );
+palabrasCortas( texto );
 ```
 
-Composition abstracts getting a list of shorter words from the steps it takes to do that.
+La Composición abstrae el hecho de obtener una lista de palabras más cortas
+de los pasos necesarios para hacerlo.
 
-By contrast, what if we hadn't used composition abstraction?
+Por el contrario, ¿y si no hubiéramos utilizado la abstracción de la composición?
 
 ```js
-var wordsFound = words( text );
-var uniqueWordsFound = unique( wordsFound );
-skipLongWords( uniqueWordsFound );
+var palabrasEncontradas = palabras( texto );
+var palabrasUnicasEncontradas = unica( palabrasEncontradas );
+saltarPalabrasLargas( palabrasUnicasEncontradas );
 ```
 
-Or even:
+O incluso:
 
 ```js
-skipLongWords( unique( words( text ) ) );
+saltarPalabrasLargas( unica( palabras( texto ) ) );
 ```
 
-Either of these two versions demonstrates a more imperative style as opposed to the prior declarative style. The reader's focus in those two snippets is inextricably tied to the *how* and less on the *what*.
+Cualquiera de estas dos versiones demuestra un estilo más imperativo en comparación con el estilo declarativo anterior. El foco del lector en esos dos fragmentos está indisolublemente ligado al *cómo* y menos en el *qué*.
 
-Function composition isn't just about saving code with DRY. Even if the usage of `shorterWords(..)` only occurs in one place -- so there's no repetition to avoid! -- separating the *how* from the *what* still improves our code.
+La composición de funciones no se trata solo de guardar código con DRY. Incluso si el uso de `palabrasCortas(..)` solo ocurre en un lugar, ¡entonces no hay repeticiones que evitar! - separar el *cómo* del *qué* aún mejora nuestro código.
 
-Composition is a powerful tool for abstraction that transforms imperative code into more readable declarative code.
+La composición es una herramienta poderosa para la abstracción que transforma el código imperativo en un código declarativo más legible.
 
-## Revisiting Points
+## Revisitando Puntos
 
-Now that we've thoroughly covered composition -- a trick that will be immensely helpful in many areas of FP -- let's watch it in action by revisiting point-free style from "No Points" in Chapter 3 with a scenario that's a fair bit more complex to refactor:
+Ahora que hemos cubierto completamente la composición -- un truco que será de gran ayuda en muchas áreas de la PF -- vamos a verlo en acción revisando el estilo sin puntos de "Sin puntos" en el Capítulo 3 con un escenario que es algo mas razonable y más complejo para refactorizar:
 
 ```js
-// given: ajax( url, data, cb )
+// dado: ajax (url, data, callback)
 
-var getPerson = partial( ajax, "http://some.api/person" );
-var getLastOrder = partial( ajax, "http://some.api/order", { id: -1 } );
+var obtenerPersona = parcial( ajax, "http://alguna.api/persona" );
+var obtenerUltimaOrden = parcial( ajax, "http://alguna.api/orden", { id: -1 } );
 
-getLastOrder( function orderFound(order){
-    getPerson( { id: order.personId }, function personFound(person){
-        output( person.name );
+obtenerUltimaOrden( function ordenEncontrada(orden){
+    obtenerPersona( { id: orden.ID_Persona }, function personaEncontrada(persona){
+        salida( persona.nombre );
     } );
 } );
 ```
 
-The "points" we'd like to remove are the `order` and `person` parameter references.
+Los "puntos" que nos gustaría eliminar son las referencias a los parámetros `orden` y` persona`.
 
-Let's start by trying to get the `person` "point" out of the `personFound(..)` function. To do so, let's first to define:
+Comencemos tratando de sacar el punto de `persona` de la función `personaEncontrada(..)`. Para hacerlo, primero vamos a definir:
 
 ```js
-function extractName(person) {
-    return person.name;
+function extraerNombre(persona) {
+    return persona.nombre;
 }
 ```
 
-But let's observe that this operation could instead be expressed in generic terms: extracting any property by name off of any object. Let's call such a utility `prop(..)`:
+Pero observemos que esta operación podría expresarse en términos genéricos: extraer cualquier propiedad por nombre de cualquier objeto. Llamemos a tal utilidad `propiedad(..)`:
 
 ```js
-function prop(name,obj) {
-    return obj[name];
+function propiedad(nombre,objeto) {
+    return objeto[nombre];
 }
 
-// or the ES6 => form
-var prop =
-    (name,obj) =>
-        obj[name];
+// o en la forma ES6 =>
+var propiedad =
+    (nombre,objeto) =>
+        objeto[nombre];
 ```
 
-While we're dealing with object properties, let's also define the opposite utility: `setProp(..)` for setting a property value onto an object.
+Mientras tratamos con las propiedades de los objetos, definamos también la utilidad opuesta: `establecerPropiedad(..)` para establecer un valor de propiedad en un objeto.
 
-However, we want to be careful not to just mutate an existing object but rather create a clone of the object to make the change to, and then return it. The reasons for such care will be discussed in detail in Chapter 5.
+Sin embargo, queremos tener cuidado de no solo mutar un objeto existente, sino crear un clon del objeto para realizar el cambio y luego devolverlo. Las razones de tal cuidado serán discutidas en detalle en el Capítulo 5.
 
 ```js
-function setProp(name,obj,val) {
-    var o = Object.assign( {}, obj );
-    o[name] = val;
+function establecerPropiedad(nombre,objeto,valor) {
+    var o = Object.assign( {}, objeto );
+    o[nombre] = valor;
     return o;
 }
 ```
 
-Now, to define an `extractName(..)` that pulls a `"name"` property off an object, we'll partially apply `prop(..)`:
+Ahora, para definir un `extraerNombre(..)` que extrae una propiedad `"nombre"` de un objeto, aplicaremos parcialmente `propiedad(..)`:
 
 ```
-var extractName = partial( prop, "name" );
+var extraerNombre = parcial( propiedad, "nombre" );
 ```
 
-**Note:** Don't miss that `extractName(..)` here hasn't actually extracted anything yet. We partially applied `prop(..)` to make a function that's waiting to extract the `"name"` property from whatever object we pass into it. We could also have done it with `curry(prop)("name")`.
+**Nota:** Date cuenta que `extraerNombre(..)` aquí no ha extraído nada todavía. Aplicamos parcialmente `propiedad(..)` para hacer una función que está esperando extraer la propiedad `"nombre"` de cualquier objeto que pasemos a ella. También podríamos haberlo hecho con `curry(prop)("nombre")`.
 
-Next, let's narrow the focus on our example's nested lookup calls to this:
+A continuación, reduzcamos el foco en las llamadas de búsqueda anidadas de nuestro ejemplo a esto:
 
 ```js
-getLastOrder( function orderFound(order){
-    getPerson( { id: order.personId }, outputPersonName );
+obtenerUltimaOrden( function ordenEncontrada(orden){
+    obtenerPersona( { id: orden.ID_Persona }, salidaNombrePersona );
 } );
 ```
 
-How can we define `outputPersonName(..)`? To visualize what we need, think about the desired flow of data:
+¿Cómo podemos definir `salidaNombrePersona(..)`? Para visualizar lo que necesitamos, piensa en el flujo de datos deseado:
 
 ```
-output <-- extractName <-- person
+salida <-- extraerNombre <-- persona
 ```
 
-`outputPersonName(..)` needs to be a function that takes an (object) value, passes it into `extractName(..)`, then passes that value to `output(..)`.
+`salidaNombrePersona(..)` necesita ser una función que tome un valor (de objeto), lo pase a `extraerNombre(..)` y que luego pase ese valor a `salida(..)`.
 
-Hopefully you recognized that as a `compose(..)` operation. So we can define `outputPersonName(..)` as:
+Espero que lo hayas reconocido como una operación de `componer(..)`. Entonces podemos definir `salidaNombrePersona(..)` como:
 
 ```
-var outputPersonName = compose( output, extractName );
+var salidaNombrePersona = componer( salida, extraerNombre );
 ```
 
-The `outputPersonName(..)` function we just created is the callback provided to `getPerson(..)`. So we can define a function called `processPerson(..)` that presets the callback argument, using `partialRight(..)`:
+La función `salidaNombrePersona(..)` que acabamos de crear es la devolución de llamada proporcionada a `obtenerPersona(..)`. Entonces podemos definir una función llamada `procesarPersona(..)` que preestablece el argumento de devolución de llamada, usando `parcialDerecha(..)`:
 
 ```js
-var processPerson = partialRight( getPerson, outputPersonName );
+var procesarPersona = parcialDerecha( obtenerPersona, salidaNombrePersona );
 ```
 
-Let's reconstruct the nested lookups example again with our new function:
+Reconstruyamos el ejemplo de búsquedas anidadas nuevamente con nuestra nueva función:
 
 ```js
-getLastOrder( function orderFound(order){
-    processPerson( { id: order.personId } );
+obtenerUltimaOrden( function ordenEncontrada(orden){
+    procesarPersona( { id: orden.ID_Persona } );
 } );
 ```
 
-Phew, we're making good progress!
+¡Uf, estamos haciendo un buen progreso!
 
-But we need to keep going and remove the `order` "point". The next step is to observe that `personId` can be extracted from an object (like `order`) via `prop(..)`, just like we did with `name` on the `person` object:
+Pero tenemos que seguir y eliminar el "punto" de `orden`. El siguiente paso es observar que `ID_Persona` se puede extraer de un objeto (como `orden`) a través de `propiedad(..)`, tal como hicimos con `nombre` en el objeto `persona`:
 
 ```js
-var extractPersonId = partial( prop, "personId" );
+var extraerID_Persona = parcial( propiedad, "ID_Persona" );
 ```
 
-To construct the object (of the form `{ id: .. }`) that needs to be passed to `processPerson(..)`, let's make another utility for wrapping a value in an object at a specified property name, called `makeObjProp(..)`:
+Para construir el objeto (de la forma `{id: .. }`) que debe pasarse a `procesarPersona(..)`, hagamos otra utilidad para envolver un valor en un objeto con un nombre de propiedad especificado, llamado `crearPropiedadDeObjeto(..)`:
 
 ```js
-function makeObjProp(name,value) {
-    return setProp( name, {}, value );
+function crearPropiedadDeObjeto(nombre,valor) {
+    return establecerPropiedad( nombre, {}, valor );
 }
 
-// or the ES6 => form
-var makeObjProp =
-    (name,value) =>
-        setProp( name, {}, value );
+// o en la forma de ES6 =>
+var crearPropiedadDeObjeto =
+    (nombre,valor) =>
+        establecerPropiedad( nombre, {}, valor );
 ```
 
-**Tip:** This utility is known as `objOf(..)` in the Ramda library.
+**Consejo:** Esta utilidad se conoce como `objOf(..)` en la libreria Ramda.
 
-Just as we did with `prop(..)` to make `extractName(..)`, we'll partially apply `makeObjProp(..)` to build a function `personData(..)` that makes our data object:
+Tal como lo hicimos con `propiedad(..)` para crear `extraerNombre(..)`, aplicaremos parcialmente `crearPropiedadDeObjeto(..)` para construir una función `datosPersona(..)` que crea nuestro objeto de datos:
 
 ```js
-var personData = partial( makeObjProp, "id" );
+var datosPersona = parcial( crearPropiedadDeObjeto, "id" );
 ```
 
-To use `processPerson(..)` to perform the lookup of a person attached to an `order` value, the conceptual flow of data through operations we need is:
+Para usar `procesarPersona(..)` y asi realizar la búsqueda de una persona unida a un valor `orden`, el flujo conceptual de datos a través de las operaciones que necesitamos es:
 
 ```
-processPerson <-- personData <-- extractPersonId <-- order
+procesarPersona <-- datosPersona <-- extraerID_Persona <-- orden
 ```
 
-So we'll just use `compose(..)` again to define a `lookupPerson(..)` utility:
+Así que simplemente usaremos `componer(..)` nuevamente para definir una utilidad `buscarPersona(..)`:
 
 ```js
-var lookupPerson = compose( processPerson, personData, extractPersonId );
+var buscarPersona = componer( procesarPersona, datosPersona, extraerID_Persona );
 ```
 
-And... that's it! Putting the whole example back together without any "points":
+¡Y eso es todo! Poniendo el ejemplo completo de nuevo sin ningún "punto":
 
 ```js
-var getPerson = partial( ajax, "http://some.api/person" );
-var getLastOrder = partial( ajax, "http://some.api/order", { id: -1 } );
+var obtenerPersona = parcial( ajax, "http://alguna.api/persona" );
+var obtenerUltimaOrden = parcial( ajax, "http://alguna.api/orden", { id: -1 } );
 
-var extractName = partial( prop, "name" );
-var outputPersonName = compose( output, extractName );
-var processPerson = partialRight( getPerson, outputPersonName );
-var personData = partial( makeObjProp, "id" );
-var extractPersonId = partial( prop, "personId" );
-var lookupPerson = compose( processPerson, personData, extractPersonId );
+var extraerNombre = parcial( propiedad, "nombre" );
+var salidaNombrePersona = componer( salida, extraerNombre );
+var procesarPersona = parcialDerecha( obtenerPersona, salidaNombrePersona );
+var datosPersona = parcial( crearPropiedadDeObjeto, "id" );
+var extraerID_Persona = parcial( propiedad, "ID_Persona" );
+var buscarPersona = componer( procesarPersona, datosPersona, extraerID_Persona );
 
-getLastOrder( lookupPerson );
+obtenerUltimaOrden( buscarPersona );
 ```
 
-Wow. Point-free. And `compose(..)` turned out to be really helpful in two places!
+Wow. Sin-puntos. Y `componer (..)` resultó ser realmente útil en dos lugares!
 
-I think in this case, even though the steps to derive our final answer were a bit drawn out, the end result is much more readable code, because we've ended up explicitly calling out each step.
+Creo que en este caso, a pesar de que los pasos para derivar nuestra respuesta final fueron un poco exagerados, el resultado final es un código mucho más legible, porque hemos terminado diciendo explícitamente cada paso.
 
-And even if you didn't like seeing/naming all those intermediate steps, you can preserve point-free but wire the expressions together without individual variables:
+E incluso si no te gustó ver/nombrar todos esos pasos intermedios, puedes conservar los puntos sin problemas, pero conectar las expresiones sin usar variables individuales:
 
 ```js
-partial( ajax, "http://some.api/order", { id: -1 } )
+parcial( ajax, "http://alguna.api/orden", { id: -1 } )
 (
-    compose(
-        partialRight(
-            partial( ajax, "http://some.api/person" ),
-            compose( output, partial( prop, "name" ) )
+    componer(
+        parcialDerecha(
+            parcial( ajax, "http://alguna.api/persona" ),
+            componer( salida, parcial( propiedad, "nombre" ) )
         ),
-        partial( makeObjProp, "id" ),
-        partial( prop, "personId" )
+        parcial( crearPropiedadDeObjeto, "id" ),
+        parcial( propiedad, "ID_Persona" )
     )
 );
 ```
 
-This snippet is less verbose for sure, but I think it's less readable than the previous snippet where each operation is its own variable. Either way, composition helped us with our point-free style.
+Este fragmento es menos verboso, pero creo que es menos legible que el fragmento anterior donde cada operación es su propia variable. De cualquier manera, la composición nos ayudó con nuestro estilo sin puntos.
 
-## Summary
+## Resumen
 
-Function composition is a pattern for defining a function that routes the output of one function call into another function call, and its output to another, and so on.
+La composición de funciones es un patrón para definir una función que conecta la salida de una llamada de función a otra llamada de función, y su salida a otra, y así sucesivamente.
 
-Because JS functions can only return single values, the pattern essentially dictates that all functions in the composition (except perhaps the first called) need to be unary, taking only a single input from the output of the previous function.
+Debido a que las funciones en JS solo pueden devolver valores individuales, el patrón esencialmente dicta que todas las funciones en la composición (excepto quizás la primera llamada) deben ser unarias, tomando solo una entrada proveniente de la salida de la función anterior.
 
-Instead of listing out each step as a discrete call in our code, function composition using a utility like `compose(..)` or `pipe(..)` abstracts that implementation detail so the code is more readable, allowing us to focus on *what* the composition will be used to accomplish, not *how* it will be performed.
+En lugar de enumerar cada paso como una llamada discreta en nuestro código, la composición de funciones utilizando una utilidad como `componer(..)` o `conectar(..)` abstrae los detalles de la implementación para que el código sea más legible, lo que nos permite enfocarnos en *qué* se usará la composición y no en *cómo* se realizará esta.
 
-Composition is declarative data flow, meaning our code describes the flow of data in an explicit, obvious, and readable way.
+La composición es un flujo de datos declarativo, lo que significa que nuestro código describe el flujo de datos de una manera explícita, obvia y legible.
 
-Composition is the most important foundational pattern in all of FP, in large part because it's the only way to route data through our programs aside from using side effects; the next chapter explores why such should be avoided wherever possible.
+La composición es el patrón fundamental más importante en toda la PF, en gran parte porque es la única forma de enrutar datos a través de nuestros programas además de usar efectos secundarios; el próximo capítulo explora el por qué se deben evitar estos efectos siempre que sea posible.
