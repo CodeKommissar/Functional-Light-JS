@@ -1,23 +1,23 @@
-# Functional-Light JavaScript
-# Chapter 5: Reducing Side Effects
+# Javascript Funcionalmente-Ligero
+# Capítulo 4: Reduciendo Efectos Secundarios
 
-In Chapter 2, we discussed how a function can have outputs besides its `return` value. By now you should be very comfortable with the FP definition of a function, so the idea of such side outputs -- side effects! -- should smell.
+En el Capítulo 2, discutimos cómo una función puede tener salidas además de su valor de 'retorno'. A estas alturas, deberías sentirse bastante cómodo con la definición de la PF de una función, por lo que la idea de tales salidas secundarias -- ¡efectos secundarios! -- debería de irte pareciendo una mala idea.
 
-We're going to examine the various different forms of side effects and see why they are harmful to our code's quality and readability.
+Vamos a examinar las diferentes formas de efectos secundarios y ver por qué son perjudiciales para la calidad y legibilidad de nuestro código.
 
-But let me not bury the lede here. The punchline to this chapter: it's impossible to write a program with no side effects. Well, not impossible; you certainly can. But that program won't do anything useful or observable. If you wrote a program with zero side effects, you wouldn't be able to tell the difference between it and an empty program.
+Pero déjame no enterrar la introduccion aquí. El punto final de este capítulo: es imposible escribir un programa sin efectos secundarios. Bueno, no es imposible; ciertamente puedes. Pero ese programa no hará nada útil u observable. Si escribiste un programa con cero efectos secundarios, no podrías distinguir entre él y un programa vacío.
 
-The FPer doesn't eliminate all side effects. Rather, the goal is to limit them as much as possible. To do that, we first need to fully understand them.
+El Programador-Funcional no elimina todos los efectos secundarios. Más bien, el objetivo es limitarlos tanto como sea posible. Para hacer eso, primero debemos comprenderlos por completo
 
-## Effects On The Side, Please
+## Efectos En El Lado, Por Favor
 
-Cause and effect: one of the most fundamental, intuitive observations we humans can make about the world around us. Push a book off the edge of a table, it falls to the ground. You don't need a physics degree to know the cause was you pushing the book and the effect was gravity pulling it to the ground. There's a clear and direct relationship.
+Causa y efecto: una de las observaciones más fundamentales e intuitivas que los seres humanos podemos hacer sobre el mundo que nos rodea. Empuja un libro fuera del borde de una mesa, cae al suelo. No necesitas un título de física para saber que la causa fuiste tu empujando el libro y el efecto fue la gravedad tirando de él hacia el piso. Hay una relación clara y directa.
 
-In programming, we also deal entirely in cause and effect. If you call a function (cause), it displays a message on the screen (effect).
+En la programación, también tratamos completamente en causa y efecto. Si llama a una función (causa), muestra un mensaje en la pantalla (efecto).
 
-When reading a program, it's supremely important that the reader be able to clearly identify each cause and each effect. To any extent where a direct relationship between cause and effect cannot be seen readily upon a read-through of the program, that program's readability is degraded.
+Al leer un programa, es sumamente importante que el lector pueda identificar claramente cada causa y cada efecto. En cualquier medida donde una relación directa entre causa y efecto no pueda verse fácilmente en una lectura del programa, la legibilidad de ese programa se degrada.
 
-Consider:
+Considera:
 
 ```js
 function foo(x) {
@@ -27,9 +27,9 @@ function foo(x) {
 var y = foo( 3 );
 ```
 
-In this trivial program, it is immediately clear that calling foo (the cause) with value `3` will have the effect of returning the value `6` that is then assigned to `y` (the effect). There's no ambiguity here.
+En este programa trivial, queda inmediatamente claro que llamar a foo (la causa) con el valor `3` tendrá el efecto de devolver el valor `6` que luego es asignado a `y` (el efecto). No hay ambigüedad aquí.
 
-But now:
+Pero ahora:
 
 ```js
 function foo(x) {
@@ -41,21 +41,21 @@ var y;
 foo( 3 );
 ```
 
-This program has the exact same outcome. But there's a very big difference. The cause and the effect are disjoint. The effect is indirect. The setting of `y` in this way is what we call a side effect.
+Este programa tiene exactamente el mismo resultado. Pero hay una gran diferencia. La causa y el efecto estan disjuntos. El efecto es indirecto. Asignar el valor de `y` de esta manera es lo que llamamos efecto secundario.
 
-**Note:** When a function makes a reference to a variable outside itself, this is called a free variable. Not all free variable references will be bad, but we'll want to be very careful with them.
+**Nota:** Cuando una función hace una referencia a una variable fuera de sí misma, esto se llama una variable libre. No todas las referencias de variables libres serán malas, pero querremos ser muy cuidadosos con ellas.
 
-What if I gave you a reference to call a function `bar(..)` that you cannot see the code for, but I told you that it had no such indirect side effects, only an explicit `return` value effect?
+¿Qué sucederia si te diera una referencia para llamar a una función `bar(..)` de la cual no puedes ver el código, pero te dije que no tenía tales efectos secundarios indirectos, solo un efecto de valor `return` explícito?
 
 ```js
 bar( 4 );           // 42
 ```
 
-Because you know that the internals of `bar(..)` do not create any side effects, you can now reason about any `bar(..)` call like this one in a much more straightforward way. But if you didn't know that `bar(..)` had no side effects, to understand the outcome of calling it, you'd have to go read and dissect all of its logic. This is extra mental tax burden for the reader.
+Como sabes que las partes internas de `bar(..)` no crean ningún efecto secundario, ahora puedes razonar sobre cualquier llamada `bar(..)` como esta de una manera mucho más directa. Pero si no sabías que `bar(..)` no tenía efectos secundarios, para entender cual es el resultado de llamar la funcion, tendrías que leer y analizar toda su lógica. Esta es una carga mental extra para el lector.
 
-**The readability of a side effecting function is worse** because it requires more reading to understand the program.
+**La legibilidad de una función con efectos secundarios es peor** porque requiere de más lectura para comprender el programa.
 
-But the problem goes deeper than that. Consider:
+Pero el problema es más profundo que eso. Considera:
 
 ```js
 var x = 1;
@@ -73,19 +73,19 @@ baz();
 console.log( x );
 ```
 
-How sure are you what values are going to be printed at each `console.log(x)`?
+¿Qué tan seguro estás de qué valores van a imprimirse en cada `console.log (x)`?
 
-The correct answer is: not at all. If you're not sure whether `foo()`, `bar()`, and `baz()` are side-effecting or not, you cannot guarantee what `x` will be at each step unless you inspect the implementations of each, **and** then trace the program from line 1 forward, keeping track of all the changes in state as you go.
+La respuesta correcta es: 0%. Si no estás seguro de si `foo()`, `bar()` y `baz()` tienen efectos secundario o no, no puedes garantizar qué valor tendra `x` en cada paso a menos que inspecciones las implementaciones de cada funcion, **y** luego rastrees el programa desde la línea 1 hacia adelante, haciendo un seguimiento de todos los cambios de estado a medida que avanzas.
 
-In other words, the final `console.log(x)` is impossible to analyze or predict unless you've mentally executed the whole program up to that point.
+En otras palabras, el `console.log(x)` final es imposible de analizar o predecir a menos que hayas ejecutado mentalmente todo el programa hasta ese punto.
 
-Guess who's good at running your program? The JS engine. Guess who's not as good at running your program? The reader of your code. And yet, your choice to write code (potentially) with side effects in one or more of those function calls means that you've burdened the reader with having to mentally execute your program in its entirety up to a certain line, for them to read and understand that line.
+¿Adivina quién es bueno para ejecutar tu programa? El motor de JS. ¿Adivina quién no es tan bueno para ejecutar tu programa? El lector de tu código. Y, sin embargo, tu elección de escribir código (potencialmente) con efectos secundarios en una o más de esas llamadas a funciones significa que has cargado al lector con la ejecución mental de tu programa en su totalidad hasta cierta línea, para que puedan leerlo y entender esa línea.
 
-If `foo()`, `bar()`, and `baz()` were all free of side effects, they could not affect `x`, which means we do not need to execute them to mentally trace what happens with `x`. This is less mental tax, and makes the code more readable.
+Si `foo()`, `bar()` y `baz()` estuvieran libres de efectos secundarios, no podrían afectar a `x`, lo que significa que no necesitamos ejecutarlos para rastrear mentalmente lo que ocurre con `x`. Esto es menos esfuerzo mental, y hace que el código sea más legible.
 
-### Hidden Causes
+### Causas ocultas
 
-Outputs, changes in state, are the most commonly cited manifestation of side effects. But another readability-harming practice is what some refer to as side causes. Consider:
+Salidas, cambios de estado, son la manifestación más comúnmente citada de los efectos secundarios. Pero otra práctica que daña-la-legibilidad es lo que algunos llaman causas secundarias. Considera:
 
 ```js
 function foo(x) {
@@ -97,7 +97,7 @@ var y = 3;
 foo( 1 );           // 4
 ```
 
-`y` is not changed by `foo(..)`, so it's not the same kind of side effect as we saw before. But now, the calling of `foo(..)` actually depends on the presence and current state of a `y`. If later, we do:
+`y` no es cambiado por `foo(..) `, por lo que no es el mismo tipo de efecto secundario que vimos antes. Pero ahora, la invocación de `foo(..)` en realidad depende de la presencia y el estado actual de una variable `y`. Si más tarde, hacemos:
 
 ```js
 y = 5;
@@ -107,11 +107,11 @@ y = 5;
 foo( 1 );           // 6
 ```
 
-Might we be surprised that the call to `foo(1)` returned different results from call to call?
+¿Podría sorprendernos que la llamada a `foo(1)` arrojara resultados diferentes de llamada a llamada?
 
-`foo(..)` has an indirection of cause that is harmful to readability. The reader cannot see, without inspecting `foo(..)`'s implementation carefully, what causes are contributing to the output effect. It *looks* like the argument `1` is the only cause, but it turns out it's not.
+`foo(..)` tiene un direccionamiento indirecto de causa que es perjudicial para la legibilidad. El lector no puede ver, sin inspeccionar cuidadosamente la implementación de `foo(..)`, qué causas están contribuyendo al efecto de salida. *Parece* que el argumento `1` es la única causa, pero resulta que no lo es.
 
-To aid readability, all of the causes that will contribute to determining the effect output of `foo(..)` should be made as direct and obvious inputs to `foo(..)`. The reader of the code will clearly see the cause(s) and effect.
+Para ayudar a la legibilidad, todas las causas que contribuirán a determinar el resultado del efecto de `foo(..)` deben tomarse como entradas directas y obvias a `foo(..)`. El lector del código verá claramente la(s) causa(s) y el efecto.
 
 #### Fixed State
 
