@@ -113,11 +113,11 @@ foo( 1 );           // 6
 
 Para ayudar a la legibilidad, todas las causas que contribuirán a determinar el resultado del efecto de `foo(..)` deben tomarse como entradas directas y obvias a `foo(..)`. El lector del código verá claramente la(s) causa(s) y el efecto.
 
-#### Fixed State
+#### Estado fijo
 
-Does avoiding side causes mean the `foo(..)` function cannot reference any free variables?
+¿Evitar las causas secundarias significa que la función `foo(..)` no puede hacer referencia a ninguna variable libre?
 
-Consider this code:
+Considera este código:
 
 ```js
 function foo(x) {
@@ -131,13 +131,13 @@ function bar(x) {
 foo( 3 );           // 9
 ```
 
-It's clear that for both `foo(..)` and `bar(..)`, the only direct cause is the `x` parameter. But what about the `bar(x)` call? `bar` is just an identifier, and in JS it's not even a constant (aka, non-reassignable variable) by default. The `foo(..)` function is relying on the value of `bar` -- a variable that references the second function -- as a free variable.
+Está claro que para ambos `foo(..)` y `bar(..)`, la única causa directa es el parámetro `x`. Pero, ¿qué pasa con la llamada `bar(x)`? `bar` es solo un identificador, y en JS ni siquiera es una constante (es decir, una variable no reasignable) de forma predeterminada. La función `foo(..)` se basa en el valor de `bar` -- una variable que hace referencia a la segunda función -- como una variable libre.
 
-So is this program relying on a side cause?
+Entonces, ¿este programa se basa en una causa secundaria?
 
-I say no. Even though it is *possible* to overwrite the `bar` variable's value with some other function, I am not doing so in this code, nor is it a common practice of mine or precedent to do so. For all intents and purposes, my functions are constants (never reassigned).
+Yo digo que no. Aunque es *posible* sobreescribir el valor de la variable `bar` con alguna otra función, no lo hago en este código, ni es una práctica común ni mía ni es un precedente hacerlo. Para todos los efectos, mis funciones son constantes (nunca son reasignadas).
 
-Consider:
+Considera:
 
 ```js
 const PI = 3.141592;
@@ -149,145 +149,145 @@ function foo(x) {
 foo( 3 );           // 9.424776000000001
 ```
 
-**Note:** JavaScript has `Math.PI` built-in, so we're only using the `PI` example in this text as a convenient illustration. In practice, always use `Math.PI` instead of defining your own!
+**Nota:** JavaScript tiene `Math.PI` incorporado, por lo que solo estamos usando el ejemplo `PI` en este texto como una ilustración conveniente. En la práctica, siempre use `Math.PI` en lugar de definirlo por ti mismo!
 
-How about the above code snippet? Is `PI` a side cause of `foo(..)`?
+¿Qué tal el fragmento de código de arriba? ¿`PI` es una causa secundaria de `foo(..)`?
 
-Two observations will help us answer that question in a reasonable way:
+Dos observaciones nos ayudarán a responder esa pregunta de una manera razonable:
 
-1. Think about every call you might ever make to `foo(3)`. Will it always return that `9.424..` value? **Yes.** Every single time. If you give it the same input (`x`), it will always return the same output.
+1. Piensa en cada llamada que puedas hacer a `foo(3)`. ¿Siempre devolverá ese valor `9.424..`? **Sí.** Cada vez. Si le das la misma entrada (`x`), siempre devolverá el mismo resultado.
 
-2. Could you replace every usage of `PI` with its immediate value, and could the program run **exactly** the same as it did before? **Yes.** There's no part of this program that relies on being able to change the value of `PI` -- indeed since it's a `const`, it cannot be reassigned -- so the `PI` variable here is only for readability/maintenance sake. Its value can be inlined without any change in program behavior.
+2. ¿Podrías reemplazar cada uso de `PI` con su valor inmediato, y podría el programa ejecutarse **exactamente** igual que antes? **Sí.** No hay parte de este programa que dependa de poder cambiar el valor de `PI`, de hecho, dado que es una `const`, no puede ser reasignada, por lo que la variable `PI` aquí es solo para el fin de la lectura/mantenimiento. Su valor puede incluirse sin ningún cambio en el comportamiento del programa.
 
-My conclusion: `PI` here is not a violation of the spirit of minimizing/avoiding side effects (or causes). Nor is the `bar(x)` call in the previous snippet.
+Mi conclusión: `PI` aquí no es una violación del espíritu de minimizar/evitar los efectos secundarios (o causas). Tampoco es la llamada `bar(x)` en el fragmento anterior.
 
-In both cases, `PI` and `bar` are not part of the state of the program. They're fixed, non-reassigned references. If they don't change throughout the program, we don't have to worry about tracking them as changing state. As such, they don't harm our readability. And they cannot be the source of bugs related to variables changing in unexpected ways.
+En ambos casos, `PI` y` bar` no son parte del estado del programa. Son referencias fijas y no reasignadas. Si no cambian durante el programa, no tenemos que preocuparnos de seguirlos como un cambio de estado. Como tales, no perjudican nuestra legibilidad. Y no pueden ser la fuente de errores relacionados con variables que cambian de forma inesperada.
 
-**Note:** The use of `const` above does not, in my opinion, make the case that `PI` is absolved as a side cause; `var PI` would lead to the same conclusion. The lack of reassigning `PI` is what matters, not the inability to do so. We'll discuss `const` in a later chapter.
+**Nota:** El uso de `const` anterior, en mi opinión, no hace que el `PI` se absuelva como una causa secundaria; `var PI` llevaría a la misma conclusión. La falta de reasignación de `PI` es lo que importa, no la imposibilidad de hacerlo. Discutiremos `const` en un capítulo posterior.
 
-#### Randomness
+#### Aleatoriedad
 
-You may never have considered it before, but randomness is a side cause. A function that uses `Math.random()` cannot have predictable output based on its input. So any code that generates unique random IDs/etc will by definition be considered reliant on the program's side causes.
+Es posible que nunca lo hayas considerado antes, pero la aleatoriedad es una causa secundaria. Una función que utiliza `Math.random()` no puede tener una salida predecible basandonos en su entrada. Por lo tanto, cualquier código que genere identificadores aleatorios únicos/etc se considerará por definición dependiente de las causas secundarias del programa.
 
-In computing, we use what's called pseudo-random algorithms for generation. Turns out true randomness is pretty hard, so we just kinda fake it with complex algorithms that produce values that seem observably random. These algorithms calculate long streams of numbers, but the secret is, the sequence is actually predictable if you know the starting point. This starting point is referred to as a seed.
+En informática, usamos lo que se llama algoritmos pseudoaleatorios para la generación. Resulta que la aleatoriedad real es bastante difícil, así que simplemente la simulamos con algoritmos complejos que producen valores que parecen observablemente aleatorios. Estos algoritmos calculan largos flujos de números, pero el secreto es que la secuencia es realmente predecible si se conoce el punto de partida. Este punto de partida se conoce como una semilla.
 
-Some languages let you specify the seed value for the random number generation. If you always specify the same seed, you'll always get the same sequence of outputs from subsequent "pseudo-random number" generations. This is incredibly useful for testing purposes, for example, but incredibly dangerous for real world application usage.
+Algunos idiomas te permiten especificar el valor inicial para la generación de números aleatorios. Si siempre especificas la misma semilla, siempre obtendrás la misma secuencia de resultados para las siguientes generaciones de "números pseudoaleatorios". Esto es increíblemente útil para realizar pruebas, por ejemplo, pero es increíblemente peligroso para el uso de aplicaciones en el mundo real.
 
-In JS, the randomness of `Math.random()` calculation is based on an indirect input, because you cannot specify the seed. As such, we have to treat built-in random number generation as a side cause.
+En JS, la aleatoriedad del cálculo `Math.random ()` se basa en una entrada indirecta, porque no puedes especificar la semilla. Como tal, tenemos que tratar la generación de números aleatorios incorporada como una causa secundaria.
 
-### I/O Effects
+### Efectos de E/S
 
-The most common (and essentially unavoidable) form of side cause/effect is I/O (input/output). A program with no I/O is totally pointless, because its work cannot be observed in any way. Useful programs must at a minimum have output, and many also need input. Input is a side cause and output is a side effect.
+La forma más común (y esencialmente inevitable) de causa/efecto lateral es E/S (entrada/salida). Un programa sin E/S es totalmente inútil, porque su trabajo no se puede observar de ninguna manera. Los programas útiles deben, como mínimo, tener una salida, y muchos también necesitan de una entrada. La entrada es una causa secundaria y la salida es un efecto secundario.
 
-The typical input for the browser JS programmer is user events (mouse, keyboard), and for output is the DOM. If you work more in Node.js, you may more likely receive input from, and send output to, the file system, network connections, and/or the `stdin`/`stdout` streams.
+La entrada típica para el programador de JS en el navegador son los eventos del usuario (mouse, teclado), y para la salida es el DOM. Si trabajas más en Node.js, lo más probable es que recibas entradas de, y envíe salidas, al sistema de archivos, a las conexiones de red y/o a las transmisiones `stdin`/`stdout`.
 
-As a matter of fact, these sources can be both input and output, both cause and effect. Take the DOM, for example. We update (side effect) a DOM element to show text or an image to the user, but the current state of the DOM is an implicit input (side cause) to those operations as well.
+Como cuestión de hecho, estas fuentes pueden ser tanto de entrada como de salida, tanto causa como efecto. Toma el DOM, por ejemplo. Actualizamos (efecto secundario) un elemento DOM para mostrar un texto o una imagen al usuario, pero el estado actual del DOM es también una entrada implícita (causa secundaria) para esas operaciones.
 
-### Side Bugs
+### Errores secundarios
 
-The scenarios where side causes and side effects can lead to bugs are as varied as the programs in existence. But let's examine a scenario to illustrate these hazards, in hopes that they help us recognize similar mistakes in our own programs.
+Los escenarios donde las causas secundarias y los efectos secundarios pueden provocar errores son tan variados como los programas existentes. Pero examinemos un escenario para ilustrar estos riesgos, con la esperanza de que nos ayuden a reconocer errores similares en nuestros propios programas.
 
-Consider:
+Considera:
 
 ```js
-var users = {};
-var userOrders = {};
+var usuarios = {};
+var ordenesUsuario = {};
 
-function fetchUserData(userId) {
-    ajax( `http://some.api/user/${userId}`, function onUserData(userData){
-        users[userId] = userData;
+function obtenerDataUsuario(IdUsuario) {
+    ajax( `http://alguna.api/usuario/${IdUsuario}`, function enDataUsuario(dataUsuario){
+        usuarios[IdUsuario] = dataUsuario;
     } );
 }
 
-function fetchOrders(userId) {
-    ajax( `http://some.api/orders/${userId}`, function onOrders(orders){
-        for (let order of orders) {
-            // keep a reference to latest order for each user
-            users[userId].latestOrder = order;
-            userOrders[orders[i].orderId] = order;
+function obtenerOrdenes(IdUsuario) {
+    ajax( `http://alguna.api/ordenes/${IdUsuario}`, function enOrdenes(ordenes){
+        for (let orden of ordenes) {
+            // mantiene una referencia a la ultima orden hecha por cada usuario
+            usuarios[IdUsuario].ultimaOrden = orden;
+            ordenesUsuario[ordenes[i].IdOrden] = orden;
         }
     } );
 }
 
-function deleteOrder(orderId) {
-    var user = users[ userOrders[orderId].userId ];
-    var isLatestOrder = (userOrders[orderId] == user.latestOrder);
+function borrarOrden(IdOrden) {
+    var usuario = usuarios[ ordenesUsuario[IdOrden].IdUsuario ];
+    var esUltimaOrden = (ordenesUsuario[IdOrden] == usuario.ultimaOrden);
 
-    // deleting the latest order for a user?
-    if (isLatestOrder) {
-        hideLatestOrderDisplay();
+    // borrando la ultima orden para un usuario?
+    if (esUltimaOrden) {
+        ocultarDisplayUltimaOrden();
     }
 
-    ajax( `http://some.api/delete/order/${orderId}`, function onDelete(success){
-        if (success) {
-            // deleted the latest order for a user?
-            if (isLatestOrder) {
-                user.latestOrder = null;
+    ajax( `http://alguna.api/borrar/orden/${IdOrden}`, function enBorrar(exito){
+        if (exito) {
+            // se borro la ultima orden para un usuario?
+            if (esUltimaOrden) {
+                usuario.ultimaOrden = null;
             }
 
-            userOrders[orderId] = null;
+            ordenesUsuario[IdOrden] = null;
         }
-        else if (isLatestOrder) {
-            showLatestOrderDisplay();
+        else if (esUltimaOrden) {
+            mostrarDisplayUltimaOrden();
         }
     } );
 }
 ```
 
-I bet for some readers one of the potential bugs here is fairly obvious. If the callback `onOrders(..)` runs before the `onUserData(..)` callback, it will attempt to add a `latestOrder` property to a value (the `userData` object at `users[userId]`) that's not yet been set.
+Apuesto por algunos lectores a que uno de los posibles errores aquí es bastante obvio. Si la devolución de llamada `enOrdenes(..)` se ejecuta antes de la devolución de llamada de `enDataUsuario(..)`, intentará agregar una propiedad `ultimaOrden` a un valor (el objeto `dataUsuario` en `usuarios[IdUsuario]`) que aún no se ha sido establecido.
 
-So one form of "bug" that can occur with logic that relies on side causes/effects is the race condition of two different operations (async or not!) that we expect to run in a certain order but under some cases may run in a different order. There are strategies for ensuring the order of operations, and it's fairly obvious that order is critical in that case.
+De modo que una forma de "error" que puede ocurrir con la lógica que depende de causas/efectos secundarios es la condición de carrera de dos operaciones diferentes (¡asincrónicas o no!) Que esperamos ejecutar en cierto orden pero que en algunos casos pueden ejecutarse en un orden diferente. Existen estrategias para garantizar el orden de las operaciones, y es bastante obvio que el orden es crítico en ese caso.
 
-Another more subtle bug can bite us here. Did you spot it?
+Otro error más sutil puede mordernos aquí. ¿Lo viste?
 
-Consider this order of calls:
+Considera este orden de llamadas:
 
 ```js
-fetchUserData( 123 );
-onUserData(..);
-fetchOrders( 123 );
-onOrders(..);
+obtenerDataUsuario( 123 );
+enDataUsuario(..);
+obtenerOrdenes( 123 );
+enOrdenes(..);
 
-// later
+// luego
 
-fetchOrders( 123 );
-deleteOrder( 456 );
-onOrders(..);
-onDelete(..);
+obtenerOrdenes( 123 );
+borrarOrden( 456 );
+enOrdenes(..);
+enOrdenes(..);
 ```
 
-Do you see the interleaving of `fetchOrders(..)` / `onOrders(..)` with the `deleteOrder(..)` / `onDelete(..)` pair? That potential sequencing exposes a weird condition with our side causes/effects of state management.
+¿Ves el entrelazado de `obtenerOrdenes(..)` / `enOrdenes(..)` con el par `borrarOrden(..)` / `enBorrar(..)`? Esa secuencia potencial expone una condición extraña con nuestras causas/efectos secundarios de la administración del estado.
 
-There's a delay in time (because of the callback) between when we set the `isLatestOrder` flag and when we use it to decide if we should empty the `latestOrder` property of the user data object in `users`. During that delay, if `onOrders(..)` callback fires, it can potentially change which order value that user's `latestOrder` references. When `onDelete(..)` then fires, it will assume it still needs to unset the `latestOrder` reference.
+Hay una demora en el tiempo (debido a la devolución de llamada) entre cuando establecemos el indicador `esUltimaOrden` y cuando lo usamos para decidir si debemos vaciar la propiedad `ultimaOrden` del objeto de datos del usuario en `usuarios`. Durante esa demora, si se activan las devoluciones de llamada `enOrdenes(..)`, puede potencialmente cambiar el valor de orden al que hace referencia el `ultimaOrden` del usuario. Cuando `enBorrar(..)` se dispara, asumirá que todavía necesita deshacer la referencia `ultimaOrden`.
 
-The bug: the data (state) *might* now be out of sync. `latestOrder` will be unset, when potentially it should have stayed pointing at a newer order that came in to `onOrders(..)`.
+El error: los datos (estado) *podrían* estar ahora fuera de sincronización. `ultimaOrden` se desactivará, cuando potencialmente debería haberse quedado apuntando a una orden más reciente que entró en `enOrdenes(..)`.
 
-The worst part of this kind of bug is that you don't get a program-crashing exception like we did with the other bug. We just simply have state that is incorrect; our application's behavior is "silently" broken.
+La peor parte de este tipo de error es que no obtienes una excepción que bloqueara la ejecucion del programa como hicimos con el otro error. Simplemente tenemos un estado que es incorrecto; el comportamiento de nuestra aplicación se rompe "silenciosamente".
 
-The sequencing dependency between `fetchUserData(..)` and `fetchOrders(..)` is fairly obvious, and straightforwardly addressed. But it's far less clear that there's a potential sequencing dependency between `fetchOrders(..)` and `deleteOrder(..)`. These two seem to be more independent. And ensuring that their order is preserved is more tricky, because you don't know in advance (before the results from `fetchOrders(..)`) whether that sequencing really must be enforced.
+La dependencia de secuencia entre `obtenerDataUsuario(..)` y `obtenerOrdenes(..)` es bastante obvia y se aborda de forma directa. Pero está mucho menos claro que existe una posible dependencia de secuencia entre `obtenerOrdenes(..)` y `borrarOrden(..)`. Estos dos parecen ser más independientes. Y asegurarse de que su orden sea preservada es más complicado, porque no sabes de antemano (antes de los resultados de `obtenerOrdenes(..)`) si esa secuencia realmente debe ser aplicada.
 
-Yes, you can recompute the `isLatestOrder` flag once `deleteOrder(..)` fires. But now you have a different problem: your UI state can be out of sync.
+Sí, puedes volver a calcular el indicador `esUltimaOrden` una vez que `borrarOrden(..)` se dispare. Pero ahora tienes un problema diferente: tu estado de UI puede estar fuera de sincronización.
 
-If you had called the `hideLatestOrderDisplay()` previously, you'll now need to call `showLatestOrderDisplay()`, but only if a new `latestOrder` has in fact been set. So you'll need to track at least three states: was the deleted order the "latest" originally, and is the "latest" set, and are those two orders different? These are solvable problems, of course. But they're not obvious by any means.
+Si anteriormentes había llamado a `ocultarDisplayUltimaOrden()`, ahora deberás llamar a `mostrarDisplayUltimaOrden()`, pero solo si se ha establecido una nueva `ultimaOrden`. Por lo tanto, necesitarás rastrear al menos tres estados: ¿el orden eliminado fue el "último" originalmente, y es el "último" conjunto, y son esos dos órdenes diferentes? Estos son problemas solucionables, por supuesto. Pero no son obvios de ninguna manera.
 
-All of these hassles are because we decided to structure our code with side causes/effects on a shared set of state.
+Todas estas molestias se deben a que decidimos estructurar nuestro código con causas/efectos secundarios en un conjunto compartido de estados.
 
-Functional programmers detest these sorts of side cause/effect bugs because of how much it hurts our ability read, reason about, validate, and ultimately **trust** the code. That's why they take the principle to avoid side causes/effects so seriously.
+Los programadores funcionales detestan este tipo de errores de causa/efecto secundarios debido a cuánto daña nuestra capacidad de leer, razonar, validar y, en última instancia, **confiar** en el código. Es por eso que toman el principio de evitar las causas/efectos secundarios tan en serio.
 
-There are multiple different strategies for avoiding/fixing side causes/effects. We'll talk about some later in this chapter, and others in later chapters. I'll say one thing for certain: **writing with side causes/effects is often of our normal default** so avoiding them is going to require careful and intentional effort.
+Existen múltiples estrategias diferentes para evitar/corregir causas/efectos secundarios. Hablaremos de algunos más adelante en este capítulo, y otros en capítulos posteriores. Diré una cosa con certeza: **escribir con causas/efectos secundarios a menudo es nuestra opcion por default**, por lo que evitarlos requerirá un esfuerzo cuidadoso e intencionado.
 
-## Once Is Enough, Thanks
+## Una vez que ya es suficiente, gracias
 
-If you must make side effect changes to state, one class of operations that's useful for limiting the potential trouble is idempotence. If your update of a value is idempotent, then data will be resilient to the case where you might have multiple such updates from different side effect sources.
+Si debes realizar cambios de tipo de efectos secundarios al estado, una clase de operaciones que es útil para limitar el problema potencial es la idempotencia. Si tu actualización de un valor es idempotente, entonces los datos serán resilientes al caso en que puedas tener múltiples actualizaciones de diferentes fuentes de efectos secundarios.
 
-If you try to research it, the definition of idempotence can be a little confusing; mathematicians use a slightly different meaning than programmers typically do. However, both perspectives are useful for the functional programmer.
+Si intentas investigarlo, la definición de idempotencia puede ser un poco confusa; los matemáticos usan un significado ligeramente diferente de lo que suelen hacer los programadores. Sin embargo, ambas perspectivas son útiles para el programador funcional.
 
-First, let's give a counter example that is neither mathematically nor programmingly idempotent:
+Primero, demos un ejemplo de un contador que no es idempotente ni matemáticamente ni desde el punto de visto de la programacion:
 
 ```js
-function updateCounter(obj) {
-    if (obj.count < 10) {
-        obj.count++;
+function actualizarContador(objeto) {
+    if (objeto.conteo < 10) {
+        objeto.conteo++;
         return true;
     }
 
@@ -295,83 +295,82 @@ function updateCounter(obj) {
 }
 ```
 
-This function mutates an object via reference by incrementing `obj.count`, so it produces a side effect on that object. If `updateCounter(o)` is called multiple times -- while `o.count` is less than `10`, that is -- the program state changes each time. Also, the output of `updateCounter(..)` is a boolean, which is not suitable to feed back into a subsequent call of `updateCounter(..)`.
+Esta función muta un objeto haciendo uso de su referencia al incrementar `objeto.conteo`, por lo que produce un efecto secundario en ese objeto. Si `actualizarContador(objeto)` se llama varias veces, mientras `objeto.conteo` es menor que `10`, es decir, el estado del programa cambia cada vez. Además, la salida de `actualizarContador(..)` es un valor de tipo boolean, que no es adecuado para retroalimentar a una llamada subsiguiente de `actualizarContador(..)`.
 
-### Mathematic Idempotence
+### Idempotencia matemática
 
-From the mathematical point of view, idempotence means an operation whose output won't ever change after the first call, if you feed that output back into the operation over and over again. In other words, `foo(x)` would produce the same output as `foo(foo(x))` and `foo(foo(foo(x)))`.
+Desde el punto de vista matemático, idempotencia significa una operación cuyo resultado nunca cambiará después de la primera llamada, si vuelves a alimentar esa salida a la operación una y otra vez. En otras palabras, `foo(x)` produciría el mismo resultado que `foo(foo(x))` y `foo(foo(foo(x)))`.
 
-A typical mathematic example is `Math.abs(..)` (absolute value). `Math.abs(-2)` is `2`, which is the same result as `Math.abs(Math.abs(Math.abs(Math.abs(-2))))`. Utilities like `Math.min(..)`, `Math.max(..)`, `Math.round(..)`, `Math.floor(..)` and `Math.ceil(..)` are all idempotent.
+Un ejemplo matemático típico es `Math.abs(..)` (valor absoluto). `Math.abs(-2)` es `2`, que es el mismo resultado que `Math.abs(Math.abs(Math.abs(Math.abs(-2))))`. Utilidades como `Math.min(..)`, `Math.max(..)`, `Math.round(..)`, `Math.floor(..)` y `Math.ceil(..)` son todas idempotentes.
 
-Some custom mathematical operations we could define with this same characteristic:
 
 ```js
-function toPower0(x) {
+function potenciadoA0(x) {
     return Math.pow( x, 0 );
 }
 
-function snapUp3(x) {
+function ponerseSobre3(x) {
     return x - (x % 3) + (x % 3 > 0 && 3);
 }
 
-toPower0( 3 ) == toPower0( toPower0( 3 ) );         // true
+potenciadoA0( 3 ) == potenciadoA0( potenciadoA0( 3 ) );         // true
 
-snapUp3( 3.14 ) == snapUp3( snapUp3( 3.14 ) );      // true
+ponerseSobre3( 3.14 ) == ponerseSobre3( ponerseSobre3( 3.14 ) );      // true
 ```
 
-Mathematical-style idempotence is **not** restricted to mathematic operations. Another place we can illustrate this form of idempotence is with JavaScript primitive type coercions:
+La idempotencia de estilo matemática **no está** restringida a las operaciones matemáticas. Otro lugar donde podemos ilustrar esta forma de idempotencia es con las coerciones de tipo primitivo de JavaScript:
 
 ```js
-var x = 42, y = "hello";
+var x = 42, y = "hola";
 
 String( x ) === String( String( x ) );              // true
 
 Boolean( y ) === Boolean( Boolean( y ) );           // true
 ```
 
-Earlier in the text, we explored a common FP tool that fulfills this form of idempotence:
+Anteriormente en el texto, exploramos una herramienta de la PF común que cumple esta forma de idempotencia:
 
 ```js
-identity( 3 ) === identity( identity( 3 ) );    // true
+identidad( 3 ) === identidad( identidad( 3 ) );    // true
 ```
 
-Certain string operations are also naturally idempotent, such as:
+Ciertas operaciones de string también son naturalmente idempotentes, tales como:
 
 ```js
-function upper(x) {
+function mayuscula(x) {
     return x.toUpperCase();
 }
 
-function lower(x) {
+function minuscula(x) {
     return x.toLowerCase();
 }
 
-var str = "Hello World";
+var string = "Hola Mundo";
 
-upper( str ) == upper( upper( str ) );              // true
+mayuscula( string ) == mayuscula( mayuscula( string ) );              // true
 
-lower( str ) == lower( lower( str ) );              // true
+minuscula( string ) == minuscula( minuscula( string ) );              // true
 ```
 
-We can even design more sophisticated string formatting operations in an idempotent way, such as:
+Incluso podemos diseñar operaciones de formateo de string más sofisticadas de una manera idempotente, como por ejemplo:
 
 ```js
-function currency(val) {
-    var num = parseFloat(
-        String( val ).replace( /[^\d.-]+/g, "" )
+function moneda(valor) {
+    var numero = parseFloat(
+        String( valor ).replace( /[^\d.-]+/g, "" )
     );
-    var sign = (num < 0) ? "-" : "";
-    return `${sign}$${Math.abs( num ).toFixed( 2 )}`;
+    var signo = (numero < 0) ? "-" : "";
+    return `${signo}$${Math.abs( numero ).toFixed( 2 )}`;
 }
 
-currency( -3.1 );                                   // "-$3.10"
+moneda( -3.1 );                                   // "-$3.10"
 
-currency( -3.1 ) == currency( currency( -3.1 ) );   // true
+moneda( -3.1 ) == moneda( moneda( -3.1 ) );   // true
 ```
 
-`currency(..)` illustrates an important technique: in some cases the developer can take extra steps to normalize an input/output operation to ensure the operation is idempotent where it normally wouldn't be.
+`moneda(..)` ilustra una técnica importante: en algunos casos, el desarrollador puede tomar medidas adicionales para normalizar una operación de entrada/salida para garantizar que la operación sea idempotente donde normalmente no lo sería.
 
-Wherever possible, restricting side effects to idempotent operations is much better than unrestricted updates.
+Siempre que sea posible, restringir los efectos secundarios a las operaciones idempotentes es mucho mejor que las actualizaciones sin restricciones.
 
 ### Programming Idempotence
 
