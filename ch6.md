@@ -1,24 +1,24 @@
-# Functional-Light JavaScript
-# Chapter 6: Value Immutability
+# JavaScript Funcionalmente-Ligero
+# Capítulo 6: Inmutabilidad de Valores
 
-In Chapter 5, we talked about the importance of reducing side causes/effects: the ways that your application's state can change unexpectedly and cause surprises (bugs). The fewer places we have with such landmines, the more confidence we have over our code, and the more readable it will be. Our topic for this chapter follows directly from that same effort.
+En el Capítulo 5, hablamos sobre la importancia de reducir las causas/efectos secundarios: las formas en que el estado de tu aplicación puede cambiar inesperadamente y causar sorpresas (errores). Cuantos menos lugares tengamos con esas minas terrestres, más confianza tendremos sobre nuestro código, y más legible será. Nuestro tema para este capítulo se deriva directamente de ese mismo esfuerzo.
 
-If programming-style idempotence is about defining a value change operation so that it can only affect state once, we now turn our attention to the goal of reducing the number of change occurrences from one to zero.
+Si la idempotencia al estilo de programación se trata de definir una operación de cambio de valor de modo que solo pueda afectar el estado una vez, ahora dirigiremos nuestra atención al objetivo de reducir el número de cambio de ocurrencias de uno a cero.
 
-Let's now explore value immutability, the notion that we use only values in our programs that cannot be changed.
+Exploremos ahora la inmutabilidad de valores, la noción de que usamos solo valores en nuestros programas que no pueden modificarse.
 
-## Primitive Immutability
+## Inmutabilidad primitiva
 
-Values of the primitive types (`number`, `string`, `boolean`, `null`, and `undefined`) are already immutable; there's nothing you can do to change them.
+Los valores de tipos primitivos (`number`, `string`, `boolean`, `null`, y `undefined`) ya son inmutables; no hay nada que puedas hacer para cambiarlos.
 
 ```js
-// invalid, and also makes no sense
+// inválido, y tampoco tiene sentido
 2 = 2.5;
 ```
 
-However, JS does have an peculiar behavior which seems like it allows mutating such primitive type values: "boxing". When you access a property on certain primitive type values -- specifically `number`, `string`, and `boolean` -- under the covers JS automatically wraps (aka "boxes") the value in its object counterpart (`Number`, `String`, and `Boolean`, respectively).
+Sin embargo, JS tiene un comportamiento peculiar que parece que permite mutar tales valores de tipo primitivo: "encajamiento". Cuando accedes a una propiedad en ciertos valores de tipos primitivos -- específicamente `number`, `string`, y `boolean` -- bajo la cubierta JS automáticamente envuelve (también conocido como "encaja") el valor en su contraparte de objeto (`Number`, `String`, y `Boolean`, respectivamente).
 
-Consider:
+Considera:
 
 ```js
 var x = 2;
@@ -29,262 +29,263 @@ x;              // 2
 x.length;       // undefined
 ```
 
-Numbers do not normally have a `length` property available, so the `x.length = 4` setting is trying to add a new property, and it silently fails (or is ignored/discarded, depending on your point-of-view); `x` continues to hold the simple primitive `2` number.
+Los números normalmente no tienen una propiedad `length` disponible, por lo que la declaracion `x.length = 4` está intentando agregar una nueva propiedad, y falla silenciosamente (o es ignorada/descartada, dependiendo de tu punto de vista); `x` continúa manteniendo el número primitivo simple `2`.
 
-But the fact that JS allows the `x.length = 4` statement to run at all can seem troubling, if for no other reason than its potential confusion to readers. The good news is, if you use strict mode (`"use strict";`), such a statement will throw an error.
+Pero el hecho de que JS permita que se ejecute la instruccion `x.length = 4` puede parecer preocupante, aunque solo sea por su posible confusión para los lectores. La buena noticia es que si usas el modo estricto (`"use strict";`), una declaración de este tipo generará un error.
 
-What if you try to mutate the explicitly-boxed object representation of such a value?
+¿Qué sucede si intentas mutar la representación del objeto explícitamente encajada de tal valor?
 
 ```js
 var x = new Number( 2 );
 
-// works fine
+// funciona bien
 x.length = 4;
 ```
 
-`x` in this snippet is holding a reference to an object, so custom properties can be added and changed without issue.
+`x` en este fragmento contiene una referencia a un objeto, por lo que las propiedades personalizadas pueden agregarse y modificarse sin problema.
 
-The immutability of simple primitives like `number`s probably seems fairly obvious. But what about `string` values? JS developers have a very common misconception that strings are like arrays and can thus be changed. JS syntax even hints at them being "array like" with the `[ ]` access operator. However, strings are also immutable.
+La inmutabilidad de primitivos simples como `number` probablemente parezca bastante obvia. Pero, ¿qué pasa con los valores de `string`? Los desarrolladores de JS tienen una idea errónea muy común de que las strings son como arrays y, por lo tanto, pueden modificarse. La sintaxis de JS incluso sugiere que son "de tipo array" con el operador de acceso `[]`. Sin embargo, las strings también son inmutables.
 
 ```js
-var s = "hello";
+var s = "hola";
 
-s[1];               // "e"
+s[1];               // "o"
 
-s[1] = "E";
+s[1] = "O";
 s.length = 10;
 
-s;                  // "hello"
+s;                  // "hola"
 ```
 
-Despite being able to access `s[1]` like it's an array, JS strings are not real arrays. Setting `s[1] = "E"` and `s.length = 10` both silently fail, just as `x.length = 4` did above. In strict mode, these assignments will fail, because both the `1` property and the `length` property are read-only on this primitive `string` value.
+A pesar de poder acceder a `s[1]` como si fuera un array, las strings en JS no son arrays reales. Expresando `s[1] = "O"` y `s.length = 10` ambos fallan silenciosamente, al igual que `x.length = 4` arriba. En el modo estricto, estas asignaciones fallarán, porque tanto la propiedad `1` como la propiedad `length` son de solo lectura en este valor primitivo `string`.
 
-Interestingly, even the boxed `String` object value will act (mostly) immutable as it will throw errors in strict mode if you change existing properties:
+Curiosamente, incluso el valor del objeto `String` encajado actuará (la mayoria de las veces) como inmutable, ya que arrojará errores en el modo estricto si intentas cambiar las propiedades existentes:
 
 ```js
 "use strict";
 
-var s = new String( "hello" );
+var s = new String( "hola" );
 
-s[1] = "E";         // error
+s[1] = "O";         // error
 s.length = 10;      // error
 
 s[42] = "?";        // OK
 
-s;                  // "hello"
+s;                  // "hola"
 ```
 
-## Value To Value
+## Valor a Valor
 
-We'll unpack this idea more throughout the chapter, but just to start with a clear understanding in mind: value immutability does not mean we can't have values change over the course of our program. A program without changing state is not a very interesting one! It also doesn't mean that our variables can't hold different values. These are all common misconceptions about value immutability.
+Descomprimiremos esta idea más a lo largo del capítulo, pero solo para comenzar con un entendimiento claro en mente: la inmutabilidad de valores no significa que no podamos cambiar los valores en el transcurso de nuestro programa. ¡Un programa sin cambiar de estado no es muy interesante! Tampoco significa que nuestras variables no puedan contener valores diferentes. Todos estos son conceptos erróneos comunes sobre la inmutabilidad de valores.
 
-Value immutability means that *when* we need to change the state in our program, we must create and track a new value rather than mutate an existing value.
+La inmutabilidad de valores significa que *cuando* necesitemos cambiar el estado en nuestro programa, debemos crear y rastrear un nuevo valor en lugar de mutar un valor existente.
 
-For example:
+Por ejemplo:
 
 ```js
-function addValue(arr) {
-    var newArr = [ ...arr, 4 ];
-    return newArr;
+function añadirValor(array) {
+    var nuevoArray = [ ...array, 4 ];
+    return nuevoArray;
 }
 
-addValue( [1,2,3] );    // [1,2,3,4]
+añadirValor( [1,2,3] );    // [1,2,3,4]
 ```
 
-Notice that we did not change the array that `arr` references, but rather created a new array (`newArr`) that contains the existing values plus the new `4` value.
+Ten en cuenta que no cambiamos el array al que `array` hace referencia, sino que más bien creamos un nuevo array (`nuevoArray`) que contiene los valores existentes más el nuevo valor `4`.
 
-Analyze `addValue(..)` based on what we discussed in Chapter 5 about side causes/effects. Is it pure? Does it have referential transparency? Given the same array, will it always produce the same output? Is it free of both side causes and side effects? **Yes.**
+Analiza `añadirValor(..)` basado en lo que discutimos en el Capítulo 5 sobre causas/efectos secundarios. ¿Es puro? ¿Tiene transparencia referencial? Dado el mismo conjunto, ¿siempre producirá el mismo resultado? ¿Está libre de causas secundarias y efectos secundarios? **Sí.**
 
-Imagine the `[1,2,3]` array represents a sequence of data from some previous operations and we stored in some variable. It is our current state. If we want to compute what the next state of our application is, we call `addValue(..)`. But we want that act of next-state computation to be direct and explicit. So the `addValue(..)` operation takes a direct input, returns a direct output, and avoids creating a side effect by mutating the original array that `arr` references.
+Imagine que el array `[1,2,3]` representa una secuencia de datos de algunas operaciones previas y almacenamos en alguna variable. Es nuestro estado actual. Si queremos calcular cuál es el siguiente estado de nuestra aplicación, llamamos a `añadirValor(..)`. Pero queremos que ese acto de computación del próximo estado sea directo y explícito. Entonces, la operación `añadirValor(..)` toma una entrada directa, devuelve una salida directa, y evita crear un efecto secundario al mutar el array original al que `array` hace referencia.
 
-This means we can calculate the new state of `[1,2,3,4]` and be fully in control of that transition of states. No other part of our program can unexpectedly transition us to that state early, or to another state entirely, like `[1,2,3,5]`. By being disciplined about our values and treating them as immutable, we drastically reduce the surface area of surprise, making our programs easier to read, reason about, and ultimately trust.
+Esto significa que podemos calcular el nuevo estado de `[1,2,3,4]` y tener el control total de esa transición de estados. Ninguna otra parte de nuestro programa puede cambiarnos inesperadamente a ese estado temprano, o a otro estado por completo, como `[1,2,3,5]`. Al ser disciplinados acerca de nuestros valores y tratarlos como inmutables, reducimos drásticamente el área superficial de sorpresa, lo que hace que nuestros programas sean más fáciles de leer, razonar y, en última instancia, confiar.
 
-The array that `arr` references is actually mutable. We just chose not to mutate it, so we practiced the spirit of value immutability.
+El array al que `array` hace referencia es realmente mutable. Simplemente decidimos no mutarlo, por lo que practicamos el espíritu de la inmutabilidad de los valores.
 
-We can use the copy-instead-of-mutate strategy for objects, too. Consider:
+También podemos usar la estrategia de copiar-en-lugar-de-mutar para objetos. Considera:
 
 ```js
-function updateLastLogin(user) {
-    var newUserRecord = Object.assign( {}, user );
-    newUserRecord.lastLogin = Date.now();
-    return newUserRecord;
+function actualizarUltimoLogin(usuario) {
+    var nuevoRecordDeUsuario = Object.assign( {}, usuario );
+    nuevoRecordDeUsuario.lastLogin = Date.now();
+    return nuevoRecordDeUsuario;
 }
 
-var user = {
+var usuario = {
     // ..
 };
 
-user = updateLastLogin( user );
+usuario = actualizarUltimoLogin( usuario );
 ```
 
-### Non-Local
+### No-Local
 
-Non-primitive values are held by reference, and when passed as arguments, it's the reference that's copied, not the value itself.
+Los valores no-primitivos se mantienen por referencia, y cuando se pasan como argumentos, es la referencia la que se copia, no el valor en sí mismo.
 
-If you have an object or array in one part of the program, and pass it to a function that resides in another part of the program, that function can now affect the value via this reference copy, mutating it in possibly unexpected ways.
+Si tienes un objeto o array en una parte del programa y lo transfieres a una función que reside en otra parte del programa, esa función ahora puede afectar el valor a través de esta copia de referencia, mutando de forma posiblemente inesperada.
 
-In other words, if passed as arguments, non-primitive values become non-local. Potentially the entire program has to be considered to understand whether such a value will be changed or not.
+En otras palabras, si se pasan como argumentos, los valores no primitivos se vuelven no locales. Potencialmente, se debe considerar todo el programa para comprender si dicho valor se modificará o no.
 
-Consider:
+Considera:
 
 ```js
-var arr = [1,2,3];
+var array = [1,2,3];
 
-foo( arr );
+foo( array );
 
-console.log( arr[0] );
+console.log( array[0] );
 ```
 
-Ostensibly, you're expecting `arr[0]` to still be the value `1`. But is it? You don't know, because `foo(..)` *might* mutate the array using the reference copy you pass to it.
+Ostensiblemente, esperas que `arr[0]` siga siendo el valor `1`. ¿Pero lo es? No lo sabes, porque `foo(..)` *podria* mutar al array usando la copia de referencia que se le es pasada.
 
-We already saw a cheat in the previous chapter to avoid such a surprise:
+Ya vimos un truco en el capítulo anterior para evitar tal sorpresa:
 
 ```js
-var arr = [1,2,3];
+var array = [1,2,3];
 
-foo( arr.slice() );         // ha! a copy!
+foo( array.slice() );         // ja! una copia!
 
-console.log( arr[0] );      // 1
+console.log( array[0] );      // 1
 ```
 
-In a little bit, we'll see another strategy for protecting ourselves from a value being mutated out from underneath us unexpectedly.
+En un momento, veremos otra estrategia para protegernos de un valor que se está mutando inesperadamente debajo de nosotros.
 
-## Reassignment
+## Reasignación
 
-How would you describe what a "constant" is? Think about that for a moment before you move onto the next paragraph.
+¿Cómo describirías lo que es una "constante"? Piense en eso por un momento antes de pasar al siguiente párrafo.
 
 ...
 
-Some of you may have conjured descriptions like, "a value that can't change", "a variable that can't be changed", etc. These are all approximately in the neighborhood, but not quite at the right house. The precise definition we should use for a constant is: a variable that cannot be reassigned.
+Algunos de ustedes pueden haber conjurado descripciones como, "un valor que no puede ser cambiado", "una variable que no se puede cambiar", etc. Todos estas son aproximaciones al vecindario, pero no exactamente la casa correcta. La definición precisa que debemos usar para una constante es: una variable que no se puede reasignar.
 
-This nitpicking is really important, because it clarifies that a constant actually has nothing to do with the value, except to say that whatever value a constant holds, that variable cannot be reassigned any other value. But it says nothing about the nature of the value itself.
+Esta nitidez es realmente importante, porque aclara que una constante en realidad no tiene nada que ver con el valor, excepto para decir que sea cual sea el valor que tenga una constante, esa variable no puede ser reasignada a ningún otro valor. Pero no dice nada sobre la naturaleza del valor en sí mismo.
 
-Consider:
+Considera:
 
 ```js
 var x = 2;
 ```
 
-Like we discussed earlier, the value `2` is an unchangeable (immutable) primitive. If I change that code to:
+Como discutimos anteriormente, el valor `2` es una primitivo que no puede cambiar (inmutable). Si cambio ese código a:
 
 ```js
 const x = 2;
 ```
 
-The presence of the `const` keyword, known familiarly as a "constant declaration", actually does nothing at all to change the nature of `2`; it's already unchangeable, and it always will be.
+La presencia de la palabra clave `const`, conocida familiarmente como una "declaración constante", en realidad no hace nada para cambiar la naturaleza de `2`; ya es inmutable, y siempre lo será.
 
-It's true that this later line will fail with an error:
+Es cierto que esta línea posterior fallará con un error:
 
 ```js
-// try to change `x`, fingers crossed!
+// intentando cambiar `x`, dedos cruzados!
 x = 3;      // Error!
 ```
 
-But again, we're not changing anything about the value. We're attempting to reassign the variable `x`. The values involved are almost incidental.
+Pero, de nuevo, no estamos cambiando nada sobre el valor. Estamos intentando reasignar la variable `x`. Los valores involucrados son casi incidentales.
 
-To prove that `const` has nothing to do with the nature of the value, consider:
+Para demostrar que `const` no tiene nada que ver con la naturaleza del valor, considera:
 
 ```js
 const x = [ 2 ];
 ```
 
-Is the array a constant? **No.** `x` is a constant because it cannot be reassigned. But this later line is totally OK:
+Es el array una constante? **No.** `x` es una constante porque no se puede reasignar. Pero esta última línea está totalmente bien:
 
 ```js
 x[0] = 3;
 ```
 
-Why? Because the array is still totally mutable, even though `x` is a constant.
+¿Por qué? Debido a que el array sigue siendo totalmente mutable, a pesar de que `x` es una constante.
 
-The confusion around `const` and "constant" only dealing with assignments and not value semantics is a long and dirty story. It seems a high degree of developers in just about every language that has a `const` stumble over the same sorts of confusions. Java in fact deprecated `const` and introduced a new keyword `final` at least in part to separate itself from the confusion over "constant" semantics.
+La confusión en torno a `const` y "constante", que solo trata de asignaciones y no de semántica de valores, es una historia larga y sucia. Parece que hay un alto grado de desarrolladores en casi todos los idiomas suelen tropezar con un `const` causando el mismo tipo de confusiones. De hecho, Java depreco `const` e introdujo una nueva palabra clave `final` al menos en parte para separarse de la confusión sobre la semántica "constante".
 
-Setting aside the confusion detractions, what importance does `const` hold for the FPer, if not to have anything to do with creating an immutable value?
+Dejando de lado las detracciones de confusión, ¿qué importancia tiene `const` para el Programadores-Funcional, si no tiene nada que ver con la creación de un valor inmutable?
 
-### Intent
+### Intención
 
-The use of `const` tells the reader of your code that *that* variable will not be reassigned. As a signal of intent, `const` is often highly lauded as a welcome addition to JavaScript and universal improvement in code readability.
+El uso de `const` le dice al lector de su código que *esa* variable no será reasignada. Como señal de intención, `const` a menudo es muy elogiado como una adición bienvenida a JavaScript y una mejora universal en la legibilidad del código.
 
-In my opinion, this is mostly hype; there's not much substance to these claims. I see only the mildest of faint benefit in signaling your intent in this way. And when you match that up against decades of precedent around confusion about it implying value immutability, I don't think `const` comes even close to carrying its own weight.
+En mi opinión, esto es principalmente exageración; no hay mucha sustancia en estas afirmaciones. Veo solo el leve beneficio leve de señalar su intención de esta manera. Y cuando coinciden con décadas de precedente en torno a la confusión acerca de la inmutabilidad del valor que implica, no creo que `const` esté ni cerca de cargar con su propio peso.
 
-To back up my assertion, let's take a reality check. `const` creates a block scoped variable, meaning that variable only exists in that one localized block:
+Para respaldar mi afirmación, hagamos un control de realidad. `const` crea una variable de ámbito de bloque, lo que significa que la variable solo existe en ese bloque localizado:
 
 ```js
-// lots of code
+// mucho codigo
 
 {
     const x = 2;
 
-    // a few lines of code
+    // unas cuantas lineas de codigo
 }
 
-// lots of code
+// mucho codigo
 ```
 
-Typically, blocks are considered best designed to be only a few lines long. If you have blocks of more than say 10 lines, most developers will advise you to refactor. So `const x = 2` only applies to those next 9 lines of code at most.
+Normalmente, los bloques se consideran mejor diseñados cuando tienen tan solo unas pocas líneas de longitud. Si tienes bloques de más de 10 líneas, la mayoría de los desarrolladores te aconsejarán que refactorices. Entonces `const x = 2` solo se aplica a las siguientes 9 líneas de código como máximo.
 
-No other part of the program can ever affect the assignment of `x`. **Period.**
+Ninguna otra parte del programa puede afectar la asignación de `x`. **Punto.**
 
-My claims is: that program has basically the same magnitude of readability as this one:
+Mi reclamo es: ese programa tiene básicamente la misma magnitud de legibilidad que este:
+
 
 ```js
-// lots of code
+// mucho codigo
 
 {
     let x = 2;
 
-    // a few lines of code
+    // unas cuantas lineas de codigo
 }
 
-// lots of code
+// mucho codigo
 ```
 
-If you look at the next few lines of code after `let x = 2;`, you'll be able to easily tell that `x` is not in fact reassigned. That to me is a **much stronger signal** -- actually not reassigning it -- than the use of some confusable `const` declaration to say "won't reassign it".
+Si observas las siguientes líneas de código después de `let x = 2;`, podrás fácilmente decir que `x` no ha sido reasignado. Eso para mí es **una señal mucho más fuerte** -- en realidad no reasignarlo -- que el uso de alguna declaración `const` confusa para decir "no reasignare la variable".
 
-Moreover, let's consider what this code is likely to communicate to a reader at first glance:
+Además, consideremos qué es lo que este código probablemente comunique a un lector a primera vista:
 
 ```js
-const magicNums = [1,2,3,4];
+const numerosMagicos = [1,2,3,4];
 
 // ..
 ```
 
-Isn't it at least possible (probable?) that the reader of your code will assume (wrongly) that your intent is to never mutate the array? That seems like a reasonable inference to me. Imagine their confusion if you do in fact allow the array value referenced by `magicNums` to be mutated. That will create quite a surprise, won't it!?
+¿No es al menos posible (¿probable?) que el lector de su código asuma (erróneamente) que su intención es nunca mutar el array. Eso parece una inferencia razonable para mí. Imagina su confusión si de hecho permites que el valor del array referenciado por `numerosMagicos` se mute. Eso creará una gran sorpresa, ¿no?
 
-Worse, what if you intentionally mutate `magicNums` in some way that turns out to not be obvious to the reader? Later in the code, they see a usage of `magicNums` and assume (again, wrongly) that it's still `[1,2,3,4]` because they read your intent as, "not gonna change this".
+Peor aún, ¿qué pasa si intencionalmente mutas `numerosMagicos` de alguna manera que resulta no ser obvia para el lector? Más adelante en el código, ven un uso de `numerosMagicos` y suponen (de nuevo, erróneamente) que todavía es `[1,2,3,4]` porque leen tu intento como "no voy a cambiar esto".
 
-I think you should use `var` or `let` for declaring variables to hold values that you intend to mutate. I think that actually is a **much clearer signal** than using `const`.
+Creo que deberías usar `var` o `let` para declarar variables para contener valores que pretendes mutar. Creo que en realidad es una **señal mucho más clara** que usar `const`.
 
-But the troubles with `const` don't stop there. Remember we asserted at the top of the chapter that to treat values as immutable means that when our state needs to change, we have to create a new value instead of mutating it? What are you going to do with that new array once you've created it? If you declared your reference to it using `const`, you can't reassign it. So... what next?
+Pero los problemas con `const` no se detienen allí. Recuerda que afirmamos en la parte superior del capítulo que tratar los valores como inmutables significa que cuando nuestro estado necesita cambiar, tenemos que crear un nuevo valor en lugar de mutarlo. ¿Qué vas a hacer con esa nuevo array una vez que lo hayas creado? Si declaraste tu referencia usando `const`, no puedes reasignarlo. Entonces ... ¿qué sigue?
 
-In this light, I see `const` as actually making our efforts to adhere to FP harder, not easier. My conclusion: `const` is not all that useful. It creates unnecessary confusion and restricts us in inconvenient ways. I only use `const` for simple constants like:
+En esta luz, veo `const` como realmente hacer nuestros esfuerzos para adherirse a la PF más difícil, no más fácil. Mi conclusión: `const` no es tan útil. Crea confusión innecesaria y nos restringe de maneras inconvenientes. Solo uso `const` para constantes simples como:
 
 ```js
 const PI = 3.141592;
 ```
 
-The value `3.141592` is already immutable, and I'm clearly signaling, "this `PI` will always be used as stand-in placeholder for this literal value." To me, that's what `const` is good for. And to be frank, I don't use many of those kinds of declarations in my typical coding.
+El valor `3.141592` ya es inmutable, y estoy claramente señalando, "este `PI` siempre se usará como un marcador de posición para este valor literal". Para mí, eso es para lo que `const` es bueno. Y para ser sincero, no uso muchas de ese tipo de declaraciones en mi programacion típica.
 
-I've written and seen a lot of JavaScript, and I just think it's an imagined problem that very many of our bugs come from accidental reassignment.
+He escrito y visto mucho JavaScript, y creo que es un problema imaginado que muchos de nuestros errores provienen de reasignaciones accidentales.
 
-One of the reasons FPers so highly favor `const` and avoid reassignment is because of equational reasoning. Though this topic is more related to other languages than JS and goes beyond what we'll get into here, it is a valid point. However, I prefer the pragmatic view over the more academic one.
+Una de las razones por las que los Programadores-Funcionales son altamente favorables a `const` y evitan la reasignación es debido al razonamiento ecuacional. Aunque este tema está más relacionado con otros lenguajes que JS y va más allá de lo que veremos aquí, es un punto válido. Sin embargo, prefiero la visión pragmática sobre la más académica.
 
-For example, I've found measured use of variable reassignment can be useful in simplifying the description of intermediate states of computation. When a value is goes through multiple type coercions or other transformations, I don't generally want to come up with new variable names for each representation:
+Por ejemplo, he encontrado que el uso medido de la reasignación variable puede ser útil para simplificar la descripción de los estados intermedios de computación. Cuando un valor pasa por múltiples coerciones de tipo u otras transformaciones, generalmente no quiero encontrar nuevos nombres de variables para cada representación:
 
 ```js
 var a = "420";
 
-// later
+// luego
 
 a = Number( a );
 
-// later
+// luego
 
 a = [ a ];
 ```
 
-If after changing from `"420"` to `420`, the original `"420"` value is no longer needed, then I think it's more readable to reassign `a` rather than come up with a new variable name like `aNum`.
+Si después de cambiar de `"420"` a `420`, el valor original `"420"` ya no es necesario, entonces creo que es más fácil reasignar `a` en lugar de crear un nuevo nombre de variable como `aNumero`.
 
-The thing we really should worry more about is not whether our variables get reassigned, but **whether our values get mutated**. Why? Because values are portable; lexical assignments are not. You can pass an array to a function, and it can be changed without you realizing it. But you cannot have a reassignment happen unexpectedly caused by some other part of your program.
+Lo que realmente debería preocuparnos más no es si nuestras variables se reasignan, sino **si nuestros valores se mutan**. ¿Por qué? Porque los valores son portátiles; las asignaciones léxicas no lo son. Puedes pasar un array a una función, y puede ser cambiado sin que te des cuenta. Pero no puedes tener una reasignación inesperada causada por alguna otra parte de tu programa.
 
 ### It's Freezing In Here
 
