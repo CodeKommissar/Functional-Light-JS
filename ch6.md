@@ -287,214 +287,214 @@ Si después de cambiar de `"420"` a `420`, el valor original `"420"` ya no es ne
 
 Lo que realmente debería preocuparnos más no es si nuestras variables se reasignan, sino **si nuestros valores se mutan**. ¿Por qué? Porque los valores son portátiles; las asignaciones léxicas no lo son. Puedes pasar un array a una función, y puede ser cambiado sin que te des cuenta. Pero no puedes tener una reasignación inesperada causada por alguna otra parte de tu programa.
 
-### It's Freezing In Here
+### Está congelando aquí
 
-There's a cheap and simple way to turn a mutable object/array/function into an "immutable value" (of sorts):
+Hay una manera simple y facil de convertir un objeto/array/función mutable a un "valor inmutable" (de algún tipo):
 
 ```js
 var x = Object.freeze( [2] );
 ```
 
-The `Object.freeze(..)` utility goes through all the properties/indices of an object/array and marks them as read-only, so they cannot be reassigned. It's sorta like declaring properties with a `const`, actually! `Object.freeze(..)` also marks the properties as non-reconfigurable, and it marks the object/array itself as non-extensible (no new properties can be added). In effect, it makes the top level of the object immutable.
+La utilidad `Object.freeze(..)` pasa a traves de todas las propiedades/índices de un objeto o array y los marca como de solo lectura, por lo que no pueden reasignarse. Es mas o menos como declarar propiedades con `const`! `Object.freeze(..)` también marca las propiedades como no reconfigurables, y marca el objeto/array en sí mismo como no extensible (no se pueden agregar nuevas propiedades). En efecto, hace que el nivel superior del objeto sea inmutable.
 
-Top level only, though. Be careful!
+Sin embargo, solamente el nivel superior. ¡Asi que ten cuidado!
 
 ```js
 var x = Object.freeze( [ 2, 3, [4, 5] ] );
 
-// not allowed:
+// no permitido:
 x[0] = 42;
 
-// oops, still allowed:
+// oops, si esta permitido:
 x[2][0] = 42;
 ```
 
-`Object.freeze(..)` provides shallow, naive immutability. You'll have to walk the entire object/array structure manually and apply `Object.freeze(..)` to each sub-object/array if you want a deeply immutable value.
+`Object.freeze(..)` proporciona una inmutabilidad superficial e ingenua. Tendrás que recorrer la estructura completa del objeto/array manualmente y aplicar `Object.freeze(..)` a cada sub-objeto/array si quieres un valor profundamente inmutable.
 
-But contrasted with `const` which can confuse you into thinking you're getting an immutable value when you aren't, `Object.freeze(..)` *actually* gives you an immutable value.
+Pero en contraste con `const` que puede confundirte al pensar que obtienes un valor inmutable cuando no lo estas obteniendo,` Object.freeze (..)` *en realidad* te da un valor inmutable.
 
-Recall the protection example from earlier:
+Recuerda el ejemplo de protección de antes:
 
 ```js
-var arr = Object.freeze( [1,2,3] );
+var array = Object.freeze( [1,2,3] );
 
-foo( arr );
+foo( array );
 
-console.log( arr[0] );          // 1
+console.log( array[0] );          // 1
 ```
 
-Now `arr[0]` is quite reliably `1`.
+Ahora `array[0]` es confiablemente `1`.
 
-This is so important because it makes reasoning about our code much easier when we know we can trust that a value doesn't change when passed somewhere that we do not see or control.
+Esto es muy importante porque hace que el razonamiento sobre nuestro código sea mucho más fácil al saber que podemos confiar en que un valor no cambia cuando se transmite a algún lugar que no veamos o controlemos.
 
-## Performance
+## Rendimiento
 
-Whenever we start creating new values (arrays, objects, etc) instead of mutating existing ones, the obvious next question is: what does that mean for performance?
+Cada vez que comenzamos a crear nuevos valores (arrays, objetos, etc.) en lugar de mutar los ya existentes, la siguiente pregunta obvia es: ¿qué significa eso para el rendimiento?
 
-If we have to reallocate a new array each time we need to add to it, that's not only churning CPU time and consuming extra memory, the old values (if no longer referenced) are being garbage collected; That's even more CPU burn.
+Si tenemos que reasignar un nuevo array cada vez que necesitemos agregarle un valor, eso no solo está aumentando el tiempo de la CPU y consumiendo memoria extra, los valores antiguos (si ya no son referenciados) estan siendo recolectados por el "garbage-collector"; Eso es mas esfuerzo para la CPU.
 
-Is that an acceptable trade-off? It depends. No discussion or optimization of code performance should happen **without context.**
+¿Es eso una compensación aceptable? Depende. No debe haber discusión u optimización del rendimiento del código **sin contexto.**
 
-If you have a single state change that happens once (or even a couple of times) in the whole life of the program, throwing away an old array/object for a new one is almost certainly not a concern. The churn we're talking about will be so small -- probably mere microseconds at most -- as to have no practical effect on the performance of your application. Compared to the minutes or hours you will save not having to track down and fix a bug related to unexpected value mutation, there's not even a contest here.
+Si tienes un solo cambio de estado que solo ocurre una vez (o incluso un par de veces) en toda la ejecucion del programa, es casi seguro que no es una preocupación deshacerse de un array u objeto antiguo por uno nuevo. El esfuerzo por parte del CPU del que estamos hablando será tan pequeño -- probablemente solo meros microsegundos como máximo -- que no tendrá ningún efecto práctico en el rendimiento de su aplicación. En comparación con los minutos u horas que ahorrarás al no tener que rastrear y corregir un error relacionado con la mutación de valor inesperado, ni siquiera hay un competencia en ese contexto.
 
-Then again, if such an operation is going to occur frequently, or specifically happen in a *critical path* of your application, then performance -- consider both performance and memory! -- is a totally valid concern.
+Por otra parte, si tal operación va a ocurrir con frecuencia, o va a suceder específicamente en una *ruta crítica* de tu aplicación, entonces el rendimiento -- ¡considere tanto el rendimiento como la memoria! -- es una preocupación totalmente válida.
 
-Think about a specialized data structure that's like an array, but that you want to be able to make changes to and have each change behave implicitly as if the result was a new array. How could you accomplish this without actually creating a new array each time? Such a special array data structure could store the original value and then track each change made as a delta from the previous version.
+Piense en una estructura de datos especializada que sea como un array, pero a la que desee poder realizar cambios y que cada cambio se comporte implícitamente como si el resultado fuera un nuevo array. ¿Cómo podrías lograr esto sin crear un nuevo array cada vez? Tal estructura de datos que seria como un array especial podría almacenar el valor original y luego rastrear cada cambio realizado como un delta de la versión anterior.
 
-Internally, it might be like a linked-list tree of object references where each node in the tree represents a mutation of the original value. Actually, this is conceptually similar to how **git** version control works.
+Internamente, podría ser como un árbol de listas enlazadas de referencias de objetos en donde cada nodo en el árbol representa una mutación del valor original. En realidad, esto es conceptualmente similar a cómo funciona el control de versión **git**.
 
 <p align="center">
     <img src="fig18.png" width="490">
 </p>
 
-In the above conceptual illustration, an original array `[3,6,1,0]` first has the mutation of value `4` assigned to position `0` (resulting in `[4,6,1,0]`), then `1` is assigned to position `3` (now `[4,6,1,1]`), finally `2` is assigned to position `4` (result: `[4,6,1,1,2]`). The key idea is that at each mutation, only the change from the previous version is recorded, not a duplication of the entire original data structure. This approach is much more efficient in both memory and CPU performance, in general.
+En la ilustración conceptual de arriba, un array original `[3,6,1,0]` primero tiene la mutación del valor `4` asignado a la posición `0` (lo que da como resultado `[4,6,1,0]`) , entonces `1` se asigna a la posición `3` (ahora `[4,6,1,1]`), finalmente `2` se asigna a la posición `4` (resultado: `[4,6,1,1,2] `). La idea clave es que en cada mutación, solo se registra el cambio de la versión anterior, no una duplicación de la estructura de datos original completa. En general, este enfoque es mucho más eficiente en la memoria y en el rendimiento de la CPU.
 
-Imagine using this hypothetical specialized array data structure like this:
+Imagina el uso de esta estructura de datos de array especializada hipotética de esta manera:
 
 ```js
-var state = specialArray( 4, 6, 1, 1 );
+var estado = arrayEspecial( 4, 6, 1, 1 );
 
-var newState = state.set( 4, 2 );
+var nuevoEstado = estado.set( 4, 2 );
 
-state === newState;                 // false
+estado === nuevoEstado;                 // false
 
-state.get( 2 );                     // 1
-state.get( 4 );                     // undefined
+estado.get( 2 );                     // 1
+estado.get( 4 );                     // undefined
 
-newState.get( 2 );                  // 1
-newState.get( 4 );                  // 2
+nuevoEstado.get( 2 );                  // 1
+nuevoEstado.get( 4 );                  // 2
 
-newState.slice( 2, 5 );             // [1,1,2]
+nuevoEstado.slice( 2, 5 );             // [1,1,2]
 ```
 
-The `specialArray(..)` data structure would internally keep track of each mutation operation (like `set(..)`) as a *diff*, so it won't have to reallocate memory for the original values (`4`, `6`, `1`, and `1`) just to add the `2` value to the end of the list. But importantly, `state` and `newState` point at different versions (or views) of the array value, so **the value immutability semantic is preserved.**
+La estructura de datos `arrayEspecial(..)` haría un seguimiento interno de cada operación de mutación (como `set (..)`) como un *diff*, por lo que no tendria que reasignar memoria para los valores originales (`4`, `6`, `1` y `1`) solo para agregar el valor `2` al final de la lista. Pero, lo que es más importante, `estado` y `nuevoEstado` apuntan a diferentes versiones (o vistas) del valor del array, por lo que **se preserva la semántica de inmutabilidad de valor.**
 
-Inventing your own performance-optimized data structures is an interesting challenge. But pragmatically, you should probably use a library that already does this well. One great option is **Immutable.js** (http://facebook.github.io/immutable-js), which provides a variety of data structures, including `List` (like array) and `Map` (like object).
+Inventar tus propias estructuras de datos optimizadas para el rendimiento es un desafío interesante. Pero pragmáticamente, probablemente deberías usar una biblioteca que ya lo hace bien. Una gran opción es **Immutable.js** (http://facebook.github.io/immutable-js), que proporciona una variedad de estructuras de datos, incluyendo `List` (como array) y `Map` (como objeto).
 
-Consider the above `specialArray` example but using `Immutable.List`:
+Considere el ejemplo anterior pero usando `Immutable.List` en lugar de `arrayEspecial`:
 
 ```js
-var state = Immutable.List.of( 4, 6, 1, 1 );
+var estado = Immutable.List.of( 4, 6, 1, 1 );
 
-var newState = state.set( 4, 2 );
+var nuevoEstado = estado.set( 4, 2 );
 
-state === newState;                 // false
+estado === nuevoEstado;                 // false
 
-state.get( 2 );                     // 1
-state.get( 4 );                     // undefined
+estado.get( 2 );                     // 1
+estado.get( 4 );                     // undefined
 
-newState.get( 2 );                  // 1
-newState.get( 4 );                  // 2
+nuevoEstado.get( 2 );                  // 1
+nuevoEstado.get( 4 );                  // 2
 
-newState.toArray().slice( 2, 5 );   // [1,1,2]
+nuevoEstado.toArray().slice( 2, 5 );   // [1,1,2]
 ```
 
-A powerful library like Immutable.js employs sophisticated performance optimizations. Handling all the details and corner-cases manually without such a library would be quite difficult.
+Una libreria poderosa como Immutable.js emplea sofisticadas optimizaciones de rendimiento. Manejar todos los detalles y casos rebuscados manualmente sin una libreria de este tipo sería bastante difícil.
 
-When changes to a value are few or infrequent and performance is less of a concern, I'd recommend the lighter-weight solution, sticking with built-in `Object.freeze(..)` as discussed earlier.
+Cuando los cambios en un valor son pocos o poco frecuentes y el rendimiento es menos preocupante, recomiendo la solución de peso más ligero; mantenerse con la utilidad `Object.freeze(..)` ya incorporada como se discutió anteriormente.
 
-## Treatment
+## Tratamiento
 
-What if we receive a value to our function and we're not sure if it's mutable or immutable? Is it ever OK to just go ahead and try to mutate it? **No.** As we asserted at the beginning of this chapter, we should treat all received values as immutable -- to avoid side effects and remain pure -- regardless of whether they are or not.
+¿Qué pasa si recibimos un valor para nuestra función y no estamos seguros de si es mutable o inmutable? ¿Está bien seguir adelante y tratar de mutarlo? **No.** Como afirmamos al comienzo de este capítulo, debemos tratar todos los valores recibidos como inmutables -- para evitar efectos secundarios y permanecer puros -- independientemente de si lo son o no.
 
-Recall this example from earlier:
+Recuerda este ejemplo de antes:
 
 ```js
-function updateLastLogin(user) {
-    var newUserRecord = Object.assign( {}, user );
-    newUserRecord.lastLogin = Date.now();
-    return newUserRecord;
+function actualizarUltimoLogin(usuario) {
+    var nuevoRecordDeUsuario = Object.assign( {}, usuario );
+    nuevoRecordDeUsuario.ultimoLogin = Date.now();
+    return nuevoRecordDeUsuario;
 }
 ```
 
-This implementation treats `user` as a value that should not be mutated; whether it *is* immutable or not is irrelevant to reading this part of the code. Contrast that with this implementation:
+Esta implementación trata `usuario` como un valor que no debe ser mutado; si *es* inmutable o no es irrelevante para leer esta parte del código. Contrasta eso con esta implementación:
 
 ```js
-function updateLastLogin(user) {
-    user.lastLogin = Date.now();
-    return user;
+function actualizarUltimoLogin(usuario) {
+    usuario.ultimoLogin = Date.now();
+    return usuario;
 }
 ```
 
-That version is a lot easier to write, and even performs better. But not only does this approach make `updateLastLogin(..)` impure, it also mutates a value in a way that makes both the reading of this code, as well as the places it's used, more complicated.
+Esa versión es mucho más fácil de escribir, e incluso tiene mejor rendimiento. Pero no solo este enfoque hace que `actualizarUltimoLogin (..)` sea una funcion impura, sino que también muta un valor de una manera que hace que tanto la lectura de este código, como los lugares donde se usa, sean más complicados.
 
-**We should treat `user` as immutable**, always, because at this point of reading the code we do not know where the value comes from, or what potential issues we may cause if we mutate it.
+**Debemos tratar a `usuario` como inmutable**, siempre, porque en este momento de leer el código no sabemos de dónde proviene el valor, o qué posibles problemas podemos causar si lo mutamos.
 
-Nice examples of this approach can be seen in various built-in methods of the JS array, such as `concat(..)` and `slice(..)`:
+Buenos ejemplos de este enfoque se pueden ver en varios métodos ya incorporados en los arrays de JS, tales como `concat (..)` y `slice (..)`:
 
 ```js
-var arr = [1,2,3,4,5];
+var array = [1,2,3,4,5];
 
-var arr2 = arr.concat( 6 );
+var array2 = array.concat( 6 );
 
-arr;                    // [1,2,3,4,5]
-arr2;                   // [1,2,3,4,5,6]
+array;                    // [1,2,3,4,5]
+array2;                   // [1,2,3,4,5,6]
 
-var arr3 = arr2.slice( 1 );
+var array3 = array2.slice( 1 );
 
-arr2;                   // [1,2,3,4,5,6]
-arr3;                   // [2,3,4,5,6]
+array2;                   // [1,2,3,4,5,6]
+array3;                   // [2,3,4,5,6]
 ```
 
-Other array prototype methods that treat the value instance as immutable and return a new array instead of mutating: `map(..)` and `filter(..)`. The `reduce(..)` / `reduceRight(..)` utilities also avoid mutating the instance, though they also don't by default return a new array.
+Otros métodos prototipo de array que tratan la instancia del valor como inmutable y devuelven un nuevo array en lugar de mutar: `map(..)` y `filter(..)`. Las utilidades `reduce(..)`/`reduceRight(..)` también evitan la mutación de la instancia, pero no devuelven un nuevo array por defecto.
 
-Unfortunately, for historical reasons, quite a few other array methods are impure mutators of their instance: `splice(..)`, `pop(..)`, `push(..)`, `shift(..)`, `unshift(..)`, `reverse(..)`, `sort(..)`, and `fill(..)`.
+Desafortunadamente, por razones históricas, bastantes otros métodos de array son mutadores impuros de su instancia: `splice(..)`, `pop(..)`, `push(..)`, `shift(..)` , `unshift(..)`, `reverse(..)`, `sort(..)`, y `fill(..)`.
 
-It should not be seen as *forbidden* to use these kinds utilities, as some claim. For reasons such as performance optimization, sometimes you will want to use them. But you should never use such a method on an array value that is not already local to the function you're working in, to avoid creating a side effect on some other remote part of the code.
+No se debe ver como *prohibido* usar este tipo de utilidades, como algunos afirman. Por razones tales como la optimización del rendimiento, algunas veces querrá usarlas. Pero nunca debes usar dichos métodos en un valor de array que no sea local para la función en la que estes trabajando, para evitar crear un efecto secundario en alguna otra parte remota del código.
 
-Recall one of the implementations of `compose(..)` from Chapter 4:
+Recuerde una de las implementaciones de `componer(..)` del Capítulo 4:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        // copy the array of functions
-        var list = fns.slice();
+function componer(...funciones) {
+    return function compuesta(resultado){
+        // copia el array de funciones
+        var lista = funciones.slice();
 
-        while (list.length > 0) {
-            // take the last function off the end of the list
-            // and execute it
-            result = list.pop()( result );
+        while (lista.length > 0) {
+            // quita la ultima funcion del final de la list
+            // y la ejecuta
+            resultado = lista.pop()( resultado );
         }
 
-        return result;
+        return resultado;
     };
 }
 ```
 
-The `...fns` gather parameter is making a new local array from the passed in arguments, so it's not an array that we could create an outside side effect on. It would be reasonable then to assume that it's safe for us to mutate it locally. But the subtle gotcha here is that the inner `composed(..)` which closes over `fns` is not "local" in this sense.
+El parámetro `...funciones` está creando un nuevo array local a partir de los argumentos pasados, por lo que no es un array en el que podríamos crear un efecto secundario externo. Sería razonable suponer que es seguro para nosotros mutarlo localmente. Pero lo sutil aquí es que la funcion `compuesta(..)` interna que cierra sobre `funciones` no es 'local' en este sentido.
 
-Consider this different version which doesn't make a copy:
+Considera esta versión diferente que no hace una copia:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        while (fns.length > 0) {
-            // take the last function off the end of the list
-            // and execute it
-            result = fns.pop()( result );
+function componer(...funciones) {
+    return function compuesta(resultado){
+        while (funciones.length > 0) {
+            // toma la ultima funcion al final de la lista
+            // y la ejecuta
+            result = funciones.pop()( resultado );
         }
 
-        return result;
+        return resultado;
     };
 }
 
-var f = compose( x => x / 3, x => x + 1, x => x * 2 );
+var f = componer( x => x / 3, x => x + 1, x => x * 2 );
 
 f( 4 );     // 3
 
-f( 4 );     // 4 <-- uh oh!
+f( 4 );     // 4 <-- oh oh!
 ```
 
-The second usage of `f(..)` here wasn't correct, since we mutated that `fns` during the first call, which affected any subsequent uses. Depending on the circumstances, making a copy of an array like `list = fns.slice()` may or may not be necessary. But I think it's safest to assume you need it -- even if only for readability sake! -- unless you can prove you don't, rather than the other way around.
+El segundo uso de `f(..)` aquí no era correcto, ya que mutamos esas `funciones` durante la primera llamada, lo que afectó a cualquier uso posterior. Dependiendo de las circunstancias, hacer una copia de un array como `lista = funciones.slice()` puede o no ser necesaria. Pero creo que es más seguro suponer que la necesitas -- ¡aunque solo sea por legibilidad! -- a menos que puedas demostrar que no, en lugar de a la inversa.
 
-Be disciplined and always treat *received values* as immutable, whether they are or not. That effort will improve the readability and trustability of your code.
+Se disciplinado y trata siempre *los valores recibidos* como inmutables, ya sea que lo sean o no. Ese esfuerzo mejorará la legibilidad y la confiabilidad de tu código.
 
-## Summary
+## Resumen
 
-Value immutability is not about unchanging values. It's about creating and tracking new values as the state of the program changes, rather than mutating existing values. This approach leads to more confidence in reading the code, because we limit the places where our state can change in ways we don't readily see or expect.
+La inmutabilidad del valor no se trata de valores que no puedan ser cambiados. Se trata de crear y rastrear nuevos valores a medida que el estado del programa cambia, en lugar de mutar los valores ya existentes. Este enfoque conduce a una mayor confianza en la lectura del código, ya que limitamos los lugares donde nuestro estado puede cambiar de maneras que no vemos o esperamos.
 
-`const` declarations (constants) are commonly mistaken for their ability to signal intent and enforce immutability. In reality, `const` has basically nothing to do with value immutability, and its usage will likely create more confusion than it solves. Instead, `Object.freeze(..)` provides a nice built-in way of setting shallow value immutability on an array or object. In many cases, this will be sufficient.
+Las declaraciones de `const` (constantes) se confunden comúnmente con su capacidad para señalar intenciones e imponer la inmutabilidad. En realidad, `const` básicamente no tiene nada que ver con la inmutabilidad del valor, y su uso probablemente creará más confusión de la que resuelve. En cambio, `Object.freeze(..)` proporciona una buena forma ya incorporada de establecer la inmutabilidad del valor superficial en un array u objeto. En muchos casos, esto será suficiente.
 
-For performance sensitive parts of the program, or in cases where changes happen frequently, creating a new array or object (especially if it contains lots of data) is undesirable, for both processing and memory concerns. In these cases, using immutable data structures from a library like **Immutable.js** is probably the best idea.
+Para las partes del programa sensibles al rendimiento, o en los casos donde los cambios ocurren con frecuencia, la creación de un nuevo array u objeto (especialmente si contiene muchos datos) no es deseable, tanto para problemas de procesamiento como de memoria. En estos casos, el uso de estructuras de datos inmutables de una libreria como **Immutable.js** es probablemente la mejor idea.
 
-The importance of value immutability on code readability is less in the inability to change a value, and more in the discipline to treat a value as immutable.
+La importancia de la inmutabilidad del valor en la legibilidad del código es menor en la incapacidad para cambiar un valor y más en la disciplina para tratar a un valor como inmutable.
