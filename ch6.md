@@ -491,7 +491,7 @@ Se disciplinado y trata siempre *los valores recibidos* como inmutables, ya sea 
 
 ## Resumen
 
-La inmutabilidad del valor no se trata de valores que no puedan ser cambiados. Se trata de crear y rastrear nuevos valores a medida que el estado del programa cambia, en lugar de mutar los valores ya existentes. Este enfoque conduce a una mayor confianza en la lectura del código, ya que limitamos los lugares donde nuestro estado puede cambiar de maneras que no vemos o esperamos.
+La inmutabilidad de valores no se trata de valores que no puedan ser cambiados. Se trata de crear y rastrear nuevos valores a medida que el estado del programa cambia, en lugar de mutar los valores ya existentes. Este enfoque conduce a una mayor confianza en la lectura del código, ya que limitamos los lugares donde nuestro estado puede cambiar de maneras que no vemos o esperamos.
 
 Las declaraciones de `const` (constantes) se confunden comúnmente con su capacidad para señalar intenciones e imponer la inmutabilidad. En realidad, `const` básicamente no tiene nada que ver con la inmutabilidad del valor, y su uso probablemente creará más confusión de la que resuelve. En cambio, `Object.freeze(..)` proporciona una buena forma ya incorporada de establecer la inmutabilidad del valor superficial en un array u objeto. En muchos casos, esto será suficiente.
 
