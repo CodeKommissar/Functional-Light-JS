@@ -1,180 +1,180 @@
-# Functional-Light JavaScript
-# Chapter 7: Closure vs Object
+# Javascript Funcionalmente-Ligero
+# Capitulo 7:Cierre vs Objeto
 
-A number of years ago, Anton van Straaten crafted what has become a rather famous and oft-cited [koan](https://www.merriam-webster.com/dictionary/koan) to illustrate and provoke an important tension between closure and objects:
+Hace algunos años, Anton van Straaten creó lo que se ha convertido en un famoso y comunmente citado [koan](https://www.merriam-webster.com/dictionary/koan) para ilustrar y provocar una importante tensión entre cierre y objetos:
 
-> The venerable master Qc Na was walking with his student, Anton. Hoping to
-prompt the master into a discussion, Anton said "Master, I have heard that
-objects are a very good thing - is this true?" Qc Na looked pityingly at
-his student and replied, "Foolish pupil - objects are merely a poor man's
-closures."
+> El venerable maestro Qc Na estaba caminando con su alumno, Anton. Esperando a
+incitar al maestro a una discusión, Anton dijo: "Maestro, he oído que
+los objetos son algo muy bueno, ¿es cierto?" Qc Na miró compasivamente a
+su alumno y respondió: "Alumno tonto - los objetos son meramente una version
+mas pobre de los cierres".
 >
-> Chastised, Anton took his leave from his master and returned to his cell,
-intent on studying closures. He carefully read the entire "Lambda: The
-Ultimate..." series of papers and its cousins, and implemented a small
-Scheme interpreter with a closure-based object system. He learned much, and
-looked forward to informing his master of his progress.
+> Castigado, Anton se despidió de su amo y regresó a su celda, con la
+intención de estudiar a los cierres. Leyó cuidadosamente la totalidad de serie de
+papeles llamados "Lambda: The Ultimate..." y sus primos, e implemento un pequeño
+intérprete en Scheme con un sistema de objetos basado en los cierres. Aprendió mucho, y
+ansiaba informar a su maestro sobre su progreso.
 >
-> On his next walk with Qc Na, Anton attempted to impress his master by
-saying "Master, I have diligently studied the matter, and now understand
-that objects are truly a poor man's closures." Qc Na responded by hitting
-Anton with his stick, saying "When will you learn? Closures are a poor man's
-object." At that moment, Anton became enlightened.
+> En su siguiente paseo con Qc Na, Anton intentó impresionar a su amo
+diciendo "Maestro, he estudiado diligentemente el asunto, y ahora entiendo
+que los objetos son verdaderamente versiones pobres de los cierres". Qc Na
+respondió golpeando a Anton con su bastón, diciendo "¿Cuándo aprenderás?
+Los cierres son una version pobre de los objetos." En ese momento, Anton se iluminó.
 >
-> Anton van Straaten 6/4/2003
+> Anton van Straaten 04/06/2003
 >
 > http://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03277.html
 
-The original posting, while brief, has more context to the origin and motivations, and I strongly suggest you read that post to properly set your mindset for approaching this chapter.
+La publicación original, aunque breve, tiene más contexto para el origen y las motivaciones, y te sugiero que leas esa publicación para preparar correctamente tu modo de pensar acerca de este capítulo.
 
-Many people I've observed read this koan smirk at its clever wit but then move on without it changing much about their thinking. However, the purpose of a koan (from the Bhuddist Zen perspective) is to prod the reader into wrestling with the contradictory truths therein. So, go back and read it again. Now read it again.
+He observado que este ingenioso koan genera una sonrisa en la mayoria de las personas que lo leen, pero luego estos continúan sin cambiar demasiado su forma de pensar. Sin embargo, el propósito de un koan (desde la perspectiva Zen budista) es empujar al lector a luchar con las verdades contradictorias en él. Por lo tanto, regresa y vuelve a leerlo. Ahora léelo de nuevo.
 
-Which is it? Is a closure a poor man's object, or is an object a poor man's closure? Or neither? Or both? Is merely the take-away that closures and objects are in some way equivalent?
+¿Que es entonces? ¿Es un cierre una version de un objeto, o un objeto una version pobre de un cierre? ¿O ninguno? ¿O ambos? ¿Es meramente la aceptación de que los cierres y los objetos son de alguna manera equivalentes?
 
-And what does any of this have to do with functional programming? Pull up a chair and ponder for awhile. This chapter will be an interesting detour, an excursion if you will.
+¿Y qué tiene esto que ver con la programación funcional? Trae una silla y pondera por un rato. Este capítulo será un desvío interesante, una excursión si le quieres decir asi.
 
-## The Same Page
+## La Misma Página
 
-First, let's make sure we're all on the same page when we refer to closures and objects. We're obviously in the context of how JavaScript deals with these two mechanisms, and specifically talking about simple function closure (see "Keeping Scope" in Chapter 2) and simple objects (collections of key-value pairs).
+Primero, asegurémonos de que todos estemos en la misma página cuando nos referimos a cierres y objetos. Obviamente, estamos en el contexto de cómo JavaScript trata estos dos mecanismos, y específicamente hablando sobre el cierre simple de funciones (ver "Manteniendo el alcance" en el Capítulo 2) y objetos simples (colecciones de pares llave-valor).
 
-For the record, here's an illustration of a simple function closure:
+Para el registro, aquí hay una ilustración de un simple cierre de función:
 
 ```js
-function outer() {
-    var one = 1;
-    var two = 2;
+function externa() {
+    var uno = 1;
+    var dos = 2;
 
-    return function inner(){
-        return one + two;
+    return function interna(){
+        return uno + dos;
     };
 }
 
-var three = outer();
+var tres = externa();
 
-three();            // 3
+tres();            // 3
 ```
 
-And an illustration of a simple object:
+Y una ilustración de un objeto simple:
 
 ```js
-var obj = {
-    one: 1,
-    two: 2
+var objeto = {
+    uno: 1,
+    dos: 2
 };
 
-function three(outer) {
-    return outer.one + outer.two;
+function tres(externa) {
+    return externa.uno + externa.dos;
 }
 
-three( obj );       // 3
+tres( objeto );       // 3
 ```
 
-Many people conjur lots of extra things when you mention "closure", such as the asynchronous callbacks or even the module pattern with encapsulation and information hiding. Similarly, "object" brings to mind classes, `this`, prototypes, and a whole slew of other utilities and patterns.
+Muchas personas conjuran un monton de cosas adicionales cuando mencionas "cierre", como devoluciones de llamada asincrónicas o incluso el patrón del módulo con encapsulación y ocultamiento de información. De manera similar, "objeto" trae a la mente clases, `this`, prototipos y toda una serie de otras utilidades y patrones.
 
-As we go along, we'll carefully address the parts of this external context that matter, but for now, try to just stick to the simplest interpretations of "closure" and "object" as illustrated here; it'll make our exploration less confusing.
+A medida que avancemos, abordaremos con cuidado las partes de este contexto externo que sean relevantes, pero por ahora, intentemos simplemente atenernos a las interpretaciones más simples de "cierre" y "objeto" como se ilustra aquí; hará que nuestra exploración sea menos confusa.
 
-## Look Alike
+## Parecidos
 
-It may not be obvious how closures and objects are related. So let's explore their similarities first.
+Puede que no sea obvio cómo se relacionan los cierres y los objetos. Así que vamos a explorar sus similitudes primero.
 
-To frame this discussion, let me just briefly assert two things:
+Para enmarcar esta discusión, permiteme afirmar brevemente dos cosas:
 
-1. A programming language without closures can simulate them with objects instead.
-2. A programming language without objects can simulate them with closures instead.
+1. Un lenguaje de programación sin cierres puede simularlos con objetos en su lugar.
+2. Un lenguaje de programación sin objetos puede simularlos con cierres en su lugar.
 
-In other words, we can think of closures and objects as two different representations of a thing.
+En otras palabras, podemos pensar en cierres y objetos como dos representaciones diferentes de una cosa.
 
-### State
+### Estado
 
-Consider this code from above:
+Considera este código de arriba:
 
 ```js
-function outer() {
-    var one = 1;
-    var two = 2;
+function externa() {
+    var uno = 1;
+    var dos = 2;
 
-    return function inner(){
-        return one + two;
+    return function interna(){
+        return uno + dos;
     };
 }
 
-var obj = {
-    one: 1,
-    two: 2
+var objeto = {
+    uno: 1,
+    dos: 2
 };
 ```
 
-Both the scope closed over by `inner()` and the object `obj` contain two elements of state: `one` with value `1` and `two` with value `2`. Syntactically and mechanically, these representations of state are different. But conceptually, they're actually quite similar.
+Tanto el alcance cerrado por `interna()` como el objeto `objeto` contienen dos elementos de estado: `uno` con un valor de `1` y `two` con un valor de `2`. Sintáctica y mecánicamente, estas representaciones de estado son diferentes. Pero conceptualmente, en realidad son bastante similares.
 
-As a matter of fact, it's fairly straightforward to represent an object as a closure, or a closure as an object. Go ahead, try it yourself:
+De hecho, es bastante sencillo representar un objeto como un cierre, o un cierre como un objeto. Adelante, pruébalo tú mismo:
 
 ```js
-var point = {
+var punto = {
     x: 10,
     y: 12,
     z: 14
 };
 ```
 
-Did you come up with something like?
+¿Se te ocurrió algo así?
 
 ```js
-function outer() {
+function externa() {
     var x = 10;
     var y = 12;
     var z = 14;
 
-    return function inner(){
+    return function interna(){
         return [x,y,z];
     }
 };
 
-var point = outer();
+var punto = externa();
 ```
 
-**Note:** The `inner()` function creates and returns a new array (aka, an object!) each time it's called. That's because JS doesn't afford us any capability to `return` multiple values without encapsulating them in an object. That's not technically a violation of our object-as-closure task, because it's just an implementation detail of exposing/transporting values; the state tracking itself is still object-free. With ES6+ array destructuring, we can declaratively ignore this temporary intermediate array on the other side: `var [x,y,z] = point()`. From a developer ergonomics perspective, the values are stored individually and tracked via closure instead of objects.
+**Nota:** La función `interna()` crea y devuelve un nuevo array (¡alias: un objeto!) cada vez que es llamada. Esto se debe a que JS no nos brinda la capacidad de `retorn`ar múltiples valores sin encapsularlos en un objeto. Eso no es técnicamente una violación de nuestra tarea de objeto-como-cierre, porque es solo un detalle de implementación de exponer/transportar valores; el seguimiento del estado en sí mismo aun no tiene objetos. Con la desestructuración de matrices ES6+, podemos ignorar declarativamente est array intermedio temporal en el otro lado: `var [x,y,z] = punto()`. Desde la perspectiva de la ergonomía del desarrollador, los valores se almacenan individualmente y se rastrean mediante un cierre en lugar de objetos.
 
-What if we have nested objects?
+¿Qué pasa si tenemos objetos anidados?
 
 ```js
-var person = {
-    name: "Kyle Simpson",
-    address: {
-        street: "123 Easy St",
-        city: "JS'ville",
-        state: "ES"
+var persona = {
+    nombre: "Kyle Simpson",
+    direccion: {
+        calle: "123 Easy St",
+        ciudad: "Villa JS",
+        estado: "ES"
     }
 };
 ```
 
-We could represent that same kind of state with nested closures:
+Podríamos representar ese mismo tipo de estado con cierres anidados:
 
 ```js
-function outer() {
-    var name = "Kyle Simpson";
-    return middle();
+function externa() {
+    var nombre = "Kyle Simpson";
+    return intermedia();
 
     // ********************
 
-    function middle() {
-        var street = "123 Easy St";
-        var city = "JS'ville";
-        var state = "ES";
+    function intermedia() {
+        var calle = "123 Easy St";
+        var ciudad = "Villa JS";
+        var estado = "ES";
 
-        return function inner(){
-            return [name,street,city,state];
+        return function interna(){
+            return [nombre,calle,ciudad,estado];
         };
     }
 }
 
-var person = outer();
+var persona = externa();
 ```
 
-Let's practice going the other direction, from closure to object:
+Practiquemos ir en la otra dirección, de cierre a objeto:
 
 ```js
-function point(x1,y1) {
-    return function distFromPoint(x2,y2){
+function punto(x1,y1) {
+    return function distanciaDesdePunto(x2,y2){
         return Math.sqrt(
             Math.pow( x2 - x1, 2 ) +
             Math.pow( y2 - y1, 2 )
@@ -182,174 +182,173 @@ function point(x1,y1) {
     };
 }
 
-var pointDistance = point( 1, 1 );
+var distanciaPunto = punto( 1, 1 );
 
-pointDistance( 4, 5 );      // 5
+distanciaPunto( 4, 5 );      // 5
 ```
 
-`distFromPoint(..)` is closed over `x1` and `y1`, but we could instead explicitly pass those values as an object:
+`distanciaDesdePunto(..)` está cerrado sobre `x1` y `y1`, pero podríamos pasar explícitamente esos valores como un objeto:
 
 ```js
-function pointDistance(point,x2,y2) {
+function distanciaPunto(punto,x2,y2) {
     return Math.sqrt(
-        Math.pow( x2 - point.x1, 2 ) +
-        Math.pow( y2 - point.y1, 2 )
+        Math.pow( x2 - punto.x1, 2 ) +
+        Math.pow( y2 - punto.y1, 2 )
     );
 };
 
-pointDistance(
+distanciaPunto(
     { x1: 1, y1: 1 },
     4,  // x2
     5   // y2
 );
 // 5
 ```
+El estado del objeto `punto` pasado explícitamente reemplaza el cierre que implícitamente contenía ese estado.
 
-The `point` object state explicitly passed in replaces the closure that implicitly held that state.
+### ¡Comportamiento, También!
 
-### Behavior, Too!
+No se trata solo de que los objetos y los cierres representen formas de expresar colecciones de estados, sino también que pueden incluir comportamientos a través de funciones/métodos. La agrupación de datos con su comportamiento tiene un nombre elegante: encapsulación.
 
-It's not just that objects and closures represent ways to express collections of state, but also that they can include behavior via functions/methods. Bundling data with its behavior has a fancy name: encapsulation.
-
-Consider:
+Considera:
 
 ```js
-function person(name,age) {
-    return happyBirthday(){
-        age++;
+function persona(nombre,edad) {
+    return felizCumpleaños(){
+        edad++;
         console.log(
-            `Happy ${age}th Birthday, ${name}!`
+            `Feliz Cumpleaños numero ${edad}, ${nombre}!`
         );
     }
 }
 
-var birthdayBoy = person( "Kyle", 36 );
+var cumpleañero = persona( "Kyle", 36 );
 
-birthdayBoy();          // Happy 37th Birthday, Kyle!
+cumpleañero();          // Feliz Cumpleaños numero 37, Kyle!
 ```
 
-The inner function `happyBirthday()` has closure over `name` and `age` so that the functionality therein is kept with the state.
+La función interna `felizCumpleaños()` tiene un cierre sobre `nombre` y `edad` para que la funcionalidad en ella se mantenga con el estado.
 
-We can achieve that same capability with a `this` binding to an object:
+Podemos lograr esa misma capacidad con un enlace `this` a un objeto:
 
 ```js
-var birthdayBoy = {
-    name: "Kyle",
-    age: 36,
-    happyBirthday() {
-        this.age++;
+var cumpleañero = {
+    nombre: "Kyle",
+    edad: 36,
+    felizCumpleaños() {
+        this.edad++;
         console.log(
-            `Happy ${this.age}th Birthday, ${this.name}!`
+            `Feliz Cumpleaños numero ${this.edad}, ${this.nombre}!`
         );
     }
 };
 
-birthdayBoy.happyBirthday();
-// Happy 37th Birthday, Kyle!
+cumpleañero.felizCumpleaños();
+// Feliz Cumpleaños numero 37, Kyle!
 ```
 
-We're still expressing the encapsulation of state data with the `happyBirthday()` function, but with an object instead of a closure. And we don't have to explicitly pass in an object to a function (as with earlier examples); JavaScript's `this` binding easily creates an implicit binding.
+Todavía estamos expresando la encapsulación de datos de estado con la función `felizCumpleaños()`, pero con un objeto en lugar de un cierre. Y no tenemos que pasar explícitamente un objeto a una función (como en los ejemplos anteriores); El enlace `this` de JavaScript crea fácilmente un enlace implícito.
 
-Another way to analyze this relationship: a closure associates a single function with a set of state, whereas an object holding the same state can have any number of functions to operate on that state.
+Otra forma de analizar esta relación: un cierre asocia una función con un conjunto de estados, mientras que un objeto con el mismo estado puede tener cualquier número de funciones para operar en ese estado.
 
-As a matter of fact, you could even expose multiple methods with a single closure as the interface. Consider a traditional object with two methods:
+Como cuestión de hecho, incluso podrías exponer múltiples métodos con un solo cierre como interfaz. Considera un objeto tradicional con dos métodos:
 
 ```js
-var person = {
-    firstName: "Kyle",
-    lastName: "Simpson",
-    first() {
-        return this.firstName;
+var persona = {
+    nombre: "Kyle",
+    apellido: "Simpson",
+    nombre() {
+        return this.nombre;
     },
-    last() {
-        return this.lastName;
+    apellido() {
+        return this.apellido;
     }
 }
 
-person.first() + " " + person.last();
+persona.nombre() + " " + persona.apellido();
 // Kyle Simpson
 ```
 
-Just using closure without objects, we could represent this program as:
+Solo usando un cierre sin objetos, podríamos representar este programa como:
 
 ```js
-function createPerson(firstName,lastName) {
+function crearPersona(nombre,apellido) {
     return API;
 
     // ********************
 
-    function API(methodName) {
-        switch (methodName) {
-            case "first":
-                return first();
+    function API(nombreMetodo) {
+        switch (nombreMetodo) {
+            case "nombre":
+                return nombre();
                 break;
-            case "last":
-                return last();
+            case "apellido":
+                return apellido();
                 break;
         };
     }
 
-    function first() {
-        return firstName;
+    function nombre() {
+        return nombre;
     }
 
-    function last() {
-        return lastName;
+    function apellido() {
+        return apellido;
     }
 }
 
-var person = createPerson( "Kyle", "Simpson" );
+var persona = crearPersona( "Kyle", "Simpson" );
 
-person( "first" ) + " " + person( "last" );
+persona( "nombre" ) + " " + persona( "apellido" );
 // Kyle Simpson
 ```
 
-While these programs look and feel a bit different ergonomically, they're actually just different implementation variations of the same program behavior.
+Si bien estos programas se ven y se sienten un poco diferentes desde el punto de vista ergonómico, en realidad son solo implementaciones diferentes del mismo comportamiento del programa.
 
-### (Im)mutability
+### (In)mutabilidad
 
-Many people will initially think that closures and objects behave differently with respect to mutability; closures protect from external mutation while objects do not. But, it turns out, both forms have identical mutation behavior.
+Mucha gente pensará inicialmente que los cierres y los objetos se comportan de manera diferente con respecto a la mutabilidad; los cierres protegen de la mutación externa mientras que los objetos no lo hacen. Pero, resulta que ambas formas tienen un comportamiento de mutación idéntico.
 
-That's because what we care about, as discussed in Chapter 6, is **value** mutability, and this is a characteristic of the value itself, regardless of where or how it's assigned.
+Eso es porque lo que nos importa, como se discutió en el Capítulo 6, es la mutabilidad de **valores**, y esta es una característica del valor en sí mismo, independientemente de dónde o cómo se le asigne.
 
 ```js
-function outer() {
+function externa() {
     var x = 1;
     var y = [2,3];
 
-    return function inner(){
+    return function interna(){
         return [ x, y[0], y[1] ];
     };
 }
 
-var xyPublic = {
+var xyPublicos = {
     x: 1,
     y: [2,3]
 };
 ```
 
-The value stored in the `x` lexical variable inside `outer()` is immutable -- remember, primitives like `2` are by definition immutable. But the value referenced by `y`, an array, is definitely mutable. The exact same goes for the `x` and `y` properties on `xyPublic`.
+El valor almacenado en la variable léxica `x` dentro de `externa()` es inmutable -- recuerda, los valores primitivos como `2` son, por definición, inmutables. Pero el valor referenciado por `y`, un array, es definitivamente mutable. Lo mismo ocurre con las propiedades `x` y `y` en `xyPublicos`.
 
-We can reinforce the point that objects and closures have no bearing on mutability by pointing out that `y` is itself an array, and thus we need to break this example down further:
+Podemos reforzar el punto de que los objetos y los cierres no tienen relación con la mutabilidad al señalar que la variable `y` es en sí misma un array, y por lo tanto necesitamos seguir adelante con este ejemplo:
 
 ```js
-function outer() {
+function externa() {
     var x = 1;
-    return middle();
+    return intermedia();
 
     // ********************
 
-    function middle() {
+    function intermedia() {
         var y0 = 2;
         var y1 = 3;
 
-        return function inner(){
+        return function interna(){
             return [ x, y0, y1 ];
         };
     }
 }
 
-var xyPublic = {
+var xyPublicos = {
     x: 1,
     y: {
         0: 2,
@@ -358,84 +357,84 @@ var xyPublic = {
 };
 ```
 
-If you think about it as "turtles (aka, objects) all the way down", at the lowest level, all state data is primitives, and all primitives are value-immutable.
+Si lo piensas como "tortugas (es decir, objetos) todo el camino hasta abajo", en el nivel más bajo, todos los datos de estado son primitivos, y todas los primitivos son inmutables en su valor.
 
-Whether you represent this state with nested objects, or with nested closures, the values being held are all immutable.
+Ya sea que representes este estado con objetos anidados o con cierres anidados, los valores retenidos son inmutables.
 
-### Isomorphic
+### Isomórfico
 
-The term "isomorphic" gets thrown around a lot in JavaScript these days, and it's usually used to refer to code that can be used/shared in both the server and the browser. I wrote a blog post awhile back that calls bogus on that usage of this word "isomorphic", which actually has an explicit and important meaning that's being clouded.
+El término "isomórfico" se usa mucho en JavaScript actualmente, y generalmente se utiliza para referirse al código que se puede usar/compartir tanto en el servidor como en el navegador. Hace un tiempo escribí una publicación en mi blog que llama erronea al uso de esta palabra, que en realidad tiene un significado explícito e importante el cual está siendo nublando.
 
-Here's some selections from a part of that post:
+Aquí hay algunas selecciones de una parte de esa publicación:
 
-> What does isomorphic mean? Well, we could talk about it in mathematic terms, or sociology, or biology. The general notion of isomorphism is that you have two things which are similar in structure but not the same.
+> ¿Qué significa isomórfico? Bueno, podríamos hablar de eso en términos matemáticos, sociologicos o biologicos. La noción general de isomorfismo es que tienes dos cosas que son similares en estructura pero no iguales.
 >
-> In all those usages, isomorphism is differentiated from equality in this way: two values are equal if they’re exactly identical in all ways, but they are isomorphic if they are represented differently but still have a 1-to-1, bi-directional mapping relationship.
+> En todos esos usos, el isomorfismo se diferencia de la igualdad de esta manera: dos valores son iguales si son exactamente idénticos en todos los sentidos, pero son isomorfos si se representan de manera diferente pero aún tienen una relacion de mapeo bidireccional 1 a 1.
 >
-> In other words, two things A and B would be isomorphic if you could map (convert) from A to B and then go back to A with the inverse mapping.
+> En otras palabras, dos cosas A y B serían isomorfas si pudieras mapear (convertir) de A a B y luego regresar a A con el mapeo inverso.
 
-Recall in "Brief Math Review" in Chapter 2, we discussed the mathematical definition of a function as being a mapping between inputs and outputs. We pointed out this is technically called a morphism. An isomorphism is a special case of bijective (aka, 2-way) morphism that requires not only that the mapping must be able to go in either direction, but also that the behavior is identical in either form.
+Recuerda que en "Breve Repaso Matematico" en el Capítulo 2, discutimos la definición matemática de una función como un mapeo entre entradas y salidas. Señalamos que técnicamente se llama morfismo. Un isomorfismo es un caso especial de morfismo biyectivo (también conocido como bidireccional) que requiere no solo que el mapeo sea capaz de ir en cualquier dirección, sino también que el comportamiento sea idéntico en cualquier forma.
 
-But instead of thinking about numbers, let's relate isomorphism to code. Again quoting my blog post:
+Pero en lugar de pensar en los números, relacionemos el isomorfismo con el código. Nuevamente citando mi publicación en mi blog:
 
-> [W]hat would isomorphic JS be if there were such a thing? Well, it could be that you have one set of JS code that is converted to another set of JS code, and that (importantly) you could convert from the latter back to the former if you wanted.
+> [Q]ue sería JS isomórfico si existiera tal cosa? Bueno, podría ser que tengas un conjunto de código en JS que es convertido a otro conjunto de código en JS, y que (lo que es más importante) podrías convertir el último en el primer conjunto si asi quisieras.
 
-As we asserted earlier with our examples of closures-as-objects and objects-as-closures, these representative alternations go either way. In this respect, they are isomorphisms to each other.
+Como afirmamos anteriormente con nuestros ejemplos de cierres-como-objetos y objetos-como-cierres, estas alternancias representativas van en cualquier dirección. En este sentido, son isomorficas entre sí.
 
-Put simply, closures and objects are isomorphic representations of state (and its associated functionality).
+En pocas palabras, los cierres y los objetos son representaciones isomórficas del estado (y su funcionalidad asociada).
 
-The next time you hear someone say "X is isomorphic to Y", what they mean is, "X and Y can be converted from either one to the other in either direction, and not lose information."
+La próxima vez que escuches a alguien decir "X es isomorfo a Y", lo que quieren decir es que "X e Y se pueden convertir de uno a otro en cualquier dirección y no perder información en el proceso".
 
-### Under The Hood
+### Bajo El Capó
 
-So, we can think of objects as an isomorphic representation of closures from the perspective of code we could write. But we can also observe that a closure system could actually be implemented -- and likely is -- with objects!
+Entonces, podemos pensar en los objetos como una representación isomórfica de los cierres desde la perspectiva del código que podríamos escribir. Pero también podemos observar que un sistema de cierre podría implementarse -- y probablemente lo sea -- con objetos!
 
-Think about it this way: in the following code, how is JS keeping track of the `x` variable for `inner()` to keep referencing, well after `outer()` has already run?
+Piénsalo de esta manera: en el siguiente código, ¿cómo JS mantiene el rastro de la variable `x` en `interna()` para seguirle haciendo referencia, mucho después de que `externa()` ya se haya ejecutado?
 
 ```js
-function outer() {
+function externa() {
     var x = 1;
 
-    return function inner(){
+    return function interna(){
         return x;
     };
 }
 ```
 
-We could imagine that the scope -- the set of all variables defined -- of `outer()` is implemented as an object with properties. So, conceptually, somewhere in memory, there's something like:
+Podríamos imaginar que el alcance -- el conjunto de todas las variables definidas -- de `externa()` se implementa como un objeto con propiedades. Entonces, conceptualmente, en algún lugar de la memoria, hay algo así como:
 
 ```js
-scopeOfOuter = {
+alcanceDeExterna = {
     x: 1
 };
 ```
 
-And then for the `inner()` function, when created, it gets an (empty) scope object called `scopeOfInner`, which is linked via its `[[Prototype]]` to the `scopeOfOuter` object, sorta like this:
+Y luego para la función `interna()`, cuando es creada, esta obtiene un objeto de alcance (vacío) llamado `alcandeDeInterna`, que está vinculado a través de su `[[Prototype]]` al objeto `alcanceDeExterna`, por lo que se ve así:
 
 ```js
-scopeOfInner = {};
-Object.setPrototypeOf( scopeOfInner, scopeOfOuter );
+alcandeDeInterna = {};
+Object.setPrototypeOf( alcandeDeInterna, alcanceDeExterna );
 ```
 
-Then, inside `inner()`, when it makes reference to the lexical variable `x`, it's actually more like:
+Luego, dentro de `interna()`, cuando hace referencia a la variable léxica `x`, en realidad es más como:
 
 ```js
-return scopeOfInner.x;
+return alcandeDeInterna.x;
 ```
 
-`scopeOfInner` doesn't have an `x` property, but it's `[[Prototype]]`-linked to `scopeOfOuter`, which does have an `x` property. Accessing `scopeOfOuter.x` via prototype delegation results in the `1` value being returned.
+`alcandeDeInterna` no tiene una propiedad `x`, pero su `[[Prototype]]`-vinculado a `alcanceDeExterna`, sí tiene una propiedad `x`. El acceso a `alcanceDeExterna.x` a través de la delegación del prototipo da como resultado el retorno del valor` 1`.
 
-In this way, we can sorta see why the scope of `outer()` is preserved (via closure) even after it finishes: because the `scopeOfInner` object is linked to the `scopeOfOuter` object, thereby keeping that object and its properties alive and well.
+De esta manera, podemos ver por qué el alcance de `externa()` se conserva (mediante un cierre) incluso después de que su ejecucion finaliza: porque el objeto `alcandeDeInterna` está vinculado al objeto` alcanceDeExterna`, manteniendo así ese objeto y sus propiedades vivas y bien.
 
-Now, this is all conceptual. I'm not literally saying the JS engine uses objects and prototypes. But it's entirely plausible that it *could* work similarly.
+Ahora, esto es todo conceptual. No estoy diciendo literalmente que el motor de JS usa objetos y prototipos. Pero es completamente plausible que *podría* funcionar de manera similar.
 
-Many languages do in fact implement closures via objects. And other languages implement objects in terms of closures. But we'll let the reader use their imagination on how that would work.
+De hecho, muchos idiomas implementan cierres a través de objetos. Y otros lenguajes implementan objetos en términos de cierres. Pero dejaremos que el lector utilice su imaginación sobre cómo funcionaría eso.
 
-## Two Roads Diverged In A Wood...
+## Dos Caminos Divergen En Un Bosque ...
 
-So closures and objects are equivalent, right? Not quite. I bet they're more similar than you thought before you started this chapter, but they still have important differences.
+Entonces, los cierres y los objetos son equivalentes, ¿verdad? No exactamente. Apuesto a que son más similares de lo que pensabas antes de comenzar este capítulo, pero aún tienen diferencias importantes.
 
-These differences should not be viewed as weaknesses or arguments against usage; that's the wrong perspective. They should be viewed as features and advantages that make one or the other more suitable (and readable!) for a given task.
+Estas diferencias no deben verse como debilidades o argumentos en contra de su uso; esa es la perspectiva equivocada. Deben verse como características y ventajas que hacen que uno o el otra sea más adecuado (¡y legible!) para una tarea determinada.
 
 ### Structural Mutability
 
