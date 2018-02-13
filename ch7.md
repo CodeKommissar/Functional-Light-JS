@@ -436,57 +436,57 @@ Entonces, los cierres y los objetos son equivalentes, ¿verdad? No exactamente. 
 
 Estas diferencias no deben verse como debilidades o argumentos en contra de su uso; esa es la perspectiva equivocada. Deben verse como características y ventajas que hacen que uno o el otra sea más adecuado (¡y legible!) para una tarea determinada.
 
-### Structural Mutability
+### Mutabilidad Estructural
 
-Conceptually, the structure of a closure is not mutable.
+Conceptualmente, la estructura de un cierre no es mutable.
 
-In other words, you can never add to or remove state from a closure. Closure is a characteristic of where variables are declared (fixed at author/compile time), and is not sensitive to any runtime conditions -- assuming you use strict mode and/or avoid using cheats like `eval(..)`, of course!
+En otras palabras, nunca puedes agregar o eliminar estado de un cierre. El cierre es una característica donde las variables son declaradas (fijadas en el tiempo de autor/compilación), y no es sensible a ninguna condición en el tiempo de ejecución -- suponiendo que usas el modo estricto y/o evitas el uso de trucos como `eval(..)`, por supuesto!
 
-**Note:** The JS engine could technically cull a closure to weed out any variables in its scope that are no longer going to be used, but this is an advanced optimization that's transparent to the developer. Whether the engine actually does these kinds of optimizations, I think it's safest for the developer to assume that closure is per-scope rather than per-variable. If you don't want it to stay around, don't close over it!
+**Nota:** El motor de JavaScript podría técnicamente sacrificar un cierre para descartar cualquier variable en su alcance que ya no se vaya a utilizar, pero esta es una optimización avanzada que es transparente para el desarrollador. Si el motor realmente hace este tipo de optimizaciones, creo que es más seguro para el desarrollador suponer que los cierres son por-alcance en lugar de por-variable. Si no quieres que algo se quede, ¡no lo cierres!
 
-However, objects by default are quite mutable. You can freely add or remove (`delete`) properties/indices from an object, as long as that object hasn't been frozen (`Object.freeze(..)`).
+Sin embargo, los objetos por defecto son bastante mutables. Puedes facilmente agregar o eliminar (`delete`) propiedades/índices de un objeto, siempre que ese objeto no haya sido congelado (`Object.freeze(..)`).
 
-It may be an advantage of the code to be able to track more (or less!) state depending on the runtime conditions in the program.
+Puede ser una ventaja del código el poder rastrear más (o menos) su estado dependiendo de las condiciones en el tiempo de ejecución en el programa.
 
-For example, let's imagine tracking the keypress events in a game. Almost certainly, you'll think about using an array to do this:
+Por ejemplo, imaginemos el seguimiento de los eventos de pulsación de una tecla en un juego. Casi seguro, pensarás en usar un array para hacer esto:
 
 ```js
-function trackEvent(evt,keypresses = []) {
-    return [ ...keypresses, evt ];
+function seguirEvento(evento,teclasPulsadas = []) {
+    return [ ...teclasPulsadas, evento ];
 }
 
-var keypresses = trackEvent( newEvent1 );
+var teclasPulsadas = seguirEvento( nuevoEvento1 );
 
-keypresses = trackEvent( newEvent2, keypresses );
+teclasPulsadas = seguirEvento( nuevoEvento2, teclasPulsadas );
 ```
 
-**Note:** Did you spot why I didn't `push(..)` directly to `keypresses`? Because in FP, we typically want to treat arrays as immutable data structures that can be recreated and added to, but not directly changed. We trade out the evil of side-effects for an explicit reassignment (more on that later).
+**Nota:** ¿Notaste por qué no use `push(..)` directamente para añadir el valor a `teclasPulsadas`? Porque en la Programadores-Funcional, normalmente queremos tratar a los arrays como estructuras de datos inmutables que pueden ser recreadas para luego añadirles valores, pero no que no deben ser directamente modificadas. Intercambiamos el mal de los efectos secundarios por una reasignación explícita (más sobre esto más adelante).
 
-Though we're not changing the structure of the array, we could if we wanted to. More on this in a moment.
+Aunque no estamos cambiando la estructura del array, podríamos hacerlo si quisiéramos. Más sobre esto en un momento.
 
-But an array is not the only way to track this growing "list" of `evt` objects. We could use closure:
+Pero un array no es la única forma de rastrear esta creciente "lista" de objetos `evento`. Podríamos usar un cierre:
 
 ```js
-function trackEvent(evt,keypresses = () => []) {
-    return function newKeypresses() {
-        return [ ...keypresses(), evt ];
+function seguirEvento(evento,teclasPulsadas = () => []) {
+    return function nuevasTeclasPulsadas() {
+        return [ ...teclasPulsadas(), evento ];
     };
 }
 
-var keypresses = trackEvent( newEvent1 );
+var teclasPulsadas = seguirEvento( nuevoEvento1 );
 
-keypresses = trackEvent( newEvent2, keypresses );
+teclasPulsadas = seguirEvento( nuevoEvento2, teclasPulsadas );
 ```
 
-Do you spot what's happening here?
+¿Ves lo que está sucediendo aquí?
 
-Each time we add a new event to the "list", we create a new closure wrapped around the existing `keypresses()` function (closure), which captures the current `evt`. When we call the `keypresses()` function, it will successively call all the nested functions, building up an intermediate array of all the individually closed-over `evt` objects. Again, closure is the mechanism that's tracking all the state; the array you see is only an implementation detail of needing a way to return multiple values from a function.
+Cada vez que agregamos un nuevo evento a la "lista", creamos un nuevo cierre envuelto alrededor de la función `teclasPulsadas()` existente (cierre), que captura el `evento` actual. Cuando llamamos a la función `teclasPulsadas()`, llamará sucesivamente a todas las funciones anidadas, construyendo un array intermedio de todos los objetos `evento` cerrados de forma individual. De nuevo, el cierre es el mecanismo que rastrea todo el estado; el array que ves es solo un detalle de implementación al ser usado como una forma de devolver múltiples valores de una función.
 
-So which one is better suited for our task? No surprise here, the array approach is probably a lot more appropriate. The structural immutability of a closure means our only option is to wrap more closure around it. Objects are by default extensible, so we can just grow the array as needed.
+Entonces, ¿cuál es más adecuado para nuestra tarea? No es de sorprender que el enfoque del array sea probablemente mucho más apropiado. La inmutabilidad estructural de un cierre significa que nuestra única opción es envolver más cierres a su alrededor. Los objetos son por defecto extensibles, por lo que podemos hacer crecer el array según sea necesario.
 
-By the way, even though I'm presenting this structural (im)mutability as a clear difference between closure and object, the way we're using the object as an immutable value is actually more similar than not.
+Por cierto, aunque estoy presentando esta (im)mutabilidad estructural como una clara diferencia entre el cierre y el objeto, la forma en que estamos usando el objeto como un valor inmutable es en realidad más similar que no.
 
-Creating a new array for each addition to the array is treating the array as structurally immutable, which is conceptually symmetrical to closure being structurally immutable by its very design.
+Crear un nuevo array para cada adición al array es tratar al array como estructuralmente inmutable, que es conceptualmente simétrico al cierre siendo estructuralmente inmutable por su propio diseño.
 
 ### Privacy
 
