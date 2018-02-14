@@ -571,39 +571,39 @@ pulsacionesDeTecla.forEach( recordKeypress );
 
 La visibilidad de los datos de estado de un objeto hace que sea más sencillo usarlo, mientras que el cierre oscurece el estado, lo que nos hace trabajar más duro para procesarlo.
 
-#### Change Control
+#### Cambio de control
 
-If the lexical variable `x` is hidden inside a closure, the only code that has the freedom to reassign it is also inside that closure; it's impossible to modify `x` from the outside.
+Si la variable léxica `x` está oculta dentro de un cierre, el único código que tiene la libertad de reasignarlo también está dentro de ese cierre; es imposible modificar `x` desde afuera.
 
-As we saw in Chapter 6, that fact alone improves the readability of code by reducing the surface area that the reader must consider to predict the behavior of any given variable.
+Como vimos en el Capítulo 6, ese solo hecho mejora la legibilidad del código al reducir el área de superficie que el lector debe considerar para predecir el comportamiento de cualquier variable dada.
 
-The local proximity of lexical reassignment is a big reason why I don't find `const` as a feature that helpful. Scopes (and thus closures) should in general be pretty small, and that means there will only be a few lines of code that can affect reassignment. In `outer()` above, we can quickly inspect to see that no line of code reassigns `x`, so for all intents and purposes it's acting as a constant.
+La proximidad local de la reasignación léxica es una gran razón por la que no encuentro `const` como una característica muy útil. Los alcances (y, por lo tanto, los cierres) deberían ser, en general, muy pequeños, lo que significa que solo habrá unas pocas líneas de código que pueden afectar la reasignación. En `externa()` anterior, podemos inspeccionar rápidamente para ver que ninguna línea de código reasigna `x`, por lo que para todos los efectos está actuando como una constante.
 
-This kind of guarantee is a powerful contributor to our confidence in the purity of a function, for example.
+Este tipo de garantía es un poderoso contribuyente a nuestra confianza en la pureza de una función, por ejemplo.
 
-On the other hand, `xPublic.x` is a public property, and any part of the program that gets a reference to `xPublic` has the ability, by default, to reassign `xPublic.x` to some other value. That's a lot more lines of code to consider!
+Por otro lado, `xPublica.x` es una propiedad pública, y cualquier parte del programa que obtenga una referencia a` xPublica` tiene la capacidad, por defecto, de reasignar `xPublica.x` a algún otro valor. ¡Esas son mucho más líneas de código para considerar!
 
-That's why in Chapter 6, we looked at `Object.freeze(..)` as a quick-n-dirty means of making all of an object's properties read-only (`writable: false`), so that they can't be reassigned unpredictably.
+Es por eso que en el Capítulo 6, miramos `Object.freeze(..)` como un medio rápido y sencillo para hacer que todas las propiedades de un objeto sean de solo lectura (`writeable: false`), para que no puedan ser reasignado impredeciblemente.
 
-Unfortunately, `Object.freeze(..)` is both all-or-nothing and irreversible.
+Desafortunadamente, `Object.freeze(..)` es a la vez todo-o-nada e irreversible.
 
-With closure, you have some code with the privilege to change, and the rest of the program is restricted. When you freeze an object, no part of the code will be able to reassign. Moreover, once an object is frozen, it can't be thawed out, so the properties will remain read-only for the duration of the program.
+Con el cierre, tienes algún código con el privilegio de cambiar, y el resto del programa está restringido. Cuando congelas un objeto, ninguna parte del código podrá reasignarse. Además, una vez que un objeto está congelado, no se puede descongelar, por lo que las propiedades seguirán siendo de solo lectura durante la duración del programa.
 
-In places where I want to allow reassignment but restrict its surface area, closures are a more convenient and flexible form than objects. In places where I want no reassignment, a frozen object is a lot more convenient than repeating `const` declarations all over my function.
+En los lugares donde deseo permitir la reasignación pero restringir su área de superficie, los cierres son una forma más conveniente y flexible que los objetos. En lugares donde no quiero reasignación, un objeto congelado es mucho más conveniente que repetir declaraciones `const` en toda mi función.
 
-Many FPers take a hard-line stance on reassignment: it shouldn't be used. They will tend to use `const` to make all closure variables read-only, and they'll use `Object.freeze(..)` or full immutable data structures to prevent property reassignment. Moreover, they'll try to reduce the amount of explicitly declared/tracked variables and properties wherever possible, perferring value transfer -- function chains, `return` value passed as argument, etc -- instead of intermediate value storage.
+Muchos Programadores-Funcionales adoptan una posición fuerte en lo que respecta a la reasignación: que no debe usarse. Tienden a usar `const` para hacer que todas las variables de cierre sean de solo lectura, y usarán` Object.freeze(..)` o estructuras de datos inmutables para evitar la reasignación de propiedades. Además, intentarán reducir la cantidad de variables y propiedades explícitamente declaradas/rastreadas siempre que sea posible, perfiriendo la transferencia de valores -- cadenas de funciones, valor de 'retorno' pasados como argumento, etc. -- en lugar de almacenamiento de valores intermedios.
 
-This book is about "functional light" programming in JavaScript, and this is one of those cases where I diverge from the core FP crowd.
+Este libro trata acerca de la programación de "funcional ligera" en JavaScript, y este es uno de esos casos en los que divergo con la mayoria de los Programadores-Funcionales.
 
-I think variable reassignment can be quite useful and, when used approriately, quite readable in its explicitness. It's certainly been my experience that debugging is a lot easier when you can insert a `debugger` or breakpoint, or track a watch expression.
+Creo que la reasignación variable puede ser bastante útil y, cuando se usa de manera adecuada, es bastante legible en su carácter explícito. Ciertamente, es mi experiencia que la depuración es mucho más fácil cuando puedes insertar un `debugger` o punto de interrupción, o rastrear una expresión de reloj.
 
-### Cloning State
+### Clonando Estado
 
-As we learned in Chapter 6, one of the best ways we prevent side effects from eroding the predictability of our code is to make sure we treat all state values as immutable, regardless of whether they are actually immutable (frozen) or not.
+Como aprendimos en el Capítulo 6, una de las mejores formas para evitar que los efectos secundarios erosionen la predictibilidad de nuestro código es asegurarnos de tratar todos los valores de estado como inmutables, independientemente de si son inmutables (congelados) o no.
 
-If you're not using a purpose-built library to provide sophisticated immutable data structures, the simplest approach will suffice: duplicate your objects/arrays each time before making a change.
+Si no estás utilizando una libreria especialmente diseñada para proporcionar estructuras de datos inmutables sofisticadas, el enfoque más simple será suficiente: duplica tus objetos/arrays cada vez antes de realizar un cambio.
 
-Arrays are easy to clone shallowly: just use the `slice()` method:
+Los arrays son fáciles de clonar superficialmente: solo usa el método `slice ()`:
 
 ```js
 var a = [ 1, 2, 3 ];
@@ -615,7 +615,7 @@ a;          // [1,2,3]
 b;          // [1,2,3,4]
 ```
 
-Objects can be shallow-cloned relatively easily too:
+Los objetos también pueden ser clonados superficialmente con relativa facilidad:
 
 ```js
 var o = {
@@ -623,115 +623,115 @@ var o = {
     y: 2
 };
 
-// in ES2017+, using object spread:
+// en ES2017+ puedes usar el esparcimiento de objeto:
 var p = { ...o };
 p.y = 3;
 
-// in ES2015+:
+// es ES2015+:
 var p = Object.assign( {}, o );
 p.y = 3;
 ```
 
-If the values in an object/array are themselves non-primitives (objects/arrays), to get deep cloning you'll have to walk each layer manually to clone each nested object. Otherwise, you'll have copies of shared references to those sub-objects, and that's likely to create havoc in your program logic.
+Si los valores en un objeto/array no son primitivos (objetos/arrays), para obtener una clonación profunda deberas caminar a traves de cada capa manualmente para clonar cada objeto anidado. De lo contrario, tendras copias de referencias compartidas para esos subobjetos, y eso probablemente cause estragos en la lógica de tu programa.
 
-Did you notice that this cloning is possible only because all these state values are visible and can thus be easily copied? What about a set of state wrapped up in a closure; how would you clone that state?
+¿Notaste que esta clonación solo es posible porque todos estos valores de estado son visibles y, por lo tanto, se pueden copiar fácilmente? ¿Qué pasa con un conjunto de estado envuelto en un cierre; ¿Cómo clonarías ese estado?
 
-That's much more tedious. Essentially, you'd have to do something similar to our custom `forEach` API method earlier: provide a function inside each layer of the closure with the privilege to extract/copy the hidden values, creating new equivalent closures along the way.
+Eso es mucho más tedioso. Básicamente, tendrías que hacer algo similar a nuestro método API `forEach` personalizado anteriormente: proporcionar una función dentro de cada capa del cierre con el privilegio de extraer/copiar los valores ocultos, creando nuevos cierres equivalentes en el camino.
 
-Even though that's theoretically possible -- another exercise for the reader! -- it's far less practical to implement than you're likely to justify for any real program.
+Aunque eso es teóricamente posible -- otro ejercicio para el lector! -- es mucho menos práctico implementarlo de lo que probablemente sea justificable para cualquier programa real.
 
-Objects have a clear advantage when it comes to representing state that we need to be able to clone.
+Los objetos tienen una clara ventaja cuando se trata de representar el estado que necesitamos para poder clonar.
 
-### Performance
+### Rendimiento
 
-One reason objects may be favored over closures, from an implementation perspective, is that in JavaScript objects are often lighter-weight in terms of memory and even computation.
+Una razón por la cual los objetos pueden verse favorecidos en lugar de los cierres, desde una perspectiva de implementación, es que en JavaScript los objetos son a menudo más livianos en términos de memoria e incluso de computación.
 
-But be careful with that as a general assertion: there are plenty of things you can do with objects that will erase any performance gains you may get from ignoring closure and moving to object-based state tracking.
+Pero ten cuidado con eso como una afirmación general: hay muchas cosas que puedes hacer con los objetos que borrarán cualquier mejora en el rendimiento que puedas obtener al ignorar el cierre y pasar al seguimiento del estado basado en objetos.
 
-Let's consider a scenario with both implementations. First, the closure-style implementation:
+Consideremos un escenario con ambas implementaciones. Primero, la implementación del estilo de cierre:
 
 ```js
-function StudentRecord(name,major,gpa) {
-    return function printStudent(){
-        return `${name}, Major: ${major}, GPA: ${gpa.toFixed(1)}`;
+function RecordEstudiantil(nombre,carrera,promedio) {
+    return function imprimirEstudiante(){
+        return `${nombre}, Carrera: ${carrera}, Promedio: ${promedio.toFixed(1)}`;
     };
 }
 
-var student = StudentRecord( "Kyle Simpson", "CS", 4 );
+var estudiante = RecordEstudiantil( "Kyle Simpson", "CS", 4 );
 
-// later
+// luego
 
-student();
-// Kyle Simpson, Major: CS, GPA: 4.0
+estudiante();
+// Kyle Simpson, Carrera: CS, Promedio: 4.0
 ```
 
-The inner function `printStudent()` closes over three variables: `name`, `major`, and `gpa`. It maintains this state wherever we transfer a reference to that function -- we call it `student()` in this example.
+La función interna `imprimirEstudiante ()` cierra sobre tres variables: `nombre`,` carrera`, y `promedio`. Mantiene este estado donde quiera que transfiramos una referencia a esa función -- llamamos `estudiante ()` a esta referencia en este ejemplo.
 
-Now for the object (and `this`) approach:
+Ahora para el enfoque de objeto (y `this`):
 
 ```js
-function StudentRecord(){
-    return `${this.name}, Major: ${this.major}, GPA: ${this.gpa.toFixed(1)}`;
+function RecordEstudiantil(){
+    return `${this.nombre}, Carrera: ${this.carrera}, Promedio: ${this.promedio.toFixed(1)}`;
 }
 
-var student = StudentRecord.bind( {
-    name: "Kyle Simpson",
-    major: "CS",
-    gpa: 4
+var student = RecordEstudiantil.bind( {
+    nombre: "Kyle Simpson",
+    carrera: "CS",
+    promedio: 4
 } );
 
-// later
+// luego
 
 student();
-// Kyle Simpson, Major: CS, GPA: 4.0
+// Kyle Simpson, Carrera: CS, Promedio: 4.0
 ```
 
-The `student()` function -- technically referred to as a "bound function" -- has a hard-bound `this` reference to the object literal we passed in, such that any later call to `student()` will use that object for it `this`, and thus be able to access its encapsulated state.
+La función `estudiante()` -- técnicamente llamada "función enlazada" -- tiene una referencia `this` de enlace-fuerte al objeto literal que pasamos, de modo que cualquier llamada posterior a `estudiante()` usará ese objeto para `this`, y así poder acceder a su estado encapsulado.
 
-Both implemenations have the same outcome: a function with preserved state. But what about the performance; what differences will there be?
+Ambas implementaciones tienen el mismo resultado: una función con estado preservado. Pero, ¿qué pasa con el rendimiento? ¿Qué diferencias habrá?
 
-**Note:** Accurately and actionably judging performance of a snippet of JS code is a very dodgy affair. We won't get into all the details here, but I urge you to read the "You Don't Know JS: Async & Performance" book, specifically Chapter 6 "Benchmarking & Tuning", for more details.
+**Nota:** Juzgar de forma precisa y accionable el rendimiento de un fragmento de código JS es una aventura muy poco fiable. No vamos a entrar en detalles aquí, pero te insto a leer el libro "You Don't Know JS: Async y Rendimiento", específicamente el Capítulo 6 "Benchmarking & Tuning", para más detalles.
 
-If you were writing a library that created a pairing of state with its function -- either the call to `StudentRecord(..)` in the first snippet or the call to `StudentRecord.bind(..)` in the second snippet -- you're likely to care most about how those two perform. Inspecting the code, we can see that the former has to create a new function expression each time. The second one uses `bind(..)`, which is not as obvious in its implications.
+Si estuvieras escribiendo una libreria que creó un emparejamiento de estado con su función -- ya sea la llamada a `RecordEstudiantil(..)` en el primer fragmento o la llamada a `RecordEstudiantil.bind(..)` en el segundo fragmento - - Es probable que te importe más cómo se desempeñan esos dos. Al inspeccionar el código, podemos ver que el primero tiene que crear una nueva expresión de función cada vez. El segundo usa `bind(..)`, que no es tan obvio en sus implicaciones.
 
-One way to think about what `bind(..)` does under the covers is that it creates a closure over a function, like this:
+Una forma de pensar sobre lo que `bind(..)` hace por debajo de la superficie es que crea un cierre sobre una función, asi:
 
 ```js
-function bind(orinFn,thisObj) {
-    return function boundFn(...args) {
-        return origFn.apply( thisObj, args );
+function bind(funcionOrigen,objetoThis) {
+    return function funcionEnlazada(...argumentos) {
+        return funcionOrigen.apply( objetoThis, argumentos );
     };
 }
 
-var student = bind( StudentRecord, { name: "Kyle.." } );
+var estudiante = bind( RecordEstudiantil, { nombre: "Kyle.." } );
 ```
 
-In this way, it looks like both implementations of our scenario create a closure, so the performance is likely to be about the same.
+De esta manera, parece que las dos implementaciones de nuestro escenario crean un cierre, por lo que el rendimiento probablemente sea más o menos el mismo.
 
-However, the built-in `bind(..)` utility doesn't really have to create a closure to accomplish the task. It simply creates a function and manually sets its internal `this` to the specified object. That's potentially a more efficient operation than if we did the closure ourselves.
+Sin embargo, la utilidad `bind(..)` incorporada realmente no tiene que crear un cierre para realizar la tarea. Simplemente crea una función y establece manualmente su `this` interno para el objeto especificado. Eso es potencialmente una operación más eficiente que si hiciéramos el cierre nosotros mismos.
 
-The kind of performance savings we're talking about here is miniscule on an individual operation. But if your library's critical path is doing this hundreds or thousands of times or more, that savings can add up quickly. Many libraries -- Bluebird being one such example -- have ended up optimizing by removing closures and going with objects, in exactly this means.
+El tipo de ahorro de rendimiento del que estamos hablando aquí es minúsculo en una operación individual. Pero si la ruta crítica de su libreria está haciendo esto cientos o miles de veces o más, ese ahorro puede sumarse rápidamente. Muchas librerias -- Bluebird es uno de esos ejemplos -- han terminado optimizando al eliminar cierres e ir con objetos, exactamente de esta manera.
 
-Outside of the library use-case, the pairing of the state with its function usually only happens relatively few times in the critical path of an application. By contrast, typically the usage of the function+state -- calling `student()` in either snippet -- is more common.
+Fuera del caso de uso de una libreria, el emparejamiento del estado con su función generalmente solo ocurre relativamente pocas veces en la ruta crítica de una aplicación. Por el contrario, típicamente el uso de la función + estado -- llamando a `estudiante()` en cualquier fragmento -- es más común.
 
-If that's the case for some given situation in your code, you should probably care more about the performance of the latter versus the former.
+Si ese es el caso para alguna situación dada en tu código, probablemente deberías preocuparte más por el rendimiento de este último que del anterior.
 
-Bound functions have historically had pretty lousy performance in general, but have recently been much more highly optimized by JS engines. If you benchmarked these variations a couple of years ago, it's entirely possible you'd get different results repeating the same test with the latest engines.
+Las funciones vinculadas históricamente han tenido un rendimiento bastante pésimo en general, pero recientemente han sido mucho más optimizadas por los motores JS. Si comparabas estas variaciones hace un par de años, es muy posible que obtengas resultados diferentes repitiendo la misma prueba con los motores más recientes.
 
-A bound function is now likely to perform at least as good if not better as the equivalent closed-over function. So that's another tick in favor of objects over closures.
+Ahora es probable que una función vinculada funcione al menos tan bien o mejor que la función de cierre equivalente. Entonces ese es otro tic en favor de los objetos en lugar de los cierres.
 
-I just want to reiterate: these performance observations are not absolutes, and the determination of what's best for a given scenario is very complex. Do not just casually apply what you've heard from others or even what you've seen on some other earlier project. Carefully examine whether objects or closures are appropriately efficient for the task.
+Solo quiero reiterar: estas observaciones de desempeño no son absolutas, y la determinación de qué es lo mejor para un escenario dado es muy compleja. No aplique casualmente lo que has escuchado de otros o incluso lo que has visto en algún otro proyecto anterior. Examine cuidadosamente si los objetos o cierres son apropiadamente eficientes para la tarea.
 
-## Summary
+## Resumen
 
-The truth of this chapter cannot be written out. One must read this chapter to find its truth.
+La verdad de este capítulo no puede escribirse. Uno debe leer este capítulo para encontrar su verdad.
 
 ----
 
-Coining some Zen wisdom here was my attempt at being clever. But, you deserve a proper summary of this chapter's message.
+Acuñar algo de sabiduría Zen aquí fue mi intento de ser inteligente. Pero, tu mereces un resumen apropiado del mensaje de este capítulo.
 
-Objects and closures are isomorphic to each other, which means that can be used somewhat interchangably to represent state and behavior in your program.
+Los objetos y cierres son isomorfos entre sí, lo que significa que se pueden usar de forma intercambiable para representar el estado y el comportamiento en tu programa.
 
-Representation as a closure has certain benefits, like granular change control and automatic privacy. Representation as an object has other benefits, like easier cloning of state.
+La representación como cierre tiene ciertos beneficios, como control de cambio granular y privacidad automática. La representación como objeto tiene otros beneficios, como una clonación de estado más sencilla.
 
-The critically thinking FPer should be able to conceive any segment of state and behavior in the program with either representation, and pick the representation that's most appropriate for the task at hand.
+El Programador-Funcional que piensa críticamente debería ser capaz de concebir cualquier segmento de estado y comportamiento en el programa con representación, y elegir la representación que sea más apropiada para la tarea en cuestión.
