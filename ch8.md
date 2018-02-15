@@ -1,13 +1,13 @@
-# Functional-Light JavaScript
-# Chapter 8: Recursion
+# JavaScript Funcionalmente-Ligero
+# Capítulo 8: Recursión
 
-Did you have fun down our little closures/objects rabbit hole in the previous chapter? Welcome back!
+¿Te divertiste con nuestro pequeño agujero de conejo relacionado a los objetos/cierres en el capítulo anterior? ¡Bienvenido de vuelta!
 
-On the next page, we're going to jump into the topic of recursion.
+En la siguiente página, abordaremos el tema de la recursión.
 
 <hr>
 
-*(rest of the page intentionally left blank)*
+*(el resto de la página se dejó en blanco intencionalmente)*
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -23,25 +23,25 @@ On the next page, we're going to jump into the topic of recursion.
 
 <div style="page-break-after: always;"></div>
 
-Let's talk about recursion. Before we dive in, consult the previous page for the formal definition.
+Hablemos acerca de la recursión. Antes de sumergirnos, consulte la página anterior para la definición formal.
 
-Weak joke, I know. :)
+Mal chiste, lo sé. :)
 
-Recursion is one of those programming techniques that most developers admit can be very powerful, but also most of them don't like to use it. I'd put it in the same category as regular expressions, in that sense. Powerful, but confusing, and thus seen as *not worth the effort*.
+La recursividad es una de esas técnicas en la programación que la mayoría de los desarrolladores admiten que puede ser muy poderosa, pero que también a la mayoría de ellos no les gusta usarla. Lo pondría en la misma categoría que las expresiones regulares, en ese sentido. Potente, pero confuso, y por lo tanto visto como *no vale la pena el esfuerzo*.
 
-I'm a big fan of recursion, and you can, too! Unfortunately, many examples of recursion focus on trivial academic tasks like generating Fibonacci sequences. If you're needing those kinds of numbers in your program -- and let's face it, that's not very common! -- you'll likely miss the big picture.
+Soy un gran admirador de la recursión, ¡y tú también puedes serlo! Desafortunadamente, muchos ejemplos de recursión se enfocan en tareas académicas triviales como generar secuencias de Fibonacci. Si necesitas ese tipo de números en tu programa -- y ​​seamos sinceros, ¡eso no es muy común! -- Es probable que te pierdas el panorama general.
 
-As a matter of fact, recursion is one of the most important ways that FP developers avoid imperative looping and reassignment, by offloading the implementation details to the language and engine. When used properly, recursion is powerfully declarative for complex problems.
+Como cuestión de hecho, la recursividad es una de las formas más importantes en que los desarrolladores de Programacion-Funcional evitan el bucle y la reasignación imperativa, al delegar la implementación de los detalles al lenguaje y al motor. Cuando se usa correctamente, la recursión es poderosamente declarativa para problemas complejos.
 
-Sadly, recursion gets far less attention, especially in JS, than it should, in large part because of some very real performance (speed and memory) limitations. Our goal in this chapter is to dig deeper and find practical reasons that recursion should be front-and-center in our FP.
+Lamentablemente, la recursividad recibe mucha menos atención, especialmente en JS, de lo que debería, en gran parte debido a algunas limitaciones muy reales en el rendimiento (tanto en velocidad como en memoria). Nuestro objetivo en este capítulo es ahondar más y encontrar razones prácticas por las que la recursión debe ser frontal y central en nuestra Programacion-Funcional.
 
-## Definition
+## Definición
 
-Recursion is when a function calls itself, and that call does the same, and this cycle continues until a base condition is satisfied and the call loop unwinds.
+La recursión ocurre cuando una función se llama a sí misma, y ​​esa llamada hace lo mismo, y este ciclo continúa hasta que se cumple una condición básica y el ciclo de la llamada se desenrolla.
 
-**Warning:** If you don't ensure that a base condition is *eventually* met, recursion will run forever, and crash or lock up your program; the base condition is pretty important to get right!
+**Advertencia:** Si no te aseguras de que *finalmente* se cumpla una condición base, la recursión se ejecutará para siempre y detendra o bloqueará su programa; la condición base es bastante importante para hacerlo bien!
 
-But... that definition is too confusing in its written form. We can do better. Consider this recursive function:
+Pero ... esa definición es demasiado confusa en su forma escrita. Podemos hacerlo mejor. Considera esta función recursiva:
 
 ```js
 function foo(x) {
@@ -50,48 +50,48 @@ function foo(x) {
 }
 ```
 
-Let's visualize what happens with this function when we call `foo( 16 )`:
+Visualicemos qué ocurre con esta función cuando llamamos `foo( 16 )`:
 
 <p align="center">
     <img src="fig13.png" width="850">
 </p>
 
-In step 2, `x / 2` produces `8`, and that's passed in as the argument so a recursive `foo(..)` call. In step 3, same thing, `x / 2` produces `4`, and that's passed in as the argument to yet another `foo(..)` call. That part is hopefully fairly straightforward.
+En el paso 2, `x / 2` produce `8`, y eso se transmite como el argumento para una llamada `foo(..)` recursiva. En el paso 3, lo mismo, `x / 2` produce `4`, y eso es pasado como el argumento de otra llamada `foo(..)`. Esa parte es, con suerte, bastante sencilla.
 
-But where someone may often get tripped up is what happens in step 4. Once we've satisifed the base condition where `x` (value `4`) is `< 5`, we no longer make any more recursive calls, and just (effectively) do `return 4`. Specifically the dotted line return of `4` in this figure simplifies what's happening there, so let's dig into that last step and visualize it as these three sub-steps:
+Pero donde a menudo alguien se tropieza es lo que sucede en el paso 4. Una vez que hemos satisfecho la condición base donde `x` (valor `4`) es `< 5`, ya no hacemos más llamadas recursivas, y solo (efectivamente) hacer `return 4`. Específicamente, el retorno de la línea de puntos de `4` en esta figura simplifica lo que está sucediendo allí, así que profundicemos en ese último paso y visualicemos estos tres subpasos:
 
 <p align="center">
     <img src="fig14.png" width="850">
 </p>
 
-Once the base condition is satisified, the returned value cascades back through all of the current function calls (and thus `return`s), eventually `return`ing the final result out.
+Una vez que la condición base es cumplida, el valor devuelto regresa en cascada a través de todas las llamadas de funciones actuales (a traves de su `return`s), y eventualmente el resultado final es `devuelto`.
 
-Another way to visualize this recursion is by considering the function calls in the order they happen (commonly referred to as the call stack):
+Otra forma de visualizar esta recursión es considerar las llamadas de función en el orden en que ocurren (comúnmente denominadas pila de llamadas):
 
 <p align="center">
     <img src="fig19.png" width="188">
 </p>
 
-More on the call stack later in this chapter.
+Más información sobre la pila de llamadas más adelante en este capítulo.
 
-Another recursion example:
+Otro ejemplo de recursión:
 
 ```js
-function isPrime(num,divisor = 2){
-    if (num < 2 || (num > 2 && num % divisor == 0)) {
+function esPrimo(numero,divisor = 2){
+    if (numero < 2 || (numero > 2 && numero % divisor == 0)) {
         return false;
     }
-    if (divisor <= Math.sqrt( num )) {
-        return isPrime( num, divisor + 1 );
+    if (divisor <= Math.sqrt( numero )) {
+        return esPrimo( numero, divisor + 1 );
     }
 
     return true;
 }
 ```
 
-This prime checking basically works by trying each integer from `2` up to the square root of the `num` being checked, to see if any of them divide evenly (`%` mod returning `0`) into the number. If any do, it's not a prime. Otherwise, it must be prime. The `divisor + 1` uses the recursion to iterate through each possible `divisor` value.
+Esta verificación de numeros primos funciona básicamente probando cada entero desde `2` hasta la raíz cuadrada del `numero` que se está verificando, para ver si alguno de ellos se divide de manera uniforme (`%` modulo devolviendo `0`) al número. Si hay algo que hacer, no es un primo. De lo contrario, debe ser primo. El `divisor + 1` usa la recursión para iterar a través de cada valor posible para `divisor`.
 
-One of the most famous examples of recursion is calculating a Fibonacci number, where the sequence is defined as:
+Uno de los ejemplos más famosos de recursión es calcular un número de Fibonacci, donde la secuencia se define como:
 
 ```
 fib( 0 ): 0
@@ -100,22 +100,22 @@ fib( n ):
     fib( n - 2 ) + fib( n - 1 )
 ```
 
-**Note:** The first several numbers of this sequence are: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ... Each number is the addition of the previous two numbers in the sequence.
+**Nota:** Los primeros números de esta secuencia son: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ... Cada número es la suma de los dos números anteriores en el secuencia.
 
-The definition of fibonacci expressed directly in code:
+La definición de fibonacci expresada directamente en código:
 
 ```js
-function fib(n) {
-    if (n <= 1) return n;
-    return fib( n - 2 ) + fib( n - 1 );
+function fib(numero) {
+    if (numero <= 1) return numero;
+    return fib( numero - 2 ) + fib( numero - 1 );
 }
 ```
 
-`fib(..)` calls itself recursively twice, which is typically referred to as binary recursion. We'll talk more about binary recursion later.
+`fib(..)` se llama a sí mismo de forma recursiva dos veces, lo que normalmente se conoce como recursión binaria. Hablaremos más sobre la recursión binaria más adelante.
 
-We'll use `fib(..)` variously throughout this chapter to illustrate ideas around recursion, but one downside to this particular form is that there's an awful lot of duplicated work. `fib(n-1)` and `fib(n-2)` don't share any of their work with each other, but overlap with each other almost entirely, over the entire integer space down to `0`.
+Usaremos `fib(..)` de manera diversa a lo largo de este capítulo para ilustrar ideas sobre la recursión, pero una desventaja de esta forma particular es que hay muchísimo trabajo duplicado. `fib(n-1)` y `fib(n-2)` no comparten ninguno de sus trabajos entre sí, sino que se superponen entre sí casi por completo, en todo el espacio entero hasta `0`.
 
-We briefly touched on memoization in the "Performance Effects" section of Chapter 5. Here, memoization would allow the `fib(..)` of any given number to be computed only once, instead of being recomputed many times. We won't go further into that topic here, but that performance caveat is important to keep in mind with any algorithm, recursive or not.
+Brevemente nos referimos a la memoización en la sección "Efectos de rendimiento" en el Capítulo 5. Aquí, la memoización permitiría que `fib(..)` de cualquier número determinado se compute solo una vez, en lugar de volver a calcularse muchas veces. No profundizaremos en ese tema aquí, pero es importante tener en cuenta esa advertencia de rendimiento con cualquier algoritmo, recursivo o no.
 
 ### Mutual Recursion
 
