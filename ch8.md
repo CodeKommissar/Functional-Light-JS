@@ -117,56 +117,56 @@ Usaremos `fib(..)` de manera diversa a lo largo de este capítulo para ilustrar 
 
 Brevemente nos referimos a la memoización en la sección "Efectos de rendimiento" en el Capítulo 5. Aquí, la memoización permitiría que `fib(..)` de cualquier número determinado se compute solo una vez, en lugar de volver a calcularse muchas veces. No profundizaremos en ese tema aquí, pero es importante tener en cuenta esa advertencia de rendimiento con cualquier algoritmo, recursivo o no.
 
-### Mutual Recursion
+### Recursión Mutua
 
-When a function calls itself, specifically, this is referred to as direct recursion. That's what we saw in the previous section with `foo(..)`, `isPrime(..)`, and `fib(..)`. When two or more functions call each other in a recursive cycle, this is referred to as mutual recursion.
+Cuando una función se llama a sí misma, específicamente, esto se conoce como recursión directa. Eso es lo que vimos en la sección anterior con `foo(..)`, `esPrimo(..)` y `fib(..)`. Cuando dos o más funciones se llaman entre sí en un ciclo recursivo, esto se conoce como recursión mutua.
 
-These two functions are mutually recursive:
+Estas dos funciones son mutuamente recursivas:
 
 ```js
-function isOdd(v) {
-    if (v === 0) return false;
-    return isEven( Math.abs( v ) - 1 );
+function esImpar(valor) {
+    if (valor === 0) return false;
+    return esPar( Math.abs( valor ) - 1 );
 }
 
-function isEven(v) {
-    if (v === 0) return true;
-    return isOdd( Math.abs( v ) - 1 );
+function esPar(valor) {
+    if (valor === 0) return true;
+    return esImpar( Math.abs( valor ) - 1 );
 }
 ```
 
-Yes, this is a silly way to calculate if a number is odd or even. But it illustrates the idea that certain algorithms can be defined in terms of mutual recursion.
+Sí, esta es una manera algo tonta de calcular si un número es par o impar. Pero ilustra la idea de que ciertos algoritmos se pueden definir en términos de recursión mutua.
 
-Recall the binary recursive `fib(..)` from the previous section; we could instead have expressed it with mutual recursion:
+Recuerda el binario recursivo `fib(..)` de la sección anterior; en cambio, podríamos haberlo expresado con recursión mutua:
 
 ```js
-function fib_(n) {
-    if (n == 1) return 1;
-    else return fib( n - 2 );
+function fib_(numero) {
+    if (numero == 1) return 1;
+    else return fib( numero - 2 );
 }
 
-function fib(n) {
-    if (n == 0) return 0;
-    else return fib( n - 1 ) + fib_( n );
+function fib(numero) {
+    if (numero == 0) return 0;
+    else return fib( numero - 1 ) + fib_( numero );
 }
 ```
 
-**Note:** This mutually recursive `fib(..)` implementation is adapted from research presented in "Fibonacci Numbers Using Mutual Recursion" (https://www.researchgate.net/publication/246180510_Fibonacci_Numbers_Using_Mutual_Recursion).
+**Nota:** Esta implementación de `fib(..)` mutuamente recursiva es una adaptación de la investigación presentada en "Números de Fibonacci Usando Recursión Mutua" (https://www.researchgate.net/publication/246180510_Fibonacci_Numbers_Using_Mutual_Recursion).
 
-While these mutual recursion examples shown are rather contrived, there are more complex use cases where mutual recursion can be very helpful. Counting the number of leaves in a tree data structure is one example, and recursive descent parsing (of source code, by a compiler) is another.
+Si bien estos ejemplos de recursión mutua mostrados son algo artificiales, existen casos de uso más complejos en los que la recursión mutua puede ser muy útil. Contar el número de hojas en una estructura de datos de árbol es un ejemplo, y el análisis de descenso recursivo (del código fuente, por un compilador) es otro.
 
-### Why Recursion?
+### ¿Por Qué Recursión?
 
-Now that we've defined and illustrated recursion, we should examine why recursion is useful.
+Ahora que hemos definido e ilustrado la recursión, debemos examinar por qué la recursividad es útil.
 
-The most commonly cited reason that recursion fits the spirit of FP is because it trades (much of) the explicit tracking of state with implicit state on the call stack. Typically, recursion is most useful when the problem requires conditional branching and back-tracking, and managing that kind of state in a purely iterative environment can be quite tricky; at a minimum, the code is highly imperative and harder to read and verify. But tracking each level of branching as its own scope on the call stack often significantly cleans up the readability of the code.
+La razón más comúnmente citada por la cual la recursión se ajusta al espíritu de la Programacion-Funcional es porque intercambia (en gran parte) el seguimiento explícito del estado con estado implícito en la pila de llamadas. Normalmente, la recursividad es más útil cuando el problema requiere una bifurcación condicional y un seguimiento posterior, y la gestión de ese tipo de estado en un entorno puramente iterativo puede ser bastante complicado; como mínimo, el código es altamente imperativo y más difícil de leer y verificar. Pero rastrear cada nivel de bifurcación como su propio alcance en la pila de llamadas a menudo mejora significativamente la legibilidad del código.
 
-Simple iterative algorithms can trivially be expressed as recursion:
+Los algoritmos iterativos simples pueden expresarse trivialmente como recursión:
 
 ```js
-function sum(total,...nums) {
-    for (let num of nums) {
-        total = total + num;
+function suma(total,...numeros) {
+    for (let numero of numeros) {
+        total = total + numero;
     }
 
     return total;
@@ -174,153 +174,153 @@ function sum(total,...nums) {
 
 // vs
 
-function sum(num1,...nums) {
-    if (nums.length == 0) return num1;
-    return num1 + sum( ...nums );
+function suma(num1,...numeros) {
+    if (numeros.length == 0) return num1;
+    return num1 + suma( ...numeros );
 }
 ```
 
-It's not just that the `for`-loop is eliminated in favor of the call stack, but that the incremental partial sums (the intermittent state of `total`) are tracked implicitly across the `return`s of the call stack instead of reassigning `total` each iteration. FPers will often prefer to avoid reassignment of local variables where it's possible to avoid.
+No es solo que el `for`-loop sea eliminado en favor de la pila de llamadas, sino que las sumas parciales incrementales (el estado intermitente de `total`) se rastrean implícitamente a través de `return`s en la pila de llamadas en lugar de reasignar `total` en cada iteración. Los Programadores-Funcionales a menudo prefieren evitar la reasignación de variables locales donde sea posible evitarlas.
 
-In a basic algorithm like this kind of summation, this difference is minor and nuanced. But the more sophisticated your algorithm, the more you will likely see the payoff of recursion instead of imperative state tracking.
+En un algoritmo básico como este tipo de suma, esta diferencia es menor y matizada. Pero cuanto más sofisticado sea tu algoritmo, más probable es que veas la rentabilidad de la recursión en lugar del seguimiento imperativo del estado.
 
-## Declarative Recursion
+## Recursión Declarativa
 
-Mathematicians use the **Σ** symbol as a placeholder to represent the summation of a list of numbers. The primary reason they do that is because it's more cumbersome (and less readable!) if they're working with more complex formulas and they have to write out the summation manually, like `1 + 3 + 5 + 7 + 9 + ..`. Using the notation is declarative math!
+Los matemáticos usan el símbolo **Σ** como un marcador de posición para representar la suma de una lista de números. La razón principal por la que hacen eso es porque es más engorroso (¡y menos legible!) si están trabajando con fórmulas complejas y tienen que escribir la suma de forma manual, como `1 + 3 + 5 + 7 + 9 + ..`. ¡Usar la notación es matemática declarativa!
 
-Recursion is declarative for algorithms in the same sense that **Σ** is declarative for mathematics. Recursion expresses that a problem solution exists, but doesn't necessarily require the reader of the code to understand how that solution works. Let's consider two approaches to finding the highest even number passed as an argument:
+La recursividad es declarativa para los algoritmos en el mismo sentido en que **Σ** es declarativo para las matemáticas. La recursividad expresa que existe una solución al problema, pero no requiere necesariamente que el lector del código comprenda cómo funciona esa solución. Consideremos dos enfoques para encontrar el mayor número par pasado como argumento:
 
 ```js
-function maxEven(...nums) {
-    var maxNum = -Infinity;
+function parMaximo(...numeros) {
+    var numeroMaximo = -Infinity;
 
-    for (let num of nums) {
-        if (num % 2 == 0 && num > maxNum) {
-            maxNum = num;
+    for (let numero of numeros) {
+        if (numero % 2 == 0 && numero > numeroMaximo) {
+            numeroMaximo = numero;
         }
     }
 
-    if (num !== -Infinity) {
-        return maxNum;
+    if (numero !== -Infinity) {
+        return numeroMaximo;
     }
 }
 ```
 
-This implementation is not particulary intractable, but it's also not readily apparent what its nuances are. How obvious is it that `maxEven()`, `maxEven(1)`, and `maxEven(1,13)` all return `undefined`? Is it quickly clear why the final `if` statement is necessary?
+Esta implementación no es particularmente difícil de resolver, pero tampoco es muy evidente al deducir cuáles son sus matices. ¿Qué tan obvio es que `parMaximo()`, `parMaximo(1)` y `parMaximo(1,13)` devuelvan `undefined`? ¿Es facilmente entendible por qué es necesaria la declaración final 'if'?
 
-Let's instead consider a recursive approach, to compare. We could notate the recursion this way:
-
-```
-maxEven( nums ):
-    maxEven( nums.0, maxEven( ...nums.1 ) )
-```
-
-In other words, we can define the max-even of a list of numbers as the max-even of the first number compared to the max-even of the rest of the numbers. For example:
+Consideremos en cambio un enfoque recursivo, para comparar. Podríamos anotar la recursión de esta manera:
 
 ```
-maxEven( 1, 10, 3, 2 ):
-    maxEven( 1, maxEven( 10, maxEven( 3, maxEven( 2 ) ) )
+parMaximo( numeros ):
+    parMaximo( numeros.0, parMaximo( ...nunumeros.1 ) )
 ```
 
-To implement this recursive definition in JS, one approach is:
+En otras palabras, podemos definir el par-máximo de una lista de números como el par-máximo del primer número en comparación con el par-máximo del resto de los números. Por ejemplo:
+
+```
+parMaximo( 1, 10, 3, 2 ):
+    parMaximo( 1, parMaximo( 10, parMaximo( 3, parMaximo( 2 ) ) )
+```
+
+Para implementar esta definición recursiva en JS, un enfoque es:
 
 ```js
-function maxEven(num1,...restNums) {
-    var maxRest = restNums.length > 0 ?
-            maxEven( ...restNums ) :
+function parMaximo(numero1,...restoNumeros) {
+    var restoMaximo = restoNumeros.length > 0 ?
+            parMaximo( ...restoNumeros ) :
             undefined;
 
-    return (num1 % 2 != 0 || num1 < maxRest) ?
-        maxRest :
-        num1;
+    return (numero1 % 2 != 0 || numero1 < restoMaximo) ?
+        restoMaximo :
+        numero1;
 }
 ```
 
-So what advantages does this approach have?
+Entonces, ¿qué ventajas tiene este enfoque?
 
-First, the signature is a little different than before. I intentionally called out `num1` as the first argument name, collecting the rest of the arguments into `restNums`. But why? We could just have collected them all into a single `nums` array and then referred to `nums[0]`.
+Primero, la firma es un poco diferente que antes. Intencionalmente llamé `numero1` como primer nombre de argumento, recogiendo el resto de los argumentos en `restoNumeros`. ¿Pero por qué? Podríamos simplemente haberlas reunido todas en un unico array `numeros` y luego referirnos a `numeros[0]`.
 
-This function signature is an intentional hint at the recursive definition. It reads like this:
-
-```
-maxEven( num1, ...restNums ):
-    maxEven( num1, maxEven( ...restNums ) )
-```
-
-Do you see the symmetry between the signature and the recursive definition?
-
-When we can make the recursive definition more apparent even in the function signature, we improve the declarativeness of the function. And if we can then mirror the recursive definition from the signature to the function body, it gets even better.
-
-But I'd say the most obvious improvement is that the distraction of the imperative `for`-loop is suppressed. All the looping logic is abstracted into the recursive call stack, so that stuff doesn't clutter the code. We're free then to focus on the logic of finding a max-even by comparing two numbers at a time -- the important part anyway!
-
-Mentally, what's happening is similar to when a mathematician uses a **Σ** summation in a larger equation. We're saying, "the max-even of the rest of the list is calculated by `maxEven(...restNums)`, so we'll just assume that part and move on."
-
-Additionally, we reinforce that notion with the `restNums.length > 0` guard, because if there are no more numbers to consider, the natural result is that `maxRest` would have to be `undefined`. We don't need to devote any extra mental attention to that part of the reasoning. This base condition (no more numbers to consider) is clearly evident.
-
-Next, we turn our attention to checking `num1` against `maxRest` -- the main logic of the algorithm is how to determine which of two numbers, if any, is a max-even. If `num1` is not even (`num1 % 2 != 0`), or it's less than `maxRest`, then `maxRest` *has* to be `return`ed, even if it's `undefined`. Otherwise, `num1` is the answer.
-
-The case I'm making is that this reasoning while reading an implementation is more straightforward, with fewer nuances or noise to distract us, than the imperative approach; it's **more declarative** than the `for`-loop with `-Infinity` approach.
-
-**Tip:** We should point out that another (likely better!) way to model this besides manual iteration or recursion would be with list operations like we discussed in Chapter 7. The list of numbers could first be `filter(..)`ed to include only evens, and then finding the max is a `reduce(..)` that simply compares two numbers and returns the bigger of the two. We only used this example to illustrate the more declarative nature of recursion over manual iteration.
-
-### Binary Tree Recursion
-
-Here's another recursion example: calculating the depth of a binary tree. In fact, almost every operation you'll do with trees is implemented most easily with recursion, because manually tracking the stack up and down is highly imperative and error prone.
-
-The depth of a binary tree is the longest path down (either left or right) through the nodes of the tree. Another way to define that is recursively: the depth of a tree at any node is 1 (the current node) plus the greater of depths from either its left or right child trees:
+Esta firma de función es una sugerencia intencional a la definición recursiva. Se lee así:
 
 ```
-depth( node ):
-    1 + max( depth( node.left ), depth( node.right ) )
+parMaximo( numero1, ...restoNumeros ):
+    parMaximo( numero1, parMaximo( ...restoNumeros ) )
 ```
 
-Translating that straightforwardly to a binary recursive function:
+¿Ves la simetría entre la firma de la funcion y la definición recursiva?
+
+Cuando podemos hacer que la definición recursiva sea más aparente incluso en la firma de la función, mejoramos lo declarativo que es la función. Y si podemos reflejar la definición recursiva de la firma al cuerpo de la función, se vuelve aún mejor.
+
+Pero diría que la mejora más obvia es que la distracción del imperativo `for`-loop se suprime. Toda la lógica de bucle se abstrae en la pila de llamadas recursivas, para que esas cosas no llenen el código. Somos libres para centrarnos en la lógica de encontrar un máximo comparando dos números a la vez -- ¡es la parte más importante de todos modos!
+
+Mentalmente, lo que sucede es similar a cuando un matemático usa una suma de **Σ** en una ecuación grande. Estamos diciendo, "el par-máximo del resto de la lista es calculado por `parMaximo(...restoNumeros)`, así que simplemente asumiremos esa parte y seguiremos adelante".
+
+Además, reforzamos esa noción con la guardia `restoNumeros.length > 0`, porque si no hay más números para considerar, el resultado natural es que `restoMaximo` tendría que ser `undefined`. No necesitamos dedicar ninguna atención mental adicional a esa parte del razonamiento. Esta condición básica (no más números para considerar) es claramente evidente.
+
+A continuación, volvemos nuestra atención a verificar `numero1` contra` restoMaximo` -- la lógica principal del algoritmo es cómo determinar cuál de los dos números, si es que hay alguno, es un par-máximo. Si `numero1` no es par (`numero1 % 2 != 0`), o es menor que `restoMaximo`, entonces `restoMaximo` *tiene* que ser `return`ed, incluso si es `undefined`. De lo contrario, `numero1` es la respuesta.
+
+El caso que estoy planteando es que este razonamiento al leer una implementación es más directo, con menos matices o ruido que nos distraiga, que el enfoque imperativo; es **más declarativo** que el `for`-loop con el enfoque de `-Infinity`.
+
+**Consejo:** Debemos señalar que otra forma (¡probablemente mejor!) De modelar esto además de la iteración o recursión manual sería con operaciones de lista como discutimos en el Capítulo 7. La lista de números podría ser primero usar `filter(.. )` para incluir solo numeros pares, y luego encontrar el máximo con un `reduce(..)` que simplemente compara dos números y devuelve el mayor de los dos. Solo usamos este ejemplo para ilustrar la naturaleza más declarativa de la recursión sobre la iteración manual.
+
+### Recursión de Arbol Binario
+
+Aquí hay otro ejemplo de recursión: calcular la profundidad de un árbol binario. De hecho, casi todas las operaciones que harás con árboles se implementan más fácilmente con la recursión, ya que el seguimiento manual de la pila hacia arriba y hacia abajo es altamente imperativo y propenso a errores.
+
+La profundidad de un árbol binario es la ruta más larga hacia abajo (ya sea hacia la izquierda o hacia la derecha) a través de los nodos del árbol. Otra forma de definirlo es recursivamente: la profundidad de un árbol en cualquier nodo es 1 (el nodo actual) más la mayor de las profundidades de sus árboles secundarios izquierdo o derecho:
+
+```
+profundidad( nodo ):
+    1 + max( profundidad( nodo.izquierda ), profundidad( nodo.derecha ) )
+```
+
+Traduciendo esto directamente a una función recursiva binaria:
 
 ```js
-function depth(node) {
-    if (node) {
-        let depthLeft = depth( node.left );
-        let depthRight = depth( node.right );
-        return 1 + max( depthLeft, depthRight );
+function profundidad(nodo) {
+    if (nodo) {
+        let profundidadIzquierda = profundidad( nodo.izquierda );
+        let profundidadDerecha = profundidad( nodo.derecha );
+        return 1 + max( profundidadIzquierda, profundidadDerecha );
     }
 
     return 0;
 }
 ```
 
-I'm not going to list out the imperative form of this algorithm, but trust me, it's a lot messier. This recursive approach is nicely and gracefully declarative. It follows the recursive definition of the algorithm very closely with very little distraction.
+No voy a explicar la forma imperativa de este algoritmo, pero confia en mi, es mucho más complicada. Este enfoque recursivo es agradable y elegantemente declarativo. Sigue la definición recursiva del algoritmo muy de cerca y muy poca distracción.
 
-Not all problems are cleanly recursive. This is not some silver bullet that you should try to apply everywhere. But recursion can be very effective at evolving the expression of a problem from more imperative to more declarative.
+No todos los problemas son limpiamente recursivos. Esta no es una bala de plata que debes intentar aplicar en cualquier parte. Pero la recursión puede ser muy efectiva para evolucionar la expresión de un problema de más una forma imperativa a otra más declarativa.
 
-## Stack
+## Pila
 
-Let's revisit the `isOdd(..)` / `isEven(..)` recursion from earlier:
+Revisitemos la recursión `esPar(..)`/`esImpar(..)` de antes:
 
 ```js
-function isOdd(v) {
-    if (v === 0) return false;
-    return isEven( Math.abs( v ) - 1 );
+function esImpar(valor) {
+    if (valor === 0) return false;
+    return esPar( Math.abs( valor ) - 1 );
 }
 
-function isEven(v) {
-    if (v === 0) return true;
-    return isOdd( Math.abs( v ) - 1 );
+function esPar(valor) {
+    if (valor === 0) return true;
+    return esImpar( Math.abs( valor ) - 1 );
 }
 ```
 
-In most browsers, if you try this you'll get an error:
+En la mayoría de los navegadores, si pruebas esto, obtendrás un error:
 
 ```js
-isOdd( 33333 );         // RangeError: Maximum call stack size exceeded
+esImpar( 33333 );         // RangeError: Maximum call stack size exceeded / Se excedió el tamaño máximo de la pila de llamadas
 ```
 
-What's going on with this error? The engine throws this error because it's trying to protect your program from running the system out of memory. To explain that, we need to peek a little below the hood at what's going on in the JS engine when function calls happen.
+¿Qué está pasando con este error? El motor arroja este error porque está tratando de proteger tu programa para que el sistema no se quede sin memoria. Para explicar eso, tenemos que echar un vistazo debajo del capó a lo que está sucediendo en el motor de JS cuando se producen llamadas de función.
 
-Each function call sets aside a small chunk of memory called a stack frame. The stack frame holds certain important information about the current state of processing statements in a function, including the values in any variables. The reason this information needs to be stored in memory (in a stack frame) is because the function may call out to another function, which pauses the current function. When the other function finishes, the engine needs to resume the exact state from when it was paused.
+Cada llamada de función pone a un lado un pequeño trozo de memoria llamado un marco de pila (stack frame). El marco de pila contiene cierta información importante sobre el estado actual de las instrucciones de procesamiento en una función, incluidos los valores en cualquier variable. El motivo por el que esta información debe almacenarse en la memoria (en un marco de pila) se debe a que la función puede invocar a otra función, que pausa la función actual. Cuando la otra función finaliza, el motor debe reanudar el estado exacto desde que se pausó.
 
-When the second function call starts, it needs a stack frame as well, bringing the count to 2. If that function calls another, we need a third stack frame. And so on. The word "stack" speaks to the notion that each time a function is called from the previous one, the next frame is *stacked* on top. When a function call finishes, its frame is popped off the stack.
+Cuando se inicia la segunda llamada de función, esta también necesita un marco de pila, lo que lleva el recuento a 2. Si esa función llama a otra, necesitamos un tercer marco de pila. Y así. La palabra "pila" se refiere a la noción de que cada vez que se llama a una función desde la anterior, el siguiente cuadro se *apila* en la parte superior. Cuando finaliza una llamada a la función, su marco sale de la pila.
 
-Consider this program:
+Considera este programa:
 
 ```js
 function foo() {
@@ -340,336 +340,336 @@ function baz() {
 baz();
 ```
 
-Visualizing this program's stack frame step by step:
+Visualizando el marco de pila de este programa paso a paso:
 
 <p align="center">
     <img src="fig15.png" width="600">
 </p>
 
-**Note:** If these functions didn't call each other, but were just called sequentially -- like `baz(); bar(); foo();`, where each one finishes before the next one starts -- the  frames won't stack up; each function call finishes and removes its frame from the stack before the next one is added.
+**Nota:** Si estas funciones no se llamaran entre sí, sino que simplemente se llamaran secuencialmente, como `baz(); bar(); foo();`, donde cada una termina antes de que comience la siguiente -- los cuadros no se apilarian; cada llamada a la función finaliza y elimina su marco de la pila antes de agregar el siguiente.
 
-OK, so a little bit of memory is needed for each function call. No big deal under most normal program conditions, right? But it quickly becomes a big deal once you introduce recursion. While you'd almost certainly never manually stack thousands (or even hundreds!) of calls of different functions together in one call stack, you'll easily see tens of thousands or more recursive calls stack up.
+De acuerdo, entonces se necesita un poco de memoria para cada llamada de función. No es gran cosa en la mayoría de las condiciones normales de un programa, ¿verdad? Pero rápidamente se convierte en un gran problema una vez que introduces la recursividad. Si bien es casi seguro que nunca acumules miles (¡o incluso cientos!) de llamadas de diferentes funciones en una sola pila de llamadas, verás que se acumulan decenas de miles o más de llamadas recursivas.
 
-The `isOdd(..)` / `isEven(..)` pairing throws a `RangeError` because the engine steps in at an arbitrary limit when it thinks the call stack has grown too much and should be stopped. This is not likely a limit based on actual memory levels nearing zero, but rather a prediction by the engine that if this kind of program was left running, memory usage would be runaway. It is impossible to know or prove that a program will eventually stop, so the engine has to make an informed guess.
+El emparejamiento de `esPar(..)` / `esImpar(..)` arroja un `RangeError` porque el motor interviene en un límite arbitrario cuando cree que la pila de llamadas ha crecido demasiado y debe detenerse. Este probablemente no es un límite basado en los niveles reales de memoria que se aproximan a cero, sino más bien en una predicción del motor acerca de que si este tipo de programa se dejara en ejecución, el uso de la memoria sería fugitivo. Es imposible saber o probar que un programa finalmente se detendrá, por lo que el motor tiene que hacer una suposición informada.
 
-This limit is implementation dependent. The specification doesn't say anything about it at all, so it's not *required*. But practically all JS engines do have a limit, because having no limit would create an unstable device that's susceptible to poorly written or malicious code. Each engine in each different device environment is going to enforce its own limits, so there's no way to predict or guarantee how far we can run up the function call stack.
+Este límite depende de la implementación. La especificación no dice nada al respecto, por lo que no es *obligatorio*. Pero prácticamente todos los motores de JS tienen un límite, porque al no tener límite se crearía un dispositivo inestable susceptible a código mal escrito o malicioso. Cada motor en cada entorno de dispositivo diferente va a imponer sus propios límites, por lo que no hay forma de predecir o garantizar cuánto podremos ejecutar la pila de llamadas a funciones.
 
-What this limit means to us as developers is that there's a practical limitation on the usefulness of recursion in solving problems on non-trivially sized data sets. In fact, I think this kind of limitation might be single biggest reason that recursion is a second-class citizen in the developer's toolbox. Regrettably, recursion is an after thought rather than a primary technique.
+Lo que este límite significa para nosotros como desarrolladores es que existe una limitación práctica en la utilidad de la recursión para resolver problemas en conjuntos de datos de tamaño no trivial. De hecho, creo que este tipo de limitación podría ser la principal razón por la cual la recursividad es un ciudadano de segunda clase en la caja de herramientas del desarrollador. Lamentablemente, la recursividad es una idea posterior al pensamiento en lugar de una técnica primaria.
 
-### Tail Calls
+### Llamadas De Cola
 
-Recursion far predates JS, and so do these memory limitations. Back in the 1960s, developers were wanting to use recursion and running up against hard limits of device memory of their powerful computers that were far lower than we have on our watches today.
+La recursión es muy anterior a JavaScript, y también lo son estas limitaciones de memoria. En la década de 1960, los desarrolladores querían recurrir y competir contra los límites estrictos de la memoria del dispositivo de sus poderosas computadoras, que eran mucho más bajos que los que tenemos hoy en nuestros relojes.
 
-Fortunately, a powerful observation was made in those early days that still offers hope. The technique is called *tail calls*.
+Afortunadamente, se realizó una observación poderosa en aquellos primeros días que todavía ofrece esperanza. La técnica se llama *llamadas de cola*.
 
-The idea is that if a call from function `baz()` to function `bar()` happens at the very end of function `baz()`'s execution -- referred to as a tail call -- the stack frame for `baz()` isn't needed anymore. That means that either the memory can be reclaimed, or even better, simply reused to handle function `bar()`'s execution. Visualizing:
+La idea es que si una llamada de la función `baz()` a la función `bar()` ocurre al final de la función ejecucion de `baz()` -- a la que se hace referencia como una llamada de cola -- el marco de pila para `baz()` ya no es necesario. Eso significa que la memoria puede ser recuperada, o incluso mejor, simplemente reutilizada para manejar la ejecución de la función `bar()`. Visualizando:
 
 <p align="center">
     <img src="fig16.png" width="600">
 </p>
 
-Tail calls are not really directly related to recursion, per se; this notion holds for any function call. But your manual non-recursion call stacks are unlikely to go beyond maybe 10 levels deep in most cases, so the chances of tail calls impacting your program's memory footprint are pretty low.
+Por si mismas, las llamadas de cola no están realmente relacionadas directamente con la recursividad; esta noción se cumple para cualquier llamada de función. Pero es poco probable que las pilas de llamadas manuales no recurrentes vayan más allá de los 10 niveles de profundidad en la mayoría de los casos, por lo que las posibilidades de que las llamadas finales afecten la memoria de tu programa son bastante bajas.
 
-Tail calls really shine in the recursion case, because it means that a recursive stack could run "forever", and the only performance concern would be computation, not fixed memory limitations. Tail call recursion can run in `O(1)` fixed memory usage.
+Las llamadas de cola realmente brillan en el caso de la recursión, porque significa que una pila recursiva podría ejecutarse "para siempre", y el único problema de rendimiento sería el cálculo, no las limitaciones de memoria fija. La recursividad de llamada de cola puede ejecutarse con `O(1)` uso de memoria fija.
 
-These sorts of techniques are often referred to as Tail Call Optimizations (TCO), but it's important to distinguish the ability to detect a tail call to run in fixed memory space, from the techniques that optimize this approach. Technically, tail calls themselves are not a performance optimization as most people would think, as they might actually run slower than normal calls. TCO is about optimizing tail calls to run more efficiently.
+Este tipo de técnicas a menudo se conocen como Optimizaciones de Llamadas de Cola (OLC), pero es importante distinguir la capacidad de detectar una llamada de cola para correr en un espacio de memoria fijo, a partir de las técnicas que optimizan este enfoque. Técnicamente, las llamadas de cola en sí no son una optimización en el rendimiento, como la mayoría de la gente pensaría, ya que en realidad podrían ejecutarse como llamadas más lentas de lo normal. OLC trata de optimizar las llamadas de cola para ejecutar el programa de una manera más eficiente.
 
-### Proper Tail Calls (PTC)
+### Llamadas de Cola Apropiadas (LCA)
 
-JavaScript has never required (nor forbidden) tail calls, until ES6. ES6 mandates recognition of tail calls, of a specific form referred to as Proper Tail Calls (PTC), and the guarantee that code in PTC form will run without unbounded stack memory growth. Practically speaking, this means we should not get `RangeError`s thrown if we adhere to PTC.
+JavaScript nunca ha requerido (ni prohibido) llamadas de cola, hasta ES6. ES6 exige el reconocimiento de las llamadas finales, de una forma específica denominada Llamadas de Cola Apropiadas (LCA), y la garantía de que el código en formato LCA se ejecutará sin crecimiento ilimitado de la memoria de la pila. En términos prácticos, esto significa que no deberíamos obtener `RangeError`s si nos adherimos a las LCA.
 
-First, PTC in JavaScript requires strict mode. You should already be using strict mode, but if you aren't, this is yet another reason you should already be using strict mode. Did I mention, yet, you should already be using strict mode!?
+Primero, LCA en JavaScript requieren de un modo estricto. Ya deberías estar usando el modo estricto, pero si no lo estas, esta es otra razón por la que deberías estar usando el modo estricto ya. ¿He mencionado, sin embargo, que ya deberías de estar usando el modo estricto!?
 
-Second, a *proper* tail call looks like this:
+En segundo lugar, una llamada de cola *apropiada* se ve así:
 
 ```js
 return foo( .. );
 ```
 
-In other words, the function call is the last thing to execute in the surrounding function, and whatever value it returns is explicitly `return`ed. In this way, JS can be absolutely guaranteed that the current stack frame won't be needed anymore.
+En otras palabras, la llamada a la función es lo último que se debe ejecutar en la función circundante, y cualquier valor que devuelva es explícitamente `retorn`ado. De esta forma, el motor de JS puede estar absolutamente garantizado de que el marco de pila actual ya no será necesario.
 
-These *are not* PTC:
+Estas *no son* LCA:
 
 ```js
 foo();
 return;
 
-// or
+// o
 
 var x = foo( .. );
 return x;
 
-// or
+// o
 
 return 1 + foo( .. );
 ```
 
-**Note:** A JS engine, or a smart transpiler, *could* do some code reorganization to realize that `var x = foo(); return x;` is effectively the same as `return foo();`, which would then make it eligible as PTC. But that is not be required by the specification.
+**Nota:** Un motor de JS, o un transpilador inteligente, *podría* hacer una reorganización de código para darse cuenta de que `var x = foo(); return x;` es efectivamente lo mismo que `return foo();`, que luego lo haría elegible como LCA. Pero eso no es requerido por la especificación.
 
-The `1 +` part is definitely processed *after* `foo(..)` finishes, so the stack frame has to be kept around.
+La parte `1 +` definitivamente se procesa *después* de que `foo(..) `finalice en su ejecucion, por lo que el marco de pila debe mantenerse.
 
-However, this *is* PTC:
+Sin embargo, esto *es* una LCA:
 
 ```js
 return x ? foo( .. ) : bar( .. );
 ```
 
-After the `x` condition is computed, either `foo(..)` or `bar(..)` will run, and in either case, the return value will be always be `return`ed back. That's PTC form.
+Después de calcular la condición `x`, se ejecutará `foo(..)` o `bar(..)`, y en cualquier caso, el valor de retorno siempre será `retorn`ado de vuelta. Esa es la forma de LCA.
 
-Binary (or multiple) recursion -- as shown earlier, two (or more!) recursive calls made at each level -- can never be fully PTC as-is, because all the recursion has to be in tail call position to avoid the stack growth; at most, only one recursive call can appear in PTC position.
+La recursión binaria (o múltiple) -- como se mostró anteriormente, dos (o más) llamadas recursivas realizadas en cada nivel -- nunca puede ser totalmente una LCA tal y como está, porque toda la recursión tiene que estar en la posición de cola para evitar la pila crecimiento; como máximo, solo una llamada recursiva puede aparecer en la posición LCA.
 
-Earlier, we showed an example of refactoring from binary recursion to mutual recursion. It may be possible to achieve PTC from a multiple-recursive algorithm by splitting each into separate function calls, where each is expressed respectively in PTC form. However, that type of intricate refactoring is highly dependendent on the scenario, and beyond the scope of what we can cover in this text.
+Anteriormente, mostramos un ejemplo de refactorización desde la recursión binaria hasta la recursión mutua. Es posible lograr LCA a partir de un algoritmo recursivo múltiple dividiendo cada uno en llamadas a función separadas, donde cada una se expresa respectivamente en forma de LCA. Sin embargo, ese tipo de refactorización intrincada es altamente dependiente del escenario, y más allá del alcance de lo que podemos cubrir en este texto.
 
-## Rearranging Recursion
+## Reordenación de la Recursion
 
-If you want to use recursion but your problem set could grow enough eventually to exceed the stack limit of the JS engine, you're going to need to rearrange your recursive calls to take advantage of PTC (or avoid nested calls entirely). There are several refactoring strategies that can help, but there are of course tradeoffs to be aware of.
+Si desea usar la recursividad pero tu conjunto de problemas podría crecer lo suficiente como para exceder el límite de la pila del motor de JS, tendrás que reorganizar tus llamadas recursivas para aprovechar las LCA (o evitar llamadas anidadas por completo). Hay varias estrategias de refactorización que pueden ayudar, pero por supuesto hay que tener en cuenta los beneficios y desventajas de cada una.
 
-As a word of caution, always keep in mind that code readability is our overall most important goal. If recursion along with some combination of these following strategies results in harder to read/understand code, **don't use recursion**; find another more readable approach.
+Como advertencia, siempre ten en cuenta que la legibilidad del código es nuestro objetivo más importante en general. Si la recursión junto con alguna combinación de estas estrategias resulta en un código de mas dificil de leer/comprender, **no uses a la recursividad**; encuentra otro enfoque más legible.
 
-### Replacing The Stack
+### Reemplazando la Pila
 
-The main problem with recursion is its memory usage, keeping around the stack frames to track the state of a function call while it dispatches to the next recursive call iteration. If we can figure out how to rearrange our usage of recursion so that the stack frame doesn't need to be kept, then we can express recursion with PTC and take advantage of the JS engine's optimized handling of tail calls.
+El principal problema con la recursividad es su uso de memoria, manteniendo alrededor los marcos de pila para rastrear el estado de una llamada de función mientras se envía a la siguiente iteración de llamada recursiva. Si podemos descifrar cómo reorganizar el uso de la recursión para que no sea necesario mantener el marco de pila, entonces podemos expresar la recursión con LCA y aprovechar el manejo optimizado de las llamadas de cola con el motor de JavaScript.
 
-Let's recall the summation example from earlier:
+Recordemos el ejemplo de adición de antes:
 
 ```js
-function sum(num1,...nums) {
-    if (nums.length == 0) return num1;
-    return num1 + sum( ...nums );
+function suma(numero1,...numeros) {
+    if (numeros.length == 0) return numero1;
+    return numero1 + suma( ...numeros );
 }
 ```
 
-This isn't in PTC form because after the recursive call to `sum(...nums)` is finished, the `total` variable is added to that result. So, the stack frame has to be preserved to keep track of the `total` partial result while the rest of the recursion proceeds.
+Esto no está en formato de LCA porque después de que finaliza la llamada recursiva a `suma(...numeros)`, la variable `total` se agrega a ese resultado. Por lo tanto, el marco de pila debe conservarse para realizar un seguimiento del resultado parcial `total` mientras se desarrolla el resto de la recursión.
 
-The key recognition point for this refactoring strategy is that we could remove our dependence on the stack by doing the addition *now* instead of *after*, and then forward-passing that partial result as an argument to the recursive call. In other words, instead of keeping `total` in the current function's stack frame, push it into the stack frame of the next recursive call; that frees up the current stack frame to be removed/reused.
+El punto clave de reconocimiento para esta estrategia de refactorización es que podríamos eliminar nuestra dependencia de la pila haciendo la suma *ahora* en lugar de *después*, y luego reenviar ese resultado parcial como argumento a la llamada recursiva. En otras palabras, en lugar de mantener `total` en el marco de pila de la función actual, se empujaria en el marco de pila de la siguiente llamada recursiva; eso libera el marco de pila actual para ser removido/reutilizado.
 
-To start, we could alter the signature our `sum(..)` function to have a new first parameter as the partial result:
+Para empezar, podríamos alterar la firma de nuestra función `suma(..)` para tener un primer parámetro nuevo como resultado parcial:
 
 ```js
-function sum(result,num1,...nums) {
+function suma(resultado,numero1,...numeros) {
     // ..
 }
 ```
 
-Now, we should pre-calculate the addition of `result` and `num1`, and pass that along:
+Ahora, debemos precalcular la adición de `resultado` y `numero1`, y pasar eso como argumento:
 
 ```js
 "use strict";
 
-function sum(result,num1,...nums) {
-    result = result + num1;
-    if (nums.length == 0) return result;
-    return sum( result, ...nums );
+function suma(resultado,numero1,...numeros) {
+    resultado = resultado + numero1;
+    if (numeros.length == 0) return resultado;
+    return sum( resultado, ...numeros );
 }
 ```
 
-Now our `sum(..)` is in PTC form! Yay!
+¡Ahora nuestra `suma(..)` está en forma de LCA! ¡Hurra!
 
-But the downside is we now have altered the signature of the function that makes using it stranger. The caller essentially has to pass `0` as the first argument ahead of the rest of the numbers they want to sum.
+Pero la desventaja es que ahora hemos alterado la firma de la función lo que hace que usarla sea extraño. La persona que llama esencialmente tiene que pasar `0` como el primer argumento por delante del resto de los números que desee sumar.
 
 ```js
-sum( /*initialResult=*/0, 3, 1, 17, 94, 8 );        // 123
+suma( /*resultadoInicial=*/0, 3, 1, 17, 94, 8 );        // 123
 ```
 
-That's unfortunate.
+Eso es lamentable.
 
-Typically, people will solve this by naming their awkward-signature recursive function differently, then defining an interface function that hides the awkwardness:
-
-```js
-"use strict";
-
-function sumRec(result,num1,...nums) {
-    result = result + num1;
-    if (nums.length == 0) return result;
-    return sumRec( result, ...nums );
-}
-
-function sum(...nums) {
-    return sumRec( /*initialResult=*/0, ...nums );
-}
-
-sum( 3, 1, 17, 94, 8 );                             // 123
-```
-
-That's better. Still unfortunate that we've now created multiple functions instead of just one. Sometimes you'll see developers "hide" the recursive function as an inner function, like this:
+Típicamente, la gente resolverá esto al nombrar su función recursiva de una de forma diferente y algo torpe, y luego definir una función de interfaz que oculte la incomodidad:
 
 ```js
 "use strict";
 
-function sum(...nums) {
-    return sumRec( /*initialResult=*/0, ...nums );
+function sumaRecursiva(resultado,numero1,...numeros) {
+    resultado = resultado + numero1;
+    if (numeros.length == 0) return resultado;
+    return sumaRecursiva( resultado, ...numeros );
+}
 
-    function sumRec(result,num1,...nums) {
-        result = result + num1;
-        if (nums.length == 0) return result;
-        return sumRec( result, ...nums );
+function suma(...numeros) {
+    return sumaRecursiva( /*resultadoInicial=*/0, ...numeros );
+}
+
+suma( 3, 1, 17, 94, 8 );                             // 123
+```
+
+Eso es mejor. Aunque todavía es desafortunado que ahora hemos creado múltiples funciones en lugar de solo una. A veces veras que los desarrolladores "ocultan" la función recursiva como una función interna, como esta:
+
+```js
+"use strict";
+
+function suma(...numeros) {
+    return sumaRecursiva( /*resultadoInicial=*/0, ...numeros );
+
+    function sumaRecursiva(resultado,numero1,...numeros) {
+        resultado = resultado + numero1;
+        if (numeros.length == 0) return resultado;
+        return sumaRecursiva( resultado, ...numeros );
     }
 }
 
-sum( 3, 1, 17, 94, 8 );                             // 123
+suma( 3, 1, 17, 94, 8 );                             // 123
 ```
 
-The downside here is that we'll recreate that inner `sumRec(..)` function each time the outer `sum(..)` is called. So, we can go back to them being side-by-side functions, but hide them both inside an IIFE, and expose just the one we want to:
+La desventaja aquí es que recrearemos esa función interna `sumaRecursiva(..)` cada vez que se llame a la `suma(..)` externa. Entonces, podemos volver a ellas siendo funciones lado a lado, pero esconderlas dentro de un IIFE, y exponer solo lo que queremos:
 
 ```js
 "use strict";
 
-var sum = (function IIFE(){
+var suma = (function IIFE(){
 
-    return function sum(...nums) {
-        return sumRec( /*initialResult=*/0, ...nums );
+    return function suma(...numeros) {
+        return sumaRecursiva( /*resultadoInicial=*/0, ...numeros );
     }
 
-    function sumRec(result,num1,...nums) {
-        result = result + num1;
-        if (nums.length == 0) return result;
-        return sumRec( result, ...nums );
+    function sumaRecursiva(resultado,numero1,...numeros) {
+        resultado = resultado + numero1;
+        if (numeros.length == 0) return resultado;
+        return sumaRecursiva( resultado, ...numeros );
     }
 
 })();
 
-sum( 3, 1, 17, 94, 8 );                             // 123
+suma( 3, 1, 17, 94, 8 );                             // 123
 ```
 
-OK, we've got PTC and we've got a nice clean signature for our `sum(..)` that doesn't require the caller to know about our implementation details. Yay!
+Ok, tenemos LCA y tenemos una firma limpia para nuestra `suma(...)` que no requiere que la persona que llame a la funcion conozca nuestros detalles de implementación. ¡Hurra!
 
-But... wow, our simple recursive function has a lot more noise now. The readability has definitely been reduced. That's unfortunate to say the least. Sometimes, that's just the best we can do.
+Pero... wow, nuestra función recursiva simple ahora tiene mucho más ruido. La legibilidad definitivamente se ha reducido. Eso es desafortunado por decir lo menos. A veces, eso es lo mejor que podemos hacer.
 
-Luckily, in some other cases, like the present one, there's a better way. Let's reset back to this version:
+Afortunadamente, en otros casos, como en el presente, hay una mejor manera. Regresemos a esta versión:
 
 ```js
 "use strict";
 
-function sum(result,num1,...nums) {
-    result = result + num1;
-    if (nums.length == 0) return result;
-    return sum( result, ...nums );
+function suma(resultado,numero1,...numeros) {
+    resultado = resultado + numero1;
+    if (numeros.length == 0) return resultado;
+    return suma( resultado, ...numeros );
 }
 
-sum( /*initialResult=*/0, 3, 1, 17, 94, 8 );        // 123
+suma( /*resultadoInicial=*/0, 3, 1, 17, 94, 8 );        // 123
 ```
 
-What you might observe is that `result` is a number just like `num1`, which means that we can always treat the first number in our list as our running total; that includes even the first call. All we need is to rename those params to make this clear:
+Lo que puede observar es que `resultado` es un número como `numero1`, lo que significa que siempre podemos tratar el primer número de nuestra lista como nuestro total acumulado; eso incluye incluso la primera llamada. Todo lo que necesitamos es cambiar el nombre de esos parámetros para dejar esto en claro:
 
 ```js
 "use strict";
 
-function sum(num1,num2,...nums) {
-    num1 = num1 + num2;
-    if (nums.length == 0) return num1;
-    return sum( num1, ...nums );
+function suma(numero1,numero2,...numeros) {
+    numero1 = numero1 + numero2;
+    if (numeros.length == 0) return numero1;
+    return suma( numero1, ...numeros );
 }
 
-sum( 3, 1, 17, 94, 8 );                             // 123
+suma( 3, 1, 17, 94, 8 );                             // 123
 ```
 
-Awesome. That's much better, huh!? I think this pattern achieves a good balance between declarative/reasonable and performant.
+Increíble. Eso es mucho mejor, ¿eh? Creo que este patrón logra un buen equilibrio entre declarativo/razonable y rendimiento.
 
-Let's try refactoring with PTC once more, revisiting our earlier `maxEven(..)` (currently not PTC). We'll observe that similar to keeping the sum as the first argument, we can narrow the list of numbers one at a time, keeping the first argument as the highest even we've come across thus far.
+Intentemos refactorizar con LCA una vez más, revisitando nuestro anterior `parMaximo(..)` (actualmente no LCA). Observaremos que, similar a mantener la suma como el primer argumento, podemos reducir la lista de números de a uno a la vez, manteniendo el primer argumento como el más alto que hemos encontrado hasta ahora.
 
-For clarity, the algorithm strategy (similar to what we discussed earlier) we might use:
+Para mayor claridad, la estrategia del algoritmo (similar a lo que discutimos anteriormente) que podríamos usar:
 
-1. Start by comparing the first two numbers, `num1` and `num2`.
-2. Is `num1` even, and is `num1` greater than `num2`? If so, keep `num1`.
-3. If `num2` is even, keep it (store in `num1`).
-4. Otherwise, fall back to `undefined` (store in `num1`).
-5. If there are more `nums` to consider, recursively compare them to `num1`.
-6. Finally, just return whatever value is left in `num1`.
+1. Comience comparando los primeros dos números, `numero1` y `numero2`.
+2. ¿Es `numero1` par y es `numero1` mayor que `numero2`? Si es así, mantenga `numero1`.
+3. Si `numero2` es par, mantenlo (almacenar en `numero1`).
+4. De lo contrario, vuelva a `undefined` (almacenar en `numero1`).
+5. Si hay más `numeros` para considerar, recursivamente los comparas a `numero1`.
+6. Finalmente, solo devuelve el valor que quede en `numero1`.
 
-Our code can follow these steps almost exactly:
+Nuestro código puede seguir estos pasos casi exactamente:
 
 ```js
 "use strict";
 
-function maxEven(num1,num2,...nums) {
-    num1 =
-        (num1 % 2 == 0 && !(maxEven( num2 ) > num1)) ?
-            num1 :
-            (num2 % 2 == 0 ? num2 : undefined);
+function parMaximo(numero1,numero2,...numeros) {
+    numero1 =
+        (numero1 % 2 == 0 && !(parMaximo( numero2 ) > numero1)) ?
+            numero1 :
+            (numero2 % 2 == 0 ? numero2 : undefined);
 
-    return nums.length == 0 ?
-        num1 :
-        maxEven( num1, ...nums )
+    return numeros.length == 0 ?
+        numero1 :
+        parMaximo( numero1, ...numeros )
 }
 ```
 
-**Note:** The first `maxEven(..)` call is not in PTC position, but since it only passes in `num2`, it only recurses just that one level then returns right back out; this is only a trick to avoid repeating the `%` logic. As such, this call won't increase the growth of the recursive stack, any more than if that call was to an entirely different function. The second `maxEven(..)` call is the legitimate recursive call, and it is in fact in PTC position, meaning our stack won't grow as the recursion proceeds.
+**Nota:** La primera llamada a `parMaximo(..)` no está en posición de LCA, pero dado que solo pasa a `numero2`, solo recuenta ese solo nivel y luego vuelve a salir; esto es solo un truco para evitar repetir la lógica `%`. Como tal, esta llamada no aumentará el crecimiento de la pila recursiva, más que si esa llamada fuera a una función completamente diferente. La segunda llamada a `parMaximo(..)` es la llamada recursiva legítima, y ​​de hecho está en posición LCA, lo que significa que nuestra pila no crecerá a medida que avance la recursión.
 
-It should be repeated that this example is only to illustrate the approach to moving recursion to the PTC form to optimize the stack (memory) usage. The more direct way to express a max-even algorithm might indeed be a filtering of the `nums` list for evens first, followed then by a max bubbling or even a sort.
+Se debe repetir que este ejemplo es solo para ilustrar el enfoque de mover la recursión a la forma de LCA para optimizar el uso de la pila (memoria). La forma más directa de expresar un algoritmo de máximo par puede ser, de hecho, un filtrado de la lista `nums` para los pares primero, seguidos por un burbujeo máximo o incluso un sort.
 
-Refactoring recursion into PTC is admittedly a little intrusive on the simple declarative form, but it still gets the job done reasonably. Unfortunately, some kinds of recursion won't work well even with an interface function, so we'll need different strategies.
+Refactorizar la recursión en LCA es ciertamente un poco intrusivo en la forma declarativa simple, pero todavía hace el trabajo de una forma razonable. Desafortunadamente, algunos tipos de recursión no funcionarán bien incluso con una función de interfaz, por lo que necesitaremos diferentes estrategias.
 
-### Continuation Passing Style (CPS)
+### Estilo de Continuación de Paso (ECP)
 
-In JavaScript, the word *continuation* is often used to mean a function callback that specifies the next step(s) to execute after a certain function finishes its work. Organizing code so that each function receives another function to execute at its end, is referred to as Continuation Passing Style (CPS).
+En JavaScript, la palabra *continuation* a menudo se usa para referirse a una devolución de llamada de función que especifica los siguientes pasos para ejecutar después de que una determinada función finaliza su trabajo. Organizar el código para que cada función reciba otra función para ejecutar en su extremo, se conoce como Estilo de Continuación de Paso (ECP).
 
-Some forms of recursion cannot practically be refactored to pure PTC, especially multiple recursion. Recall the `fib(..)` function earlier, and even the mutual recursion form we derived. In both cases, there are multiple recursive calls, which effectively defeats PTC memory optimizations.
+Algunas formas de recursión prácticamente no pueden refactorizarse a ECP puro, especialmente la recursión múltiple. Recuerda la función `fib(..)` de antes, e incluso la forma recursiva mutua que derivamos. En ambos casos, hay múltiples llamadas recursivas, lo que efectivamente frustra las optimizaciones de la memoria ECP.
 
-However, you can perform the first recursive call, and wrap the subsequent recursive calls in a continuation function to pass into that first call. Even though this would mean ultimately many more functions will need to be executed in the stack, as long all of them, continuations included, are in PTC form, stack memory usage will not grow unbounded.
+Sin embargo, puedes realizar la primera llamada recursiva y ajustar las llamadas recursivas subsiguientes en una función de continuación para pasar a esa primera llamada. Aunque esto significaría, en última instancia, que se necesitarian ejecutar muchas más funciones en la pila, siempre que todas ellas, incluidas sus continuaciones, estén en formato ECP, el uso de la memoria de la pila no creceria sin límites.
 
-We could do this for `fib(..)`:
+Podríamos hacer esto para `fib(..)`:
 
 ```js
 "use strict";
 
-function fib(n,cont = identity) {
-    if (n <= 1) return cont( n );
+function fib(numero,continuacion = identidad) {
+    if (numero <= 1) return continuacion( numero );
     return fib(
-        n - 2,
-        n2 => fib(
-            n - 1,
-            n1 => cont( n2 + n1 )
+        numero - 2,
+        numero2 => fib(
+            numero - 1,
+            numero1 => continuacion( numero2 + numero1 )
         )
     );
 }
 ```
 
-Pay close attention to what's happening here. First, we default the `cont(..)` continuation function as our `identity(..)` utility from Chapter 3; remember, it simply returns whatever is passed to it.
+Presta mucha atención a lo que está sucediendo aquí. Primero, establecemos por defecto la función de continuación `continuacion(..)` como nuestra utilidad `identidad (..)` del Capítulo 3; recuerda, simplemente devuelve todo lo que se le pasa.
 
-Morever, not just one but two continuation functions are added to the mix. The first one receives the `n2` argument, which eventually receives the computation of the `fib(n-2)` value. The next inner continuation receives the `n1` argument, which eventually is the `fib(n-1)` value. Once both `n2` and `n1` values are known, they can be added together (`n2 + n1`), and that value is passed along to the next `cont(..)` continuation step.
+Además, no solo una, sino dos funciones de continuación se agregan a la mezcla. El primero recibe el argumento `numero2`, que finalmente recibe el cálculo del valor `fib(numero-2)`. La siguiente continuación interna recibe el argumento `numero1`, que finalmente es el valor `fib(n-1)`. Una vez que se conocen los valores `numero2` y `numero1`, pueden ser agregados entre ellos (`numero2 + numero1`), y ese valor se pasa al siguiente paso de continuación `continuacion(..)`.
 
-Perhaps this will help mentally sort out what's going on: just like in the previous discussion when we passed partial results along instead of returning them back after the recursive stack, we're doing the same here, but each step gets wrapped in a continuation, which defers its computation. That trick allows us to perform multiple steps where each is in PTC form.
+Tal vez esto ayude a resolver mentalmente lo que está sucediendo: al igual que en la discusión previa, cuando aprobamos resultados parciales en vez de devolverlos después de la pila recursiva, hacemos lo mismo aquí, pero cada paso queda envuelto en una continuación, que difiere su cálculo. Ese truco nos permite realizar varios pasos donde cada uno está en forma de ECP.
 
-In static languages, CPS is often an opportunity for tail calls the compiler can automatically identify and rearrange recursive code to take advantage of. Unfortunately, that doesn't really apply to the nature of JS.
+En los lenguajes estáticos, ECP es a menudo una oportunidad para realizar llamadas finales, el compilador puede identificar automáticamente y reorganizar el código recursivo para aprovechar esto. Desafortunadamente, eso no se aplica realmente a la naturaleza de JS.
 
-In JavaScript, you'd likely need to write the CPS form yourself. It's clunkier, for sure; the declarative notation-like form has certainly been obscured. But overall, this form is still more declarative than the `for`-loop imperative implementation.
+En JavaScript, es probable que necesites escribir en la forma de ECP por ti mismo. Es más dificil, seguro; la forma declarativa de notación se ha oscurecido. Pero, en general, esta forma es aún más declarativa que la implementación imperativa `for`-loop.
 
-**Warning:** One major caveat that should be noted is that in CPS, creating the extra inner continuation functions still consumes memory, but of a different sort. Instead of piling up stack frames, the closures just consume free memory (typically, from the heap). Engines don't seem to apply the `RangeError` limits in these cases, but that doesn't mean your memory usage is fixed in scale.
+**Advertencia:** Una advertencia importante que debe tenerse en cuenta es que en ECP, la creación de las funciones de continuación internas adicionales aún consume memoria, pero de un tipo diferente. En lugar de acumular marcos de pila, los cierres solo consumen memoria libre (normalmente, del montón). Los motores no parecen aplicar los límites de `RangeError` en estos casos, pero eso no significa que el uso de la memoria sea fijo en escala.
 
 ### Trampolines
 
-Where CPS creates continuations and passes them along, another technique for alleviating memory pressure is called trampolines. In this style of code, CPS-like continuations are created, but instead of passed in, they are shallowly returned.
+Donde ECP crea continuaciones y las transmite, otra técnica para aliviar la presión de la memoria se llama trampolines. En este estilo de código, se crean continuaciones similares a ECP, pero en lugar de pasarse, se devuelven superficialmente.
 
-Instead of functions calling functions, the stack never goes beyond depth of one, because each function just returns the next function that should be called. A loop simply keeps running each returned function until there are no more functions to run.
+En lugar de funciones que llaman a funciones, la pila nunca va más allá de la profundidad de uno, porque cada función simplemente devuelve la siguiente función que debería llamarse. Un ciclo simplemente sigue ejecutando cada función devuelta hasta que no haya más funciones para ejecutar.
 
-One advantage with trampolines is you aren't limited to environments that support PTC; another is that each function call is regular, not PTC optimized, so it may run quicker.
+Una ventaja de los trampolines es que no está limitado a entornos que admiten ECP; otra es que cada llamada de función es regular, no optimizada para ECP, por lo que puede ejecutarse más rápido.
 
-Let's sketch out a `trampoline(..)` utility:
+Vamos a esbozar una utilidad `trampolin(..)`:
 
 ```js
-function trampoline(fn) {
-    return function trampolined(...args) {
-        var result = fn( ...args );
+function trampolin(funciones) {
+    return function trampolinada(...argumentos) {
+        var resultado = funciones( ...argumentos );
 
-        while (typeof result == "function") {
-            result = result();
+        while (typeof resultado == "function") {
+            resultado = resultado();
         }
 
-        return result;
+        return resultado;
     };
 }
 ```
 
-As long as a function is returned, the loop keeps going, executing that function and capturing its return, then checking its type. Once a non-function comes back, the trampoline assumes the function calling is complete, and just gives back the value.
+Mientras se devuelve una función, el ciclo continúa, ejecuta esa función y captura su retorno, luego verifica su tipo. Una vez que regresa un valor no-funcional, el trampolín asume que la función de llamada está completa y simplemente devuelve el valor.
 
-Because each continuation needs to return another continuation, we'll need to use the earlier trick of forward-passing the partial result as an argument. Here's how we could use this utility with our earlier example of summation of a list of numbers:
+Como cada continuación necesita devolver otra continuación, necesitaremos usar el truco anterior de adelantar el resultado parcial como argumento. Así es como podríamos usar esta utilidad con nuestro ejemplo anterior de suma de una lista de números:
 
 ```js
-var sum = trampoline(
-    function sum(num1,num2,...nums) {
-        num1 = num1 + num2;
-        if (nums.length == 0) return num1;
-        return () => sum( num1, ...nums );
+var suma = trampolin(
+    function suma(numero1,numero2,...numeros) {
+        numero1 = numero1 + numero2;
+        if (numeros.length == 0) return numero1;
+        return () => suma( numero1, ...numeros );
     }
 );
 
@@ -678,21 +678,21 @@ for (let i=0; i<20000; i++) {
     xs.push( i );
 }
 
-sum( ...xs );                   // 199990000
+suma( ...xs );                   // 199990000
 ```
 
-The downside is that a trampoline requires you to wrap your recursive function in the trampoline driving function; moreover, just like CPS, closures are created for each continuation. However, unlike CPS, each continuation function returned runs and finishes right away, so the engine won't have to accumulate a growing amount of closure memory while the call stack depth of the problem is exhausted.
+La desventaja es que un trampolín requiere que envuelvas tu función recursiva en la función de conducción de trampolín; además, al igual que ECP, se crean cierres para cada continuación. Sin embargo, a diferencia de ECP, cada función de continuación devuelve ejecuciones y termina de inmediato, por lo que el motor no tendrá que acumular una cantidad creciente de memoria de cierre mientras se agota la profundidad de la pila de llamadas del problema.
 
-Beyond execution and memory performance, the advantage of trampolines over CPS is that they're less intrusive on the declarative recursion form, in that you don't have to change the function signature to receive a continuation function argument. Trampolines are not ideal, but they can be effective in your balancing act between imperative looping code and declarative recursion.
+Más allá de la ejecución y el rendimiento de la memoria, la ventaja de los trampolines sobre ECP es que son menos intrusivos en la forma de recursión declarativa, ya que no es necesario cambiar la firma de la función para recibir un argumento de función de continuación. Los trampolines no son ideales, pero pueden ser efectivos en su acto de equilibrio entre el código de bucle imperativo y la recursión declarativa.
 
-## Summary
+## Resumen
 
-Recursion is when a function recursively calls itself. Heh. A recursive definition for recursion. Get it!?
+Recursividad es cuando una función se llama recursivamente a sí misma. Je. Una definición recursiva de recursión. ¿¡Lo entiendes!?
 
-Direct recursion is a function that makes at least one call to itself, and it keeps dispatching to itself until it satisifies a base condition. Multiple recursion (like binary recursion) is when a function calls itself multiple times. Mutual recursion is when a two or more functions recursively loop by *mutually* calling each other.
+La recursión directa es una función que se hace al menos una llamada a sí misma, y ​​se sigue enviando a sí misma hasta que satisface una condición básica. La recursión múltiple (como la recursión binaria) ocurre cuando una función se llama a sí misma varias veces. La recursión mutua se produce cuando dos o más funciones recursivamente se llaman entre si *mutuamente*.
 
-The upside of recursion is that it's more declarative and thus typically more readable. The downside is usually performance, but more memory constraints even than execution speed.
+La ventaja de la recursión es que es más declarativa y, por lo tanto, generalmente más legible. La desventaja es generalmente el rendimiento, pero más con las restricciones de memoria que con la velocidad de ejecución.
 
-Tail calls alleviate the memory pressure by reusing/discarding stack frames. JavaScript requires strict mode and proper tail calls (PTC) to take advantage of this "optimization". There are several techniques we can mix-n-match to refactor a non-PTC recursive function to PTC form, or at least avoid the memory constraints by flattening the stack.
+Las llamadas de cola alivian la presión de memoria al reutilizar/descartar cuadros de pila. JavaScript requiere un modo estricto y llamadas de cola adecuadas (LCA) para aprovechar esta "optimización". Hay varias técnicas que podemos mezclar y combinar para refactorizar una función recursiva que no sea LCA a la forma LCA, o al menos evitar las restricciones de memoria al aplanar la pila.
 
-Remember: recursion should be used to make code more readable. If you misuse or abuse recursion, the readability will end up worse than the imperative form. Don't do that!
+Recuerda: la recursión debería usarse para hacer que el código sea más legible. Si usas mal o abusas de la recursividad, la legibilidad terminará peor que la forma imperativa. ¡No hagas eso!
