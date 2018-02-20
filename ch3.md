@@ -9,7 +9,7 @@ De hecho, para fines estilísticos de legibilidad, a veces querrás definir func
 
 Este tipo de técnicas son absolutamente esenciales para hacer que las funciones sean realmente *funcion*-ales.
 
-## Todos para uno
+## Todos Para Uno
 
 Imagine que estás pasando una función a una utilidad, donde la utilidad enviará múltiples argumentos a esa función. Pero es posible que desees que la función reciba un solo argumento.
 
