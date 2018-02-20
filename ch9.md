@@ -203,293 +203,293 @@ stringMap( letraMayuscula, "Hola Mundo!" );
 
 `stringMap(..)` le permite a un string que sea un functor. Puedes definir una función de mapeo para cualquier estructura de datos; siempre que la utilidad siga estas reglas, la estructura de datos es un functor.
 
-## Filter
+## Filtro
 
-Imagine I bring an empty basket with me to the grocery store to visit the fruit section; there's a big display of fruit (apples, oranges, and bananas). I'm really hungry so I want to get as much fruit as they have available, but I really only prefer the round fruits (apples and oranges). So I sift through each fruit one-by-one, and I walk away with a basket full of just the apples and oranges.
+Imagina que llevo una canasta vacía al supermercado para visitar la sección de frutas; hay una gran exhibición de frutas (manzanas, naranjas y plátanos). Tengo mucha hambre, así que quiero obtener tanta fruta como tengan disponible, pero realmente prefiero las frutas redondas (manzanas y naranjas). Así que examino cada fruta una por una, y me alejo con una canasta llena de solo manzanas y naranjas.
 
-Let's say we call this process *filtering*. Would you more naturally describe my shopping as starting with an empty basket and **filtering in** (selecting, including) only the apples and oranges, or starting with the full display of fruits and **filtering out** (skipping, excluding) the bananas as my basket is filled with fruit?
+Digamos que llamamos a este proceso *filtrado*. ¿Describiría mis compras de forma más natural como comenzando con una cesta vacía y **filtrando hacia adentro** (seleccionando, incluyendo) solo las manzanas y naranjas, o comenzando con la seleccion completa de frutas y **filtrando hacia afuera** (saltando, excluyendo) los plátanos con mi cesta está llena de fruta?
 
-If you cook spaghetti in a pot of water, and then pour it into a strainer (aka filter) over the sink, are you filtering in the spaghetti or filtering out the water? If you put coffee grounds into a filter and make a cup of coffee, did you filter in the coffee into your cup, or filter out the coffee grounds?
+Si cocinas pasta en una olla de agua y luego la viertes en un colador (también conocido como filtro) sobre el fregadero, ¿se están filtrando los espaguetis o se está filtrando el agua? Si colocas café molido en un filtro y preparas una taza de café, ¿filtras el café en hacia tu taza o filtras los trozos de café?
 
-Does your view of filtering depend on whether the stuff you want is "kept" in the filter or passes through the filter?
+¿Tu visión del filtrado depende de si lo que deseas se "mantiene" en el filtro o si pasa a través del filtro?
 
-What about on airline / hotel websites, when you specify options to "filter your results"? Are you filtering in the results that match your criteria, or are you filtering out everything that doesn't match? Think carefully: this example might have a different semantic than the previous ones.
+¿Qué hay acerca de los sitios web de aerolíneas/hoteles cuando especificas opciones para "filtrar los resultados"? ¿Estas filtrando los resultados que coinciden con tus criterios, o estás filtrando todo lo que no coincide? Piensa con cuidado: este ejemplo podría tener una semántica diferente a los anteriores.
 
-### Filtering Confusion
+### Confusión de Filtrado
 
-Depending on your perspective, filter is either exclusionary or inclusionary. This conceptual conflation is unfortunate.
+Según tu perspectiva, el filtro es excluyente o incluyente. Esta combinacion conceptual es desafortunada.
 
-I think the most common interpretation of filtering -- outside of programming, anyway -- is that you filter out unwanted stuff. Unfortunately, in programming, we have essentially flipped this semantic to be more like filtering in wanted stuff.
+Creo que la interpretación más común de filtrado -- al margen de la programación -- es que filtra las cosas no deseadas. Desafortunadamente, en la programación, básicamente hemos invertido esta semántica para ser más como filtrar las cosas deseadas.
 
-The `filter(..)` list operation takes a function to decide if each value in the original array should be in the new array or not. This function needs to return `true` if a value should make it, and `false` if it should be skipped. A function that returns `true` / `false` for this kind of decision making goes by the special name: predicate function.
+La operación de lista `filter(..)` toma una función para decidir si cada valor en el array original debe estar en el nuevo array o no. Esta función necesita devolver `true` si un valor debe ser incluido, y `false` si se debe omitir. Una función que devuelve `true`/`false` para este tipo de toma de decisiones se conoce con un nombre especial: función de predicado.
 
-If you think of `true` as being as a positive signal, the definition of `filter(..)` is that you are saying "keep" (to filter in) a value rather than saying "discard" (to filter out) a value.
+Si piensas en `true` como una señal positiva, la definición de `filter(..)` es que estás diciendo "mantener" (para filtrar hacia adentro) un valor en lugar de decir "descartar" (para filtrar hacia afuera) un valor.
 
-To use `filter(..)` as an exclusionary action, you have to twist your brain to think of positively signaling an exclusion by returning `false`, and passively letting a value pass through by returning `true`.
+Para usar `filter(..)` como una acción de exclusión, debes girar tu cerebro para pensar en señalar positivamente una exclusión al devolver `false`, y dejar pasar pasivamente un valor devolviendo `true`.
 
-The reason this semantic mismatch matters is because of how you will likely name the function used as `predicateFn(..)`, and what that means for the readability of code. We'll come back to this point shortly.
+La razón por la cual este desajuste semántico importa es por la forma en que probablemente nombres la función utilizada como `funcionPredicado(..)`, y lo que eso significa para la legibilidad del código. Volveremos a este punto en breve.
 
-Here's how to visualize a `filter(..)` operation across a list of values:
+A continuación se explica cómo visualizar una operación `filter(..)` en una lista de valores:
 
 <p align="center">
     <img src="fig10.png" width="400">
 </p>
 
-To implement `filter(..)`:
+Para implementar `filter(..)`:
 
 ```js
-function filter(predicateFn,arr) {
-    var newList = [];
+function filter(funcionPredicado,array) {
+    var nuevaLista = [];
 
-    for (let [idx,v] of arr.entries()) {
-        if (predicateFn( v, idx, arr )) {
-            newList.push( v );
+    for (let [index,valor] of array.entries()) {
+        if (funcionPredicado( valor, index, array )) {
+            nuevaLista.push( valor );
         }
     }
 
-    return newList;
+    return nuevaLista;
 }
 ```
 
-Notice that just like `mapperFn(..)` before, `predicateFn(..)` is passed not only the value but also the `idx` and `arr`. Use `unary(..)` to limit its arguments as necessary.
+Observa que al igual que `funcionMapeadora(..)` antes, a la `funcionPredicado(..)` se le pasa no solo el valor sino también `index` y `array`. Usa `unaria(..)` para limitar sus argumentos según sea necesario.
 
-Just as with `map(..)`, `filter(..)` is provided as a built-in utility on JS arrays.
+Al igual que con `map(..)`, `filter(..)` se proporciona como una utilidad ya incorporada en los arrays de JS.
 
-Let's consider a predicate function like this:
+Consideremos una función de predicado como esta:
 
 ```js
-var whatToCallIt = v => v % 2 == 1;
+var comoLlamarla = v => v % 2 == 1;
 ```
 
-This function uses `v % 2 == 1` to return `true` or `false`. The effect here is that an odd number will return `true`, and an even number will return `false`. So, what should we call this function? A natural name might be:
+Esta función usa `v % 2 == 1` para devolver `true` o `false`. El efecto aquí es que un número impar devolverá `true`, y un número par devolverá `false`. Entonces, ¿cómo deberíamos llamar a esta función? Un nombre natural podría ser:
 
 ```js
-var isOdd = v => v % 2 == 1;
+var esImpar = v => v % 2 == 1;
 ```
 
-Consider how you might use `isOdd(..)` with a simple value check somewhere in your code:
+Considere cómo podrías usar `esImpar(..)` con una simple comprobación de valor en algún lugar de tu código:
 
 ```js
-var midIdx;
+var indexMedio;
 
-if (isOdd( list.length )) {
-    midIdx = (list.length + 1) / 2;
+if (isOdd( lista.length )) {
+    indexMedio = (lista.length + 1) / 2;
 }
 else {
-    midIdx = list.length / 2;
+    indexMedio = lista.length / 2;
 }
 ```
 
-Makes sense, right? But, let's consider using it with the built-in array `filter(..)` to filter a list of values:
+Tiene sentido, ¿verdad? Pero, consideremos usarlo con el `filter(..)` de array integrado para filtrar una lista de valores:
 
 ```js
-[1,2,3,4,5].filter( isOdd );
+[1,2,3,4,5].filter( esImpar );
 // [1,3,5]
 ```
 
-If you described the `[1,3,5]` result, would you say, "I filtered out the even numbers", or would you say "I filtered in the odd numbers"? I think the former is a more natural way of describing it. But the code reads the opposite. The code reads, almost literally, that we "filtered (in) each number that is odd".
+Si describieras el resultado `[1,3,5]`, ¿dirías, "Filtré hacia afuera los números pares", o dirías "Filtré hacia adentro los números impares"? Creo que la primera opcion es la forma más natural de describir lo que paso. Pero el código se lee a lo contrario. El código lee, casi literalmente, que "filtramos (hacia adentro) cada número que es impar".
 
-I personally find this semantic confusing. There's no question there's plenty of precedent for experienced developers. But if you just start with a fresh slate, this expression of the logic seems kinda like not speaking without a double negative -- aka, speaking with a double negative.
+Personalmente encuentro esta semántica confusa. No hay duda de que hay muchos precedentes para desarrolladores experimentados. Pero si acabas de comenzar con un estado nuevo, esta expresión de la lógica parece algo así como no hablar sin un doble negativo -- también conocido como hablar con un doble negativo.
 
-We could make this easier by renaming the function from `isOdd(..)` to `isEven(..)`:
+Podríamos hacer esto más fácil cambiando el nombre de la función de `esImpar(..)` a `esPar(..)`:
 
 ```js
-var isEven = v => v % 2 == 1;
+var esPar = v => v % 2 == 1;
 
-[1,2,3,4,5].filter( isEven );
+[1,2,3,4,5].filter( esPar );
 // [1,3,5]
 ```
 
-Yay! But that function makes no sense with its name, in that it returns `false` when it's even:
+¡Hurra! Pero esa función no tiene sentido con su nombre, ya que devuelve `false` cuando es par:
 
 ```js
-isEven( 2 );        // false
+esPar( 2 );        // false
 ```
 
 Yuck.
 
-Recall that in "No Points" in Chapter 3, we defined a `not(..)` operator that negates a predicate function. Consider:
+Recuerde que en "Sin Puntos" en el Capítulo 3, definimos un operador `no(..)` que niega una función de predicado. Considera:
 
 ```js
-var isEven = not( isOdd );
+var esPar = no( esImpar );
 
-isEven( 2 );        // true
+esPar( 2 );        // true
 ```
 
-But we can't use *this* `isEven(..)` with `filter(..)` the way it's currently defined, because our logic will be reversed; we'll end up with evens, not odds. We'd need to do:
+Pero no podemos usar *este* `esPar(..)` con `filter(..)` como está actualmente definido, porque nuestra lógica se invertirá; terminaremos con pares, no con impares. Tendríamos que hacer:
 
 ```js
-[1,2,3,4,5].filter( not( isEven ) );
+[1,2,3,4,5].filter( no( esPar ) );
 // [1,3,5]
 ```
 
-That defeats the whole purpose, though, so let's not do that. We're just going in circles.
+Sin embargo, eso frustra todo el propósito, así que no hagamos eso. Estamos yendo en círculos.
 
-### Filtering-Out & Filtering-In
+### Filtrado-de-Salida y Filtrado-de-Entrada
 
-To clear up all this confusion, let's define a `filterOut(..)` that actually **filters out** values by internally negating the predicate check. While we're at it, we'll alias `filterIn(..)` to the existing `filter(..)`:
+Para aclarar toda esta confusión, definamos un `filtrarAfuera(..)` que en realidad **filtre hacia afuera** valores al negar internamente la comprobación de predicados. Mientras estamos en ello, le asignaremos el nombre `filtrarAdentro(..)` al `filter(..)` ya existente:
 
 ```js
-var filterIn = filter;
+var filtrarAdentro = filter;
 
-function filterOut(predicateFn,arr) {
-    return filterIn( not( predicateFn ), arr );
+function filtrarAfuera(funcionPredicado,array) {
+    return filtrarAdentro( no( funcionPredicado ), array );
 }
 ```
 
-Now we can use whichever filtering makes most sense at any point in our code:
+Ahora podemos usar cualquier filtro que tenga más sentido en cualquier punto de nuestro código:
 
 ```js
-isOdd( 3 );                             // true
-isEven( 2 );                            // true
+esImpar( 3 );                             // true
+esPar( 2 );                            // true
 
-filterIn( isOdd, [1,2,3,4,5] );         // [1,3,5]
-filterOut( isEven, [1,2,3,4,5] );       // [1,3,5]
+filtrarAdentro( esImpar, [1,2,3,4,5] );         // [1,3,5]
+filtrarAfuera( esPar, [1,2,3,4,5] );       // [1,3,5]
 ```
 
-I think using `filterIn(..)` and `filterOut(..)` (known as `reject(..)` in Ramda) will make your code a lot more readable than just using `filter(..)` and leaving the semantics conflated and confusing for the reader.
+Creo que el uso de `filtrarAdentro(..)` y `filtrarAfuera(..)` (conocido como `reject(..)` en Ramda) hará que tu código sea mucho más legible que el simple uso de `filter(..)` y dejando atras la semántica fusionada y confusa para el lector.
 
-## Reduce
+## Reducir
 
-While `map(..)` and `filter(..)` produce new lists, typically this third operator (`reduce(..)`) combines (aka "reduces") the values of a list down to a single finite (non-list) value, like a number or string. However, later in this chapter, we'll look at how you can push `reduce(..)` to use it in more advanced ways. `reduce(..)` is one of the most important FP tools; it's like a swiss army all-in-one knife with all its usefulness.
+Mientras `map(..)` y `filter(..)` producen nuevas listas, típicamente este tercer operador (`reduce(..)`) combina (también conocido como "reduce") los valores de una lista a un solo valor finito (no-lista), como un número o un string. Sin embargo, más adelante en este capítulo, veremos cómo puedes usar `reduce(..)` de formas más avanzadas. `reduce(..)` es una de las herramientas de Programacion-Funcional más importantes; es como un cuchillo todo en uno del ejército suizo con todas sus utilidades.
 
-A combination/reduction is abstractly defined as taking two values and making them into one value. Some FP contexts refer to this as "folding", as if you're folding two values together into one value. That's a helpful visualization, I think.
+Una combinación/reducción se define de forma abstracta como tomar dos valores y convertirlos en un solo valor. Algunos contextos de la PF se refieren a esto como "plegar", como si estuvieses doblando dos valores a un solo valor. Esa es una visualización útil, creo.
 
-Just like with mapping and filtering, the manner of the combination is entirely up to you, and generally dependent on the types of values in the list. For example, numbers will typically be combined through arithmetic, strings through concatenation, and functions through composition.
+Al igual que con el mapeo y el filtrado, la forma de la combinación depende totalmente de ti, y generalmente depende de los tipos de valores en la lista. Por ejemplo, los números se combinarán típicamente mediante aritmética, strings a través de concatenación y funciones a través de la composición.
 
-Sometimes a reduction will specify an `initialValue` and start its work by combining it with the first value in the list, cascading down through each of the rest of the values in the list. That looks like this:
+A veces, una reducción especificará un `valorInicial` y comenzará su trabajo combinándolo con el primer valor de la lista, descendiendo en cascada a través de cada uno de los demás valores de la lista. Eso se ve así:
 
 <p align="center">
     <img src="fig11.png" width="400">
 </p>
 
-Alternately, you can omit the `initialValue` in which case the first value of the list will act in place of the `initialValue` and the combining will start with the second value in the list, like this:
+Alternativamente, puedes omitir el `valorInicial`, en cuyo caso el primer valor de la lista actuará como el `valorInicial` y la combinación comenzará con el segundo valor de la lista, asi:
 
 <p align="center">
     <img src="fig12.png" width="400">
 </p>
 
-**Warning:** In JavaScript, if there's not at least one value in the reduction (either in the array or specified as `initialValue`), an error is thrown. Be careful not to omit the `initialValue` if the list for the reduction could possibly be empty under any circumstance.
+**Advertencia:** En JavaScript, si no hay al menos un valor en la reducción (ya sea en el array o especificado como `valorInicial`), se produce un error. Ten cuidado de no omitir el `valorInicial` si la lista para la reducción podría estar vacía en una circunstancia cualquiera.
 
-The function you pass to `reduce(..)` to perform the reduction is typically called a reducer. A reducer has a different signature from the mapper and predicate functions we looked at earlier. Reducers primarily receive the current reduction result as well as the next value to reduce it with. The current result at each step of the reduction is often referred to as the accumulator.
+La función que pasas a `reduce(..)` para realizar la reducción se le llama normalmente reductor. Un reductor tiene una firma diferente al mapeador y a las funciones de predicado que vimos anteriormente. Los reductores reciben principalmente el resultado de la reducción actual así como también el siguiente valor para reducirlo. Al resultado actual en cada paso de la reducción a menudo se le denomina acumulador.
 
-For example, consider the steps involved in multiply-reducing the numbers `5`, `10`, and `15`, with an `initialValue` of `3`:
+Por ejemplo, considera los pasos involucrados en multiplicar-reducir los números `5`, `10`, y `15`, con un `valorInicial` de `3`:
 
 1. `3` * `5` = `15`
 2. `15` * `10` = `150`
 3. `150` * `15` = `2250`
 
-Expressed in JavaScript using the built-in `reduce(..)` method on arrays:
+Expresado en JavaScript utilizando el método ya integrado `reduce(..)` en arays:
 
 ```js
-[5,10,15].reduce( (product,v) => product * v, 3 );
+[5,10,15].reduce( (producto,valor) => producto * valor, 3 );
 // 2250
 ```
 
-But a standalone implementation of `reduce(..)` might look like this:
+Pero una implementación independiente de `reduce(..)` podría verse así:
 
 ```js
-function reduce(reducerFn,initialValue,arr) {
-    var acc, startIdx;
+function reduce(funcionReductora,valorInicial,array) {
+    var acumulador, indexComienzo;
 
     if (arguments.length == 3) {
-        acc = initialValue;
-        startIdx = 0;
+        acumulador = valorInicial;
+        indexComienzo = 0;
     }
-    else if (arr.length > 0) {
-        acc = arr[0];
-        startIdx = 1;
+    else if (array.length > 0) {
+        acumulador = array[0];
+        indexComienzo = 1;
     }
     else {
-        throw new Error( "Must provide at least one value." );
+        throw new Error( "Debes proveer aunque sea un valor" );
     }
 
-    for (let idx = startIdx; idx < arr.length; idx++) {
-        acc = reducerFn( acc, arr[idx], idx, arr );
+    for (let index = indexComienzo; index < array.length; index++) {
+        acumulador = funcionReductora( acumulador, array[index], index, array );
     }
 
-    return acc;
+    return acumulador;
 }
 ```
 
-Just as with `map(..)` and `filter(..)`, the reducer function is also passed the lesser-common `idx` and `arr` arguments in case that's useful to the reduction. I would say I don't typically use these, but I guess it's nice to have them available.
+Al igual que con `map(..)` y `filter(..)`, la función reductora también pasa los argumentos `index` y `array` menos comunes en caso de que sean utiles para la reducción. Yo diría que normalmente no los utilizo, pero creo que es bueno tenerlos disponibles.
 
-Recall in Chapter 4, we discussed the `compose(..)` utility and showed an implementation with `reduce(..)`:
+Recordemos en el Capítulo 4, discutimos la utilidad `componer(..)` y mostramos una implementación con `reduce(..)`:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        return fns.reverse().reduce( function reducer(result,fn){
-            return fn( result );
-        }, result );
+function componer(...funciones) {
+    return function compuesta(resultado){
+        return funciones.reverse().reduce( function reductora(resultado,funcion){
+            return funcion( resultado );
+        }, resultado );
     };
 }
 ```
 
-To illustrate `reduce(..)`-based composition differently, consider a reducer that will compose functions left-to-right (like `pipe(..)` does), to use in an array chain:
+Para ilustrar la composición basada en `reduce(..)` de manera diferente, considera un reductor que compondrá funciones de izquierda a derecha (como `tuberia(..)`), para usar en una cadena de array:
 
 ```js
-var pipeReducer = (composedFn,fn) => pipe( composedFn, fn );
+var reductorDeTuberia = (funcionCompuesta,funcion) => tuberia( funcionCompuesta, funcion );
 
-var fn =
+var funcion =
     [3,17,6,4]
     .map( v => n => v * n )
-    .reduce( pipeReducer );
+    .reduce( reductorDeTuberia );
 
-fn( 9 );            // 11016  (9 * 3 * 17 * 6 * 4)
-fn( 10 );           // 12240  (10 * 3 * 17 * 6 * 4)
+funcion( 9 );            // 11016  (9 * 3 * 17 * 6 * 4)
+funcion( 10 );           // 12240  (10 * 3 * 17 * 6 * 4)
 ```
 
-`pipeReducer(..)` is unfortunately not point-free (see "No Points" in Chapter 3), but we can't just pass `pipe(..)` as the reducer itself, because it's variadic; the extra arguments (`idx` and `arr`) that `reduce(..)` passes to its reducer function would be problematic.
+`reductorDeTuberia (..)` desafortunadamente no está libre de puntos (ver "Sin Puntos" en el Capítulo 3), pero no podemos simplemente pasar `tuberia(..)` como el reductor en sí, porque es variadica; los argumentos adicionales (`index` y `array`) que `reduce(..)` pasa a su función reductora serían problemáticos.
 
-Earlier we talked about using `unary(..)` to limit a `mapperFn(..)` or `predicateFn(..)` to just a single argument. It might be handy to have a `binary(..)` that does something similar but limits to two arguments, for a `reducerFn(..)` function:
+Anteriormente hablamos sobre el uso de `unaria(..)` para limitar una `funcionMapeadora(..)` o una `funcionPredicado(..)` a un solo argumento. Puede ser útil tener un `binaria(..)` que hace algo similar pero limita a dos argumentos, para una función `funcionReductora(..)`:
 
 ```js
-var binary =
-    fn =>
-        (arg1,arg2) =>
-            fn( arg1, arg2 );
+var binaria =
+    funcion =>
+        (argumento1,argumento2) =>
+            funcion( argumento1, argumento2 );
 ```
 
-Using `binary(..)`, our previous example is a little cleaner:
+Usando `binaria (..)`, nuestro ejemplo anterior es un poco más limpio:
 
 ```js
-var pipeReducer = binary( pipe );
+var reductorDeTuberia = binaria( tuberia );
 
-var fn =
+var funcion =
     [3,17,6,4]
     .map( v => n => v * n )
-    .reduce( pipeReducer );
+    .reduce( reductorDeTuberia );
 
-fn( 9 );            // 11016  (9 * 3 * 17 * 6 * 4)
-fn( 10 );           // 12240  (10 * 3 * 17 * 6 * 4)
+funcion( 9 );            // 11016  (9 * 3 * 17 * 6 * 4)
+funcion( 10 );           // 12240  (10 * 3 * 17 * 6 * 4)
 ```
 
-Unlike `map(..)` and `filter(..)` whose order of passing through the array wouldn't actually matter, `reduce(..)` definitely uses left-to-right processing. If you want to reduce right-to-left, JavaScript provides a `reduceRight(..)`, with all other behaviors the same as `reduce(..)`:
+A diferencia de `map(..)` y `filter(..)` cuyo orden de pasar por el array en realidad no es importante, `reduce(..)` definitivamente usa el procesamiento de izquierda a derecha. Si deseas reducir de derecha a izquierda, JavaScript proporciona un `reduceRight(..)`, con todos los demás comportamientos iguales a `reduce (..)`:
 
 ```js
-var hyphenate = (str,char) => `${str}-${char}`;
+var colocarGuion = (string,caracter) => `${string}-${caracter}`;
 
-["a","b","c"].reduce( hyphenate );
+["a","b","c"].reduce( colocarGuion );
 // "a-b-c"
 
-["a","b","c"].reduceRight( hyphenate );
+["a","b","c"].reduceRight( colocarGuion );
 // "c-b-a"
 ```
 
-Where `reduce(..)` works left-to-right and thus acts naturally like `pipe(..)` in composing functions, `reduceRight(..)`'s right-to-left ordering is natural for performing a `compose(..)`-like operation. So, let's revisit `compose(..)` using `reduceRight(..)`:
+Donde `reduce(..)` funciona de izquierda a derecha y, por lo tanto, actúa naturalmente como `tuberia(..)` en las funciones de composición, `reduceRight(..)` de derecha a izquierda es natural para realizar una operacion similar a `componer(..)`. Entonces, revisitemos a `componer(..)` usando `reduceRight(..)`:
 
 ```js
-function compose(...fns) {
-    return function composed(result){
-        return fns.reduceRight( function reducer(result,fn){
-            return fn( result );
-        }, result );
+function componer(...funciones) {
+    return function compuesta(resultado){
+        return funciones.reduceRight( function reductora(resultado,funcion){
+            return funcion( resultado );
+        }, resultado );
     };
 }
 ```
 
-Now, we don't need to do `fns.reverse()`; we just reduce from the other direction!
+Ahora, no necesitamos hacer `funciones.reverse()`; ¡solo reducimos desde la otra dirección!
 
 ### Map As Reduce
 
