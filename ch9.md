@@ -1,207 +1,207 @@
-# Functional-Light JavaScript
-# Chapter 9: List Operations
+# JavaScript Funcionalmente-Ligero
+# Capítulo 9: Operaciones de Lista
 
-> If you can do something awesome, keep doing it repeatedly.
+> Si puedes hacer algo de una manera increíble, sigue haciéndolo repetidamente.
 
-We've already seen several brief references earlier in the text to some utilities that we now want to take a very close look at, namely `map(..)`, `filter(..)`, and `reduce(..)`. In JavaScript, these utilities are typically used as methods on the array (aka, "list") prototype, so we would naturally refer to them as array or list operations.
+Anteriormente ya hemos visto varias referencias breves en el texto a algunas utilidades que ahora queremos examinar muy de cerca, llamadas `map(..)`, `filter(..)`, y `reduce(..)`. En JavaScript, estas utilidades generalmente se utilizan como métodos en el prototipo de array (también conocido como una "lista"), por lo que naturalmente nos referiríamos a ellas como operaciones de arrays o listas.
 
-Before we talk about the specific array methods, we want to examine conceptually what these operations are used for. It's equally important in this chapter that you understand *why* list operations are important as it is to understand *how* list operations work. Make sure you approach this chapter with that detail in mind.
+Antes de hablar sobre los métodos de array específicos, queremos examinar conceptualmente para qué se usan estas operaciones. Es igualmente importante en este capítulo que comprendas *por que* las operaciones de listas son importantes, tanto como que comprendas *cómo* funcionan estas operaciones de listas. Asegúrete de abordar este capítulo con ese detalle en mente.
 
-The vast majority of common illustrations of these operations, both outside of this book and here in this chapter, depict trivial tasks performed on lists of values (like doubling each number in an array); it's a cheap and easy way to get the point across.
+La gran mayoría de las ilustraciones comunes de estas operaciones, tanto fuera de este libro como aquí en este capítulo, representan tareas triviales realizadas en listas de valores (como duplicar cada número en un array); es una manera barata y fácil de transmitir el mensaje.
 
-But don't just gloss over these simple examples and miss the deeper point. Some of the most important FP value in understanding list operations comes from being able to model a sequence of tasks -- a series of statements that wouldn't otherwise *look* like a list -- as a list operation instead of performing them individually.
+Pero no te limites a estos ejemplos simples y te pierdas el punto más profundo. Algo del valor más importante de la Programacion-Funcional-Funcional esta en entender que las operaciones de lista provienen de poder modelar una secuencia de tareas -- una serie de declaraciones que de otra manera *no se verían* como una lista -- como una operación de lista en lugar de realizarlas individualmente.
 
-This isn't just a trick to write more terse code. What we're after is to move from imperative to declarative style, to make the code patterns more readily recognizable and thus more readable.
+Esto no es solo un truco para escribir código más conciso. Lo que buscamos es pasar del estilo imperativo al declarativo, para que los patrones de código sean más fácilmente reconocibles y, por lo tanto, más legibles.
 
-But there's something **even more important to grasp**. With imperative code, each intermediate result in a set of calculations is stored in variable(s) through assignment. The more of these imperative patterns your code relies on, the harder it is to verify that there aren't mistakes -- in the logic, accidental mutation of values, or hidden side causes/effects lurking.
+Pero hay algo **aún más importante de entender**. Con el código imperativo, cada resultado intermedio en un conjunto de cálculos se almacena en variable(s) a través de la asignación. Cuantos más patrones imperativos tengas en tu código, más difícil de verificar sera que no haya errores -- en la lógica, la mutación accidental de valores o las causas/efectos ocultas se mantienen al acecho.
 
-By chaining and/or composing list operations together, the intermediate results are tracked implicitly and largely protected from these hazards.
+Al encadenar y/o componer operaciones de listas en conjunto, los resultados intermedios se rastrean implícitamente y en gran medida son protegidos de estos riesgos.
 
-**Note:** More than previous chapters, to keep the many following code snippets as brief as possible, we'll rely heavily on the ES6 `=>` form. However, my advice on `=>` from Chapter 2 still applies for general coding.
+**Nota:** Más que en los capítulos anteriores, para mantener los siguientes fragmentos de código lo más breves posible, confiaremos mucho en el forma `=>` de ES6 . Sin embargo, mi consejo sobre `=>` del Capítulo 2 todavía se aplica a la programacion en general.
 
-## Non-FP List Processing
+## Procesamiento de Listas No-PF
 
-As a quick preamble to our discussion in this chapter, I want to call out a few operations which may seem related to JavaScript arrays and FP list operations, but which aren't. These operations will not be covered here, because they are not consistent with general FP best practices:
+Como un rápido preámbulo de nuestra discusión en este capítulo, deseo mencionar algunas operaciones que pueden parecer relacionadas con los arrays de JavaScript y las operaciones de listas en la Programacion-Funcional, pero que no lo son. Estas operaciones no seran cubiertas aquí, porque no son consistentes con las mejores prácticas generales de la Programacion-Funcional:
 
 * `forEach(..)`
 * `some(..)`
 * `every(..)`
 
-`forEach(..)` is an iteration helper, but it's designed for each function call to operate with side effects; you can probably guess why that's not an endorsed FP list operation for our discussion!
+`forEach(..)` es un asistente de iteración, pero está diseñado para que cada llamada a función funcione con efectos secundarios; ¡probablemente puedas adivinar por qué esa no es una operación de lista respaldada por la Programacion-Funcional para nuestra discusión!
 
-`some(..)` and `every(..)` do encourage the use of pure functions (specifically, predicate functions like `filter(..)` does), but they inevitably reduce a list to a `true` / `false` result, essentially like a search or matching. These two utilities don't really fit the mold of how we want to model our code with FP, so we're going to skip covering them here.
+`some(..)` y `every(..)` fomentan el uso de funciones puras (específicamente, funciones predicativas al igual que `filter(..)` lo hace), pero inevitablemente reducen una lista a un resultado de `verdadero`/`falso`, esencialmente como una búsqueda o un pareo. Estas dos utilidades no se ajustan a la forma en que queremos modelar nuestro código con Programacion-Funcional, por lo que vamos a omitir su cobertura aquí.
 
 ## Map
 
-We'll start our exploration of FP list operations with one of the most basic and fundamental: `map(..)`.
+Comenzaremos nuestra exploración de las operaciones de lista de la Programacion-Funcional con una de las más básicas y fundamentales: `map(..)`.
 
-A mapping is a transformation from one value to another value. For example, if you start with the number `2` and you multiply it by `3`, you have mapped it to `6`. It's important to note that we're not talking about mapping transformation as implying *in-place* mutation or reassignment; rather mapping transformation projects a new value from one location to the other.
+Un mapeo es una transformación de un valor a otro. Por ejemplo, si comienzas con el número `2` y lo multiplicas por `3`, lo has mapeado a `6`. Es importante tener en cuenta que no estamos hablando de la transformación de mapeo como una mutación o reasignación *in situ*; en cambio, la transformación de mapeo proyecta un nuevo valor de una ubicación a otra.
 
-In other words:
+En otras palabras:
 
 ```js
 var x = 2, y;
 
-// transformation / projection
+// transformación / proyección
 y = x * 3;
 
-// mutation / reassignment
+// mutación / reasignación
 x = x * 3;
 ```
 
-If we define a function for this multiplying by `3`, that function acts as a mapping (transformer) function:
+Si definimos una función para esta multiplicación por `3`, esa función actúa como una función (transformadora) de mapeo:
 
 ```js
-var multipleBy3 = v => v * 3;
+var multiplicarPor3 = v => v * 3;
 
 var x = 2, y;
 
-// transformation / projection
-y = multiplyBy3( x );
+// transformación / proyección
+y = multiplicarPor3( x );
 ```
 
-We can naturally extend mapping from a single value transformation to a collection of values. `map(..)` is an operation that transforms all the values of a list as it projects them to a new list:
+Naturalmente, podemos extender el mapeo desde una única transformación de valores a una colección de valores. `map(..)` es una operación que transforma todos los valores de una lista a medida que los proyecta a una nueva lista:
 
 <p align="center">
     <img src="fig9.png" width="400">
 </p>
 
-To implement `map(..)`:
+Para implementar `map(..)`:
 
 ```js
-function map(mapperFn,arr) {
-    var newList = [];
+function map(funcionMapeadora,array) {
+    var listaNueva = [];
 
-    for (let [idx,v] of arr.entries()) {
-        newList.push(
-            mapperFn( v, idx, arr )
+    for (let [index,v] of array.entries()) {
+        listaNueva.push(
+            funcionMapeadora( v, index, array )
         );
     }
 
-    return newList;
+    return listaNueva;
 }
 ```
 
-**Note:** The parameter order `mapperFn, arr` may feel backwards at first, but this convention is much more common in FP libraries because it makes these utilities easier to compose (with currying).
+**Nota:** El orden de los parámetros `funcionMapeadora, array` puede sentirse al revés al principio, pero esta convención es mucho más común en las bibliotecas de PF porque hace que estas utilidades sean más fáciles de componer (con currying).
 
-The `mapperFn(..)` is naturally passed the list item to map/transform, but also an `idx` and `arr`. We're doing that to keep consistency with the built-in array `map(..)`. These extra pieces of information can be very useful in some cases.
+A la `funcionMapeadora(..)` se le pasa naturalmente el elemento de la lista para mapear/transformar, pero también un `index` y `array`. Lo estamos haciendo para mantener la coherencia con el `map(..)` ya integrado en array. Estos datos adicionales pueden ser muy útiles en algunos casos.
 
-But in other cases, you may want to use a `mapperFn(..)` that only the list item should be passed to, because the extra arguments might change its behavior. In "All For One" in Chapter 3, we introduced `unary(..)`, which limits a function to only accept a single argument (no matter how many are passed).
+Pero en otros casos, es posible que desees utilizar una `funcionMapeadora(..)` a la que solo se le debe pasar el elemento de la lista, ya que los argumentos adicionales pueden cambiar su comportamiento. En "Todos Para Uno" del Capítulo 3, presentamos a `unaria(..)`, que limita a una función para aceptar solo un único argumento (sin importar cuántos se pasen).
 
-Recall the example from Chapter 3 about limiting `parseInt(..)` to a single argument to be used safely as a `mapperFn(..)`:
+Recuerde el ejemplo del Capítulo 3 sobre la limitación de `parseInt(..)` a un único argumento para ser utilizado con seguridad como una `funcionMapeadora(..)`:
 
 ```js
-map( ["1","2","3"], unary( parseInt ) );
+map( ["1","2","3"], unaria( parseInt ) );
 // [1,2,3]
 ```
 
-JavaScript provides the `map(..)` utility built-in on arrays, making it very convenient to use as part of a chain of operations on a list.
+JavaScript proporciona la utilidad `map(..)` incorporada en los arrays, por lo que es muy conveniente usarla como parte de una cadena de operaciones en una lista.
 
-**Note:** The JavaScript array prototype operations (`map(..)`, `filter(..)`, and `reduce(..)`) all accept an optional last argument to use for `this` binding of the function. As we discussed in "What's This?" in Chapter 2, `this`-based coding should generally be avoided wherever possible in terms of being consistent with the best practices of FP. As such, our example implementations in this chapter do not support such a `this`-binding feature.
+**Nota:** Las operaciones del prototipo de array en JavaScript (`map(..)`, `filter(..)`, y `reduce(..)`) aceptan un último argumento opcional para usar para el enlace `this` de la función. Como discutimos en "¿Qué es esto?" en el Capítulo 2, la codificación basada en `this` debería generalmente evitarse siempre que sea posible en términos de coherencia con las mejores prácticas de la Programacion-Funcional. Como tal, nuestras implementaciones de ejemplo en este capítulo no son compatibles con la caracteristica de vincular `this`.
 
-Beyond the obvious numeric or string operations you could perform against a list of those respective value types, here's some other examples of mapping operations. We can use `map(..)` to transform a list of functions into a list of their return values:
+Más allá de las operaciones numéricas o de cadena obvias que podrías realizar en una lista con esos tipos de valores respectivos, aquí hay algunos otros ejemplos de operaciones de mapeo. Podemos usar `map(..)` para transformar una lista de funciones en una lista de sus valores de retorno:
 
 ```js
-var one = () => 1;
-var two = () => 2;
-var three = () => 3;
+var uno = () => 1;
+var dos = () => 2;
+var tres = () => 3;
 
-[one,two,three].map( fn => fn() );
+[uno,dos,tres].map( fn => fn() );
 // [1,2,3]
 ```
 
-Or we can first transform a list of functions by composing each of them with another function, and then execute them:
+O podemos primero transformar una lista de funciones al componer cada una de ellas con otra función y luego ejecutarlas:
 
 ```js
-var increment = v => ++v;
-var decrement = v => --v;
-var square = v => v * v;
+var incremento = v => ++v;
+var decremento = v => --v;
+var cuadrado = v => v * v;
 
-var double = v => v * 2;
+var doble = v => v * 2;
 
-[increment,decrement,square]
-.map( fn => compose( fn, double ) )
+[incremento,decremento,cuadrado]
+.map( fn => compose( fn, doble ) )
 .map( fn => fn( 3 ) );
 // [7,5,36]
 ```
 
-Something interesting to observe about `map(..)`: we typically would assume that the list is processed left-to-right, but there's nothing about the concept of `map(..)` that really requires that. Each transformation is supposed to be independent of every other transformation.
+Algo interesante de observar sobre `map(..)`: normalmente asumiríamos que la lista se procesa de izquierda a derecha, pero no hay nada sobre el concepto de `map(..)` que realmente lo requiera. Se supone que cada transformación es independiente de cualquier otra transformación.
 
-Mapping in a general sense could even been parallelized in an environment that supports that, which for a large list could drastically improve performance. We don't see JavaScript actually doing that because there's nothing that requires you to pass a pure function as `mapperFn(..)`, even though you **really ought to**. If you were to pass an impure function and JS were to run different calls in different orders, it would quickly cause havoc.
+El mapeo en un sentido general podría incluso ser paralelizado en un entorno que lo respalde, lo que para una gran lista podría mejorar drásticamente el rendimiento. No vemos que JavaScript realmente lo haga porque no hay nada que requiera que pases una función pura como `funcionMapeadora(..)`, aunque **realmente deberías hacerlo**. Si pasaras una función impura y JS ejecutara llamadas diferentes en diferentes órdenes, causaría estragos rápidamente.
 
-Even though theoretically, individual mapping operations are independent, JS has to assume that they're not. That's a bummer.
+Aunque teóricamente, las operaciones de mapeo individuales son independientes, JS tiene que asumir que no lo son. Eso es un fastidio.
 
-### Sync vs Async
+### Sincrónica vs Asincrónica (Sync vs Async)
 
-The list operations we're discussing in this chapter all operate synchronously on a list of values that are all already present; `map(..)` as conceived here is an eager operation. But another way of thinking about the mapper function is as an event handler which is invoked for each new value encountered in the list.
+Las operaciones de lista que estamos discutiendo en este capítulo operan sincrónicamente en una lista de valores que ya están todos presentes; `map(..)` como se concibe aquí es una operación ansiosa. Pero otra forma de pensar acerca de la función del asignador es como un controlador de eventos que se invoca para cada nuevo valor encontrado en la lista.
 
-Imagine something fictional like this:
+Imagina algo ficticio como esto:
 
 ```js
-var newArr = arr.map();
+var nuevoArray = array.map();
 
-arr.addEventListener( "value", multiplyBy3 );
+array.addEventListener( "valor", multiplicarPor3 );
 ```
 
-Now, any time a value is added to `arr`, the `multiplyBy3(..)` event handler -- mapper function -- is called with the value, and its transformation is added to `newArr`.
+Ahora, cada vez que se agrega un valor a `array`, se llama al manejador de eventos `multiplicarPor3(..)` -- función mapeadora -- con su valor y su transformación se agrega a `nuevoArray`.
 
-What we're hinting at is that arrays, and the array operations we perform on them, are the eager synchronous versions, whereas these same operations can also be modeled on a "lazy list" (aka, stream) that receives its values over time. We'll dive into this topic in Chapter 10.
+Lo que estamos insinuando es que los array y las operaciones de array que realizamos en ellos son las ansiosas versiones sincrónicas, mientras que estas mismas operaciones también se pueden modelar en una "lista diferida" (en otras palabras, una transmisión) que recibe sus valores a lo largo del tiempo. Nos adentraremos a ese tema en el Capítulo 10.
 
 ### Mapping vs Eaching
 
-Some advocate using `map(..)` as a general form of `forEach(..)`-iteration, where essentially the value received is passed through untouched, but then some side-effect can be performed:
+Algunos defienden el uso de `map(..)` como una forma general de iteracion-`forEach (..)`, donde esencialmente el valor recibido se pasa sin ser tocado, pero luego se puede realizar algún efecto secundario:
 
 ```js
 [1,2,3,4,5]
-.map( function mapperFn(v){
-    console.log( v );           // side effect!
+.map( function funcionMapeadora(v){
+    console.log( v );           // efecto secundario!
     return v;
 } )
 ..
 ```
 
-The reason this technique can seem useful is that the `map(..)` returns the array so you can keep chaining more operations after it; the return value of `forEach(..)` is `undefined`. However, I think you should avoid using `map(..)` in this way, because it's a net confusion to use a core FP operation in a decidedly un-FP way.
+La razón por la cual esta técnica puede parecer útil es que el `map(..)` devuelve el array para que puedas seguir encadenando más operaciones después de ella; el valor de retorno de `forEach(..)` es `undefined`. Sin embargo, creo que debería evitar el uso de `map(..)` de esta manera, porque es una confusión neta utilizar una basica operación de la PF de una manera decididamente no PF.
 
-You've heard the old addage about using the right tool for the right job, right? Hammer for a nail, screwdriver for a screw, etc. This is slightly different: it's use the right tool *in the right way*.
+Has escuchado la vieja costumbre de usar la herramienta adecuada para el trabajo correcto, ¿verdad? Martillo para clavo, destornillador para tornillo, etc. Esto es ligeramente diferente: se usa la herramienta correcta *de la manera correcta*.
 
-A hammer is meant to be swung in your hand; if you instead hold it in your mouth and try to hammer the nail, you're not gonna be very effective. `map(..)` is intended to map values, not create side effects.
+Un martillo debe balancearse en tu mano; si, en cambio, lo sostienes en la boca e intentas martillar el clavo, no serás muy efectivo. `map(..)` está destinado a mapear valores, no a crear efectos secundarios.
 
-### A Word: Functors
+### Una Palabra: Functores
 
-We've mostly tried to stay away from invented terminology in FP as much as possible in this book. We have used official terms at times, but mostly when we can derive some sense of meaning from them in regular everyday conversation.
+En la mayoría de los casos, en este libro intentamos alejarnos de la terminología inventada en la PF. Hemos utilizado términos oficiales a veces, pero mas que todo cuando podemos derivar un sentido de significado de ellos en la conversación cotidiana.
 
-I'm going to very briefly break that pattern and use a word that might be a little intimidating: functor. The reason I want to talk about functors here is because we now already understand what they do, and because that term is used heavily throughout the rest of FP literature; indeed, functors are foundational ideas in FP that come straight from the mathematical principles (category theory). You being at least familiar with and not scared by this term will be beneficial.
+Voy a romper muy brevemente ese patrón y usar una palabra que podría ser un poco intimidante: functor. La razón por la que quiero hablar sobre functores aquí es porque ahora ya entendemos lo que hacen, y porque ese término se usa mucho en el resto de la literatura de la PF; de hecho, los functores son ideas fundamentales en la PF que vienen directamente de los principios matemáticos (teoría de categorías). Al menos estar familiarizado y no asustado por este término será beneficioso.
 
-A functor is a value that has a utility for using an operator function on that value, which preserves composition.
+Un functor es un valor que tiene una utilidad para usar una función de operador en ese valor, que conserva la composición.
 
-If the value in question is compound, meaning it's comprised of individual values -- as is the case with arrays, for example! -- a functor uses the operator function on each individual value. Moreover, the functor utility creates a new compound value holding the results of all the individual operator function calls.
+Si el valor en cuestión es compuesto, lo que significa que está compuesto de valores individuales, como es el caso de los arrays, por ejemplo! -- un functor usa la función de operador en cada valor individual. Además, la utilidad del functor crea un nuevo valor compuesto que contiene los resultados de todas las llamadas a funciones del operador individual.
 
-This is all a fancy way of describing what we just looked at with `map(..)`. The `map(..)` function takes its associated value (an array) and a mapping function (the operator function), and executes the mapping function for each individual value in the array. Finally, it returns a new array with all the newly mapped values in it.
+Esta es toda una manera elegante de describir lo que acabamos de ver con `map(..)`. La función `map(..)` toma su valor asociado (un array) y una función de mapeo (la función del operador), y ejecuta la función de mapeo para cada valor individual en el array. Finalmente, devuelve un nuevo array con todos los valores recién mapeados.
 
-Another example: a string functor would be a string plus a utility that executes some operator function across all the characters in the string, returning a new string with the processed letters. Consider this highly-contrived example:
+Otro ejemplo: un functor de string sería una string más una utilidad que ejecuta una función de operador en todos los caracteres del string, devolviendo un nuevo string con las letras procesadas. Considere este ejemplo altamente artificial:
 
 ```js
-function uppercaseLetter(c) {
-    var code = c.charCodeAt( 0 );
+function letraMayuscula(c) {
+    var codigo = c.charCodeAt( 0 );
 
-    // lowercase letter?
-    if (code >= 97 && code <= 122) {
-        // uppercase it!
-        code = code - 32;
+    // letra minuscula?
+    if (codigo >= 97 && codigo <= 122) {
+        // ponla en mayuscula!
+        codigo = codigo - 32;
     }
 
-    return String.fromCharCode( code );
+    return String.fromCharCode( codigo );
 }
 
-function stringMap(mapperFn,str) {
-    return [...str].map( mapperFn ).join( "" );
+function stringMap(funcionMapeadora,string) {
+    return [...string].map( funcionMapeadora ).join( "" );
 }
 
-stringMap( uppercaseLetter, "Hello World!" );
-// HELLO WORLD!
+stringMap( letraMayuscula, "Hola Mundo!" );
+// HOLA MUNDO!
 ```
 
-`stringMap(..)` allows a string to be a functor. You can define a mapping function for any data structure; as long as the utility follows these rules, the data structure is a functor.
+`stringMap(..)` le permite a un string que sea un functor. Puedes definir una función de mapeo para cualquier estructura de datos; siempre que la utilidad siga estas reglas, la estructura de datos es un functor.
 
 ## Filter
 
