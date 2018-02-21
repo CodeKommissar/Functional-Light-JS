@@ -491,135 +491,135 @@ function componer(...funciones) {
 
 Ahora, no necesitamos hacer `funciones.reverse()`; ¡solo reducimos desde la otra dirección!
 
-### Map As Reduce
+### Map Como Reduce
 
-The `map(..)` operation is iterative in its nature, so it can also be represented as a reduction (`reduce(..)`). The trick is to realize that the `initialValue` of `reduce(..)` can be itself an (empty) array, in which case the result of a reduction can be another list!
+La operación `map(..)` es iterativa en su naturaleza, por lo que también se puede representar como una reducción (`reduce(..)`). El truco es darse cuenta de que el `valorInicial` de `reduce(..)` puede ser un array (vacio), en cuyo caso el resultado de una reducción puede ser otra lista!
 
 ```js
-var double = v => v * 2;
+var doble = v => v * 2;
 
-[1,2,3,4,5].map( double );
+[1,2,3,4,5].map( doble );
 // [2,4,6,8,10]
 
 [1,2,3,4,5].reduce(
-    (list,v) => (
-        list.push( double( v ) ),
-        list
+    (lista,v) => (
+        lista.push( doble( v ) ),
+        lista
     ), []
 );
 // [2,4,6,8,10]
 ```
 
-**Note:** We're cheating with this reducer and allowing a side effect by allowing `list.push(..)` to mutate the list that was passed in. In general, that's not a good idea, obviously, but since we know the `[]` list is being created and passed in, it's less dangerous. You could be more formal -- yet less performant! -- by creating a new list with the val `concat(..)`d onto the end. We'll come back to this cheat in Appendix A.
+**Nota:** Estamos haciendo trampa con este reductor y permitiendo un efecto secundario al permitir que `lista.push(..)` mute la lista que se pasó. En general, esa no es una buena idea, obviamente, pero ya que sabemos que la lista `[]` se está creando y transfiriendo, es menos peligroso. Podrías ser más formal -- pero menos eficiente! -- creando una nueva lista usando `concat(..)` para añadir el valor al final de la lista. Volveremos a este truco en el Apéndice A.
 
-Implementing `map(..)` with `reduce(..)` is not on its surface an obvious step or even an improvement. However, this ability will be a crucial recognition for more advanced techniques like those we'll cover in Appendix A "Transducing".
+Implementar `map (..)` con `reduce(..)` no es en su superficie un paso obvio o incluso una mejora. Sin embargo, esta capacidad será un reconocimiento crucial para técnicas más avanzadas como las que cubriremos en el Apéndice A "Transducción".
 
-### Filter As Reduce
+### Filter Como Reducir
 
-Just as `map(..)` can be done with `reduce(..)`, so can `filter(..)`:
+Así como `map(..)` se puede hacer con `reduce(..)`, también `filter(..)`:
 
 ```js
-var isOdd = v => v % 2 == 1;
+var esImpar = v => v % 2 == 1;
 
-[1,2,3,4,5].filter( isOdd );
+[1,2,3,4,5].filter( esImpar );
 // [1,3,5]
 
 [1,2,3,4,5].reduce(
-    (list,v) => (
-        isOdd( v ) ? list.push( v ) : undefined,
-        list
+    (lista,v) => (
+        esImpar( v ) ? lista.push( v ) : undefined,
+        lista
     ), []
 );
 // [1,3,5]
 ```
 
-**Note:** More impure reducer cheating here. Instead of `list.push(..)`, we could have done `list.concat(..)` and returned the new list. We'll come back to this cheat in Appendix A.
+**Nota:** Más engaños con un reductor impuro aquí. En lugar de `lista.push(..)`, podríamos haber usado `lista.concat(..)` y devolver la nueva lista. Volveremos a este truco en el Apéndice A.
 
-## Advanced List Operations
+## Operaciones de Lista Avanzadas
 
-Now that we feel somewhat comfortable with the foundational list operations `map(..)`, `filter(..)`, and `reduce(..)`, let's look at a few more-sophisticated operations you may find useful in various situations. These are generally utilities you'll find in various FP libraries.
+Ahora que nos sentimos algo cómodos con las operaciones de la lista fundamentales `map(..)`, `filter(..)`, y `reduce(..)`, veamos algunas operaciones más sofisticadas que pueden ser útiles en varias situaciones Por lo general, se tratan de utilidades que encontrarás en varias librerias de PF.
 
-### Unique
+### Unica
 
-Filtering a list to include only unique values, based on `indexOf(..)` searching ( which uses `===` strict equality comparision):
+Filtrar una lista para incluir solo valores únicos, basandonos ​​en una búsqueda con `indexOf(..)` (que usa `===` comparación de igualdad estricta):
 
 ```js
-var unique =
-    arr =>
-        arr.filter(
-            (v,idx) =>
-                arr.indexOf( v ) == idx
+var unica =
+    array =>
+        array.filter(
+            (v,index) =>
+                array.indexOf( v ) == index
         );
 ```
 
-This technique works by observing that we should only include the first occurrence of an item from `arr` into the new list; when running left-to-right, this will only be true if its `idx` position is the same as the `indexOf(..)` found position.
+Esta técnica funciona al observar que solo debemos incluir la primera aparición de un elemento de `array` en la nueva lista; cuando se ejecuta de izquierda a derecha, esto solo será cierto si su posición `index` es la misma que la posición encontrada `indexOf(..)`.
 
-Another way to implement `unique(..)` is to run through `arr` and include an item into a new (initially empty) list if that item cannot already be found in the new list. For that processing, we use `reduce(..)`:
+Otra forma de implementar `unica(..)` es ejecutar a través de `array` e incluir un elemento en una lista nueva (inicialmente vacía) si ese elemento no se puede encontrar en la nueva lista. Para ese procesamiento, usamos `reduce(..)`:
 
 ```js
-var unique =
-    arr =>
-        arr.reduce(
-            (list,v) =>
-                list.indexOf( v ) == -1 ?
-                    ( list.push( v ), list ) : list
+var unica =
+    array =>
+        array.reduce(
+            (lista,v) =>
+                lista.indexOf( v ) == -1 ?
+                    ( lista.push( v ), lista ) : lista
         , [] );
 ```
 
-**Note:** There are many other ways to implement this algorithm using more imperative approaches like loops, and many of them are likely "more efficient" performance-wise. However, the advantage of either of these presented approaches is that they use existing built-in list operations, which makes them easier to chain/compose alongside other list operations. We'll talk more about those concerns later in this chapter.
+**Nota:** Hay muchas otras maneras de implementar este algoritmo usando enfoques más imperativos como bucles, y muchos de ellos son probablemente "más eficientes" en cuanto al rendimiento. Sin embargo, la ventaja de cualquiera de estos enfoques presentados es que usan operaciones de lista existentes ya incorporadas, lo que las hace más fáciles de encadenar/componer junto con otras operaciones de lista. Hablaremos más sobre esas preocupaciones más adelante en este capítulo.
 
-`unique(..)` nicely produces a new list with no duplicates:
+`unica(..)` produce una nueva lista sin duplicados:
 
 ```js
-unique( [1,4,7,1,3,1,7,9,2,6,4,0,5,3] );
+unica( [1,4,7,1,3,1,7,9,2,6,4,0,5,3] );
 // [1, 4, 7, 3, 9, 2, 6, 0, 5]
 ```
 
-### Flatten
+### Aplanar
 
-From time to time, you may have (or produce through some other operations) an array that's not just a flat list of values, but with nested arrays, such as:
+De vez en cuando, puedes tener (o producir a través de otras operaciones) un array que no es solo una lista plana de valores, sino arrays anidados, como por ejemplo:
 
 ```js
 [ [1, 2, 3], 4, 5, [6, [7, 8]] ]
 ```
 
-What if you'd like to transform it into:
+¿Qué pasa si quieres transformarlo en:
 
 ```js
 [ 1, 2, 3, 4, 5, 6, 7, 8 ]
 ```
 
-The operation we're looking for is typically called `flatten(..)`, and it could be implemented like this using our swiss army knife `reduce(..)`:
+La operación que estamos buscando se suele llamar `aplanar(..)`, y podría implementarse así usando nuestra navaja suiza llamada `reduce(..)`:
 
 ```js
-var flatten =
-    arr =>
-        arr.reduce(
-            (list,v) =>
-                [ ...list, Array.isArray( v ) ? flatten( v ) : v ]
+var aplanar =
+    array =>
+        array.reduce(
+            (lista,v) =>
+                [ ...lista, Array.isArray( v ) ? aplanar( v ) : v ]
         , [] );
 ```
 
-**Note:** This implementation choice relies on recursion as we saw in Chapter 8.
+**Nota:** Esta elección de implementación depende de la recursividad, como vimos en el Capítulo 8.
 
-To use `flatten(..)` with an array of arrays (of any nested depth):
+Para usar `aplanar(..)` con un array de arrays (de cualquier profundidad anidada):
 
 ```js
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]] );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]] );
 // [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
 ```
 
-You might like to limit the recursive flattening to a certain depth. We can handle this by adding an optional `depth` limit argument to the implementaiton:
+Es posible que desees limitar el aplanamiento recursivo a una cierta profundidad. Podemos manejar esta situacion agregando un argumento de límite de `profundidad` opcional en la implementación:
 
 ```js
-var flatten =
-    (arr,depth = Infinity) =>
-        arr.reduce(
-            (list,v) =>
-                [ ...list,
-                    depth > 0 ?
-                        (depth > 1 && Array.isArray( v ) ?
-                            flatten( v, depth - 1 ) :
+var aplanar =
+    (array,profundidad = Infinity) =>
+        array.reduce(
+            (lista,v) =>
+                [ ...lista,
+                    profundidad > 0 ?
+                        (profundidad > 1 && Array.isArray( v ) ?
+                            aplanar( v, profundidad - 1 ) :
                             v
                         ) :
                         [v]
@@ -627,25 +627,25 @@ var flatten =
         , [] );
 ```
 
-Illustrating the results with different flattening depths:
+Ilustrando los resultados con diferentes profundidades de aplanamiento:
 
 ```js
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 0 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 0 );
 // [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]]
 
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 1 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 1 );
 // [0,1,2,3,4,[5,6,7],[8,[9,[10,[11,12],13]]]]
 
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 2 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 2 );
 // [0,1,2,3,4,5,6,7,8,[9,[10,[11,12],13]]]
 
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 3 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 3 );
 // [0,1,2,3,4,5,6,7,8,9,[10,[11,12],13]]
 
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 4 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 4 );
 // [0,1,2,3,4,5,6,7,8,9,10,[11,12],13]
 
-flatten( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 5 );
+aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 5 );
 // [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
 ```
 
