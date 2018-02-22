@@ -649,99 +649,99 @@ aplanar( [[0,1],2,3,[4,[5,6,7],[8,[9,[10,[11,12],13]]]]], 5 );
 // [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
 ```
 
-#### Mapping, Then Flattening
+#### Mapear, Luego Aplanar
 
-One of the most common usages of `flatten(..)` behavior is when you've mapped a list of elements where each transformed value from the original list is now itself a list of values. For example:
+Uno de los usos más comunes del comportamiento de `aplanar(..)` es cuando has mapeado una lista de elementos donde cada valor transformado de la lista original ahora es una lista de valores. Por ejemplo:
 
 ```js
-var firstNames = [
-    { name: "Jonathan", variations: [ "John", "Jon", "Jonny" ] },
-    { name: "Stephanie", variations: [ "Steph", "Stephy" ] },
-    { name: "Frederick", variations: [ "Fred", "Freddy" ] }
+var primerosNombres = [
+    { nombre: "Jonathan", variaciones: [ "John", "Jon", "Jonny" ] },
+    { nombre: "Stephanie", variaciones: [ "Steph", "Stephy" ] },
+    { nombre: "Frederick", variaciones: [ "Fred", "Freddy" ] }
 ];
 
-firstNames
-.map( entry => [ entry.name, ...entry.variations ] );
+primerosNombres
+.map( entrada => [ entrada.nombre, ...entrada.variaciones ] );
 // [ ["Jonathan","John","Jon","Jonny"], ["Stephanie","Steph","Stephy"],
 //   ["Frederick","Fred","Freddy"] ]
 ```
 
-The return value is an array of arrays, which might be more awkward to work with. If we want a single dimension list with all the names, we can then `flatten(..)` that result:
+El valor de retorno es un array de arrays, lo cual podría ser más difícil de trabajar. Si queremos una lista de una sola dimensión con todos los nombres, podemos `aplanar(..)` ese resultado:
 
 ```js
-flatten(
-    firstNames
-    .map( entry => [ entry.name, ...entry.variations ] )
+aplanar(
+    primerosNombres
+    .map( entrada => [ entrada.nombre, ...entrada.variaciones ] )
 );
 // ["Jonathan","John","Jon","Jonny","Stephanie","Steph","Stephy","Frederick",
 //  "Fred","Freddy"]
 ```
 
-Besides being slightly more verbose, the disadvantage of doing the `map(..)` and `flatten(..)` as separate steps is primarily around performance; this approach processes the list twice, and creates an intermediate list that's then thrown away.
+Además de ser un poco más verboso, la desventaja de hacer el `map(..)` y `aplanar(..)` como pasos separados es principalmente en torno al rendimiento; este enfoque procesa la lista dos veces y crea una lista intermedia que luego se descarta.
 
-FP libraries typically define a `flatMap(..)` (often also called `chain(..)`) that does the mapping-then-flattening combined. For consistency and ease of composition (via currying), the `flatMap(..)` / `chain(..)` utility typically matches the `mapperFn, arr` parameter order that we saw earlier with the standalone `map(..)`, `filter(..)`, and `reduce(..)` utilities.
+Las librerias de PF generalmente definen un `aplanarMap(..)` (a menudo también llamado `encadenar(..)`) que combina el mapeo y el aplanamiento. Por consistencia y facilidad de composición (mediante currying), la utilidad `aplanarMap(..)`/`encadenar(..)` normalmente coincide con el orden de los parámetros `funcionMapeadora, arr` que vimos anteriormente con las utilidades `map(..)`, `filter(..)`, y `reduce(..)`.
 
 ```js
-flatMap( entry => [ entry.name, ...entry.variations ], firstNames );
+aplanarMap( entrada => [ entrada.nombre, ...entrada.variaciones ], primerosNombres );
 // ["Jonathan","John","Jon","Jonny","Stephanie","Steph","Stephy","Frederick",
 //  "Fred","Freddy"]
 ```
 
-The naive implementation of `flatMap(..)` with both steps done separately:
+La implementación ingenua de `aplanarMap(..)` con ambos pasos por separado:
 
 ```js
-var flatMap =
-    (mapperFn,arr) =>
-        flatten( arr.map( mapperFn ), 1 );
+var aplanarMap =
+    (funcionMapeadora,array) =>
+        aplanar( array.map( funcionMapeadora ), 1 );
 ```
 
-**Note:** We use `1` for the flattening-depth because the typical definition of `flatMap(..)` is that the flattening is shallow on just the first level.
+**Nota:** Usamos `1` para la profundidad de aplanamiento porque la definición típica de `aplanarMap(..)` es que el aplanamiento es superficial solo en el primer nivel.
 
-Since this approach still processes the list twice resulting in worse performance, we can combine the operations manually, using `reduce(..)`:
+Como este enfoque aún procesa la lista dos veces, lo que resulta en un peor rendimiento, podemos combinar las operaciones manualmente, usando `reduce(..)`:
 
 ```js
-var flatMap =
-    (mapperFn,arr) =>
-        arr.reduce(
-            (list,v) =>
-                // note: concat(..) used here since it automatically
-                // flattens an array into the concatenation
-                list.concat( mapperFn( v ) )
+var aplanarMap =
+    (funcionMapeadora,array) =>
+        array.reduce(
+            (lista,valor) =>
+                // nota: concat(..) es usado aquí ya que automáticamente
+                // aplana un array en la concatenación
+                lista.concat( funcionMapeadora( valor ) )
         , [] );
 ```
 
-While there's some convenience and performance gained with a `flatMap(..)` utility, there may very well be times when you need other operations like `filter(..)`ing mixed in. If that's the case, doing the `map(..)` and `flatten(..)` separately might still be more appropriate.
+Si bien hay cierta conveniencia y rendimiento con la utilidad `aplanarMap(..)`, es muy posible que haya ocasiones en las que necesite otras operaciones como `filter(..)` mezcladas en la operacion. Si ese es el caso, hacer el `map (..)` y `aplanar(..)` por separado puede ser más apropiado.
 
 ### Zip
 
-So far, the list operations we've examined have operated on a single list. But some cases will need to process multiple lists. One well-known operation alternates selection of values from each of two input lists into sub-lists, called `zip(..)`:
+Hasta ahora, las operaciones de lista que hemos examinado han operado en una sola lista. Pero algunos casos necesitarán procesar múltiples listas. Una operación bien conocida llamada `cremallera(..)` alterna la selección de valores de cada una de las dos listas de entrada en sublistas:
 
 ```js
-zip( [1,3,5,7,9], [2,4,6,8,10] );
+cremallera( [1,3,5,7,9], [2,4,6,8,10] );
 // [ [1,2], [3,4], [5,6], [7,8], [9,10] ]
 ```
 
-Values `1` and `2` were selected into the sub-list `[1,2]`, then `3` and `4` into `[3,4]`, etc. The definition of `zip(..)` requires a value from each of the two lists. If the two lists are of different lengths, the selection of values will continue until the shorter list has been exhausted, with the extra values in the other list ignored.
+Los valores `1` y `2` fueron seleccionados en la sub-lista `[1,2]`, luego `3` y `4` en `[3,4]`, etc. La definición de `cremallera(.. )` requiere un valor de cada una de las dos listas. Si las dos listas son de diferentes longitudes, la selección de valores continuará hasta que se haya agotado la lista más corta, con los valores adicionales en la otra lista siendo ignorados.
 
-An implementation of `zip(..)`:
+Una implementación de `cremallera(..)`:
 
 ```js
-function zip(arr1,arr2) {
-    var zipped = [];
-    arr1 = arr1.slice();
-    arr2 = arr2.slice();
+function cremallera(array1,array2) {
+    var arrayCremallera = [];
+    array1 = array1.slice();
+    array2 = array2.slice();
 
-    while (arr1.length > 0 && arr2.length > 0) {
-        zipped.push( [ arr1.shift(), arr2.shift() ] );
+    while (array1.length > 0 && array2.length > 0) {
+        arrayCremallera.push( [ array1.shift(), array2.shift() ] );
     }
 
-    return zipped;
+    return arrayCremallera;
 }
 ```
 
-The `arr1.slice()` and `arr2.slice()` calls ensure `zip(..)` is pure by not causing side effects on the received array references.
+Las llamadas `array1.slice()` y `array2.slice()` se aseguran de que `cremallera(..)` sea una funcion pura al no causar efectos secundarios en las referencias de los array recibidos.
 
-**Note:** There are some decidedly un-FP things going on in this implementation. There's an imperative `while`-loop and mutations of lists with both `shift()` and `push(..)`. Earlier in the book, I asserted that it's reasonable for pure functions to use impure behavior inside them (usually for performance), as long as the effects are fully self-contained. This implementation is safely pure.
+**Nota:** Hay algunas cosas decididamente no-PF en esta implementación. Hay un `while`-loop imperativo y mutaciones de listas con `shift()` y `push(..)`. Al comienzo del libro, afirmé que es razonable que las funciones puras utilicen un comportamiento impuro dentro de ellas (generalmente para el rendimiento), siempre que los efectos sean totalmente auto-contenidos. Esta implementación es puramente segura.
 
 ### Merge
 
