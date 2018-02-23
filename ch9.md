@@ -743,149 +743,149 @@ Las llamadas `array1.slice()` y `array2.slice()` se aseguran de que `cremallera(
 
 **Nota:** Hay algunas cosas decididamente no-PF en esta implementación. Hay un `while`-loop imperativo y mutaciones de listas con `shift()` y `push(..)`. Al comienzo del libro, afirmé que es razonable que las funciones puras utilicen un comportamiento impuro dentro de ellas (generalmente para el rendimiento), siempre que los efectos sean totalmente auto-contenidos. Esta implementación es puramente segura.
 
-### Merge
+### Unir
 
-Merging two lists by interleaving values from each source looks like this:
+La combinación de dos listas entrelazando los valores de cada origen se ve así:
 
 ```js
-mergeLists( [1,3,5,7,9], [2,4,6,8,10] );
+unirListas( [1,3,5,7,9], [2,4,6,8,10] );
 // [1,2,3,4,5,6,7,8,9,10]
 ```
 
-It may not be obvious, but this result seems similar to what we get if we compose `flatten(..)` and `zip(..)`:
+Puede que no sea obvio, pero este resultado parece similar al que obtenemos si componemos `aplanar(..)` y `cremallera(..)`:
 
 ```js
-zip( [1,3,5,7,9], [2,4,6,8,10] );
+cremallera( [1,3,5,7,9], [2,4,6,8,10] );
 // [ [1,2], [3,4], [5,6], [7,8], [9,10] ]
 
-flatten( [ [1,2], [3,4], [5,6], [7,8], [9,10] ] );
+aplanar( [ [1,2], [3,4], [5,6], [7,8], [9,10] ] );
 // [1,2,3,4,5,6,7,8,9,10]
 
-// composed:
-flatten( zip( [1,3,5,7,9], [2,4,6,8,10] ) );
+// compuesta:
+aplanar( cremallera( [1,3,5,7,9], [2,4,6,8,10] ) );
 // [1,2,3,4,5,6,7,8,9,10]
 ```
 
-However, recall that `zip(..)` only selects values until the shorter of two lists is exhausted, ignoring the leftover values; merging two lists would most naturally retain those extra values. Also, `flatten(..)` works recursively on nested lists, but you might expect list-merging to only work shallowly, keeping nested lists.
+Sin embargo, recuerda que `cremallera(..)` solo selecciona valores hasta que se agote la lista más corta de las dos, ignorando los valores sobrantes; al fusionar dos listas lo más natural seria retener esos valores adicionales. Además, `aplanar(..)` funciona recursivamente en listas anidadas, pero es de esperar que la fusión de listas solo funcione superficialmente, manteniendo listas anidadas.
 
-So, let's define a `mergeLists(..)` that works more like we'd expect:
+Entonces, definamos una utilidad `unirListas(..)` que funcione más como cabría de esperar:
 
 ```js
-function mergeLists(arr1,arr2) {
-    var merged = [];
-    arr1 = arr1.slice();
-    arr2 = arr2.slice();
+function unirListas(array1,array2) {
+    var unionListas = [];
+    array1 = array1.slice();
+    array2 = array2.slice();
 
-    while (arr1.length > 0 || arr2.length > 0) {
-        if (arr1.length > 0) {
-            merged.push( arr1.shift() );
+    while (array1.length > 0 || array2.length > 0) {
+        if (array1.length > 0) {
+            unionListas.push( array1.shift() );
         }
-        if (arr2.length > 0) {
-            merged.push( arr2.shift() );
+        if (array2.length > 0) {
+            unionListas.push( array2.shift() );
         }
     }
 
-    return merged;
+    return unionListas;
 }
 ```
 
-**Note:** Various FP libraries don't define a `mergeLists(..)` but instead define a `merge(..)` that merges properties of two objects; the results of such a `merge(..)` will differ from our `mergeLists(..)`.
+**Nota:** Varias librerias de PF no definen un `unirListas(..)` sino que en su lugar definen `unir(..)` que combina las propiedades de dos objetos; los resultados de tal `unir(..)` diferirán de nuestro `unirListas(..)`.
 
-Alternatively, here's a couple of options to implement the list merging as a reducer:
+Alternativamente, aquí hay un par de opciones para implementar la fusión de la lista como un reductor:
 
 ```js
 // via @rwaldron
-var mergeReducer =
-    (merged,v,idx) =>
-        (merged.splice( idx * 2, 0, v ), merged);
+var reductorUnir =
+    (unionListas,valor,index) =>
+        (unionListas.splice( index * 2, 0, valor ), unionListas);
 
 
 // via @WebReflection
-var mergeReducer =
-    (merged,v,idx) =>
-        merged
-            .slice( 0, idx * 2 )
-            .concat( v, merged.slice( idx * 2 ) );
+var reductorUnir =
+    (unionListas,valor,index) =>
+        unionListas
+            .slice( 0, index * 2 )
+            .concat( valor, unionListas.slice( index * 2 ) );
 ```
 
-And using a `mergeReducer(..)`:
+Y usando un `reductorUnir(..)`:
 
 ```js
 [1,3,5,7,9]
-.reduce( mergeReducer, [2,4,6,8,10] );
+.reduce( reductorUnir, [2,4,6,8,10] );
 // [1,2,3,4,5,6,7,8,9,10]
 ```
 
-**Tip:** We'll use the `mergeReducer(..)` trick later in the chapter.
+**Consejo:** Usaremos el truco `reductorUnir(..)` más adelante en el capítulo.
 
-## Method vs. Standalone
+## Metodo vs. Independiente
 
-A common source of frustration for FPers in JavaScript is unifying their strategy for working with utilities when some of them are provided as standalone functions -- think about the various FP utilities we've derived in previous chapters -- and others are methods of the array prototype -- like the ones we've seen in this chapter.
+Una fuente común de frustración para los Programadores-Funcionales en JavaScript es unificar su estrategia para trabajar con utilidades cuando algunas de ellas se proporcionan como funciones independientes -- piense en las diversas utilidades de PF que hemos derivado en capítulos anteriores -- y otras son métodos del prototipo de Array -- como los que hemos visto en este capítulo.
 
-The pain of this problem becomes more evident when you consider combining multiple operations:
+El dolor de este problema se vuelve más evidente cuando se considera combinar operaciones múltiples:
 
 ```js
 [1,2,3,4,5]
-.filter( isOdd )
-.map( double )
-.reduce( sum, 0 );                  // 18
+.filter( esImpar )
+.map( doble )
+.reduce( sumar, 0 );                  // 18
 
 // vs.
 
 reduce(
     map(
-        filter( [1,2,3,4,5], isOdd ),
-        double
+        filter( [1,2,3,4,5], esImpar ),
+        doble
     ),
-    sum,
+    sumar,
     0
 );                                  // 18
 ```
 
-Both API styles accomplish the same task, but they have very different ergonomics. Many FPers will prefer the latter to the former, but the former is unquestionably more common in JavaScript. One thing specifically that's disliked about the latter is the nesting of the calls. The preference for the method chain style -- typically called a fluent API style, as in jQuery and other tools -- is that it's compact/concise and it reads in declarative top-down order.
+Ambos estilos de API realizan la misma tarea, pero tienen una ergonomía muy diferente. Muchos Programadores-Funcionales preferirán el último estilo sobre el primero, pero el primero es, sin duda, más común en JavaScript. Una cosa específicamente que no es de mucho gusto en este último ejemplo es la anidación de las llamadas. La preferencia por el estilo de cadena de métodos -- generalmente denominado estilo API fluido, como en jQuery y otras herramientas -- es que es compacto/conciso y se lee en orden declarativo descendente.
 
-The visual order for that manual composition of the standalone style is neither strictly left-to-right (top-to-bottom) nor right-to-left (bottom-to-top); it's inner-to-outer, which harms the readability.
+El orden visual para esa composición manual del estilo independiente no es estrictamente de izquierda a derecha (de arriba a abajo) ni de derecha a izquierda (de abajo hacia arriba); es de adentro hacia afuera, lo que perjudica la legibilidad.
 
-Automatic composition normalizes the reading order as right-to-left (bottom-to-top) for both styles. So, to explore the implications of the style differences, let's examine composition specifically; it seems like it should be straightforward, but it's a little awkward in both cases.
+La composición automática normaliza el orden de lectura de derecha a izquierda (de abajo hacia arriba) para ambos estilos. Entonces, para explorar las implicaciones de las diferencias de estilo, examinemos la composición específicamente; parece que debería ser sencillo, pero es un poco incómodo en ambos casos.
 
-### Composing Method Chains
+### Componiendo Metodos de Cadena
 
-The array methods receive the implicit `this` argument, so despite their appearance, they can't be treated as unary; that makes composition more awkward. To cope, we'll first need a `this`-aware version of `partial(..)`:
+Los métodos de array reciben el argumento `this` implícito, por lo tanto, a pesar de su apariencia, no pueden tratarse como unarios; eso hace que la composición sea más incómoda. Para hacerle frente a esto, primero necesitaremos una versión de `parcial(..)` que sea consciente de `this`:
 
 ```js
-var partialThis =
-    (fn,...presetArgs) =>
-        // intentionally `function` to allow `this`-binding
-        function partiallyApplied(...laterArgs){
-            return fn.apply( this, [...presetArgs, ...laterArgs] );
+var parcialThis =
+    (funcion,...argumentosPredefinidos) =>
+        // se usa `function` para permitir el enlace a `this`
+        function parcialmenteAplicada(...argumentosTardios){
+            return funcion.apply( this, [...argumentosPredefinidos, ...argumentosTardios] );
         };
 ```
 
-We'll also need a version of `compose(..)` that calls each of the partially applied methods in the context of the chain -- the input value it's being "passed" (via implicit `this`) from the previous step:
+También necesitaremos una versión de `componer(..)` que invoque cada uno de los métodos parcialmente aplicados en el contexto de la cadena -- el valor de entrada se 'pasa' (a través de el `this` implícito) del paso anterior:
 
 ```js
-var composeChainedMethods =
-    (...fns) =>
-        result =>
-            fns.reduceRight(
-                (result,fn) =>
-                    fn.call( result )
-                , result
+var componerMetodosDeCadena =
+    (...funciones) =>
+        resultado =>
+            funciones.reducirDerecha(
+                (resultado,funcion) =>
+                    funcion.call( resultado )
+                , resultado
             );
 ```
 
 And using these two `this`-aware utilities together:
 
 ```js
-composeChainedMethods(
-   partialThis( Array.prototype.reduce, sum, 0 ),
-   partialThis( Array.prototype.map, double ),
-   partialThis( Array.prototype.filter, isOdd )
+componerMetodosDeCadena(
+   parcialThis( Array.prototype.reduce, sumar, 0 ),
+   parcialThis( Array.prototype.map, doble ),
+   parcialThis( Array.prototype.filter, esImpar )
 )
 ( [1,2,3,4,5] );                    // 18
 ```
 
-**Note:** The three `Array.prototype.XXX`-style references are grabbing references to the built-in `Array.prototype.*` methods so that we can reuse them with our own arrays.
+**Nota:** Las tres referencias de estilo `Array.prototype.XXX` están tomando referencias a los métodos incorporados en `Array.prototype.*` Para que podamos reutilizarlos con nuestros propios arrays.
 
 ### Composing Standalone Utilities
 
