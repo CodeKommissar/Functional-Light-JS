@@ -887,135 +887,135 @@ componerMetodosDeCadena(
 
 **Nota:** Las tres referencias de estilo `Array.prototype.XXX` están tomando referencias a los métodos incorporados en `Array.prototype.*` Para que podamos reutilizarlos con nuestros propios arrays.
 
-### Composing Standalone Utilities
+### Redacción de Utilidades Autónomas
 
-Standalone `compose(..)`-style composition of these utilities doesn't need all the `this` contortions, which is its most favorable argument. For example, we could define standalones as:
+La composición de estilo `componer(..)` independiente de estas utilidades no necesita todas las contorsiones de `this`, lo que es su argumento más favorable. Por ejemplo, podríamos definir como independientes:
 
 ```js
-var filter = (arr,predicateFn) => arr.filter( predicateFn );
+var filter = (array,funcionPredicado) => array.filter( funcionPredicado );
 
-var map = (arr,mapperFn) => arr.map( mapperFn );
+var map = (array,funcionMapeadora) => array.map( funcionMapeadora );
 
-var reduce = (arr,reducerFn,initialValue) =>
-    arr.reduce( reducerFn, initialValue );
+var reduce = (array,funcionReductora,valorInicial) =>
+    array.reduce( funcionReductora, valorInicial );
 ```
 
-But this particular standalone approach, with the `arr` as the first parameter, suffers from its own awkwardness; the cascading array context is the first argument rather than the last, so we have to use right-partial application to compose them:
+Pero este enfoque particular e independiente, con el `array` como primer parámetro, adolece de su propia incomodidad; el contexto del array en cascada es el primer argumento en lugar del último, por lo que debemos usar la aplicación parcial derecha para componerlos:
 
 ```js
-compose(
-    partialRight( reduce, sum, 0 ),
-    partialRight( map, double ),
-    partialRight( filter, isOdd )
+componer(
+    parcialDerecha( reduce, suma, 0 ),
+    parcialDerecha( map, doble ),
+    parcialDerecha( filter, esImpar )
 )
 ( [1,2,3,4,5] );                    // 18
 ```
 
-That's why FP libraries typically define `filter(..)`, `map(..)`, and `reduce(..)` to instead receive the array last, not first. They also typically automatically curry the utilities:
+Es por eso que las librerias de PF típicamente definen `filter(..)`, `map(..)`, y `reduce(..)` para recibir al array en el último lugar, no en el primero. También suelen usar curry de forma automática en las utilidades:
 
 ```js
 var filter = curry(
-    (predicateFn,arr) =>
-        arr.filter( predicateFn )
+    (funcionPredicado,array) =>
+        array.filter( funcionPredicado )
 );
 
 var map = curry(
-    (mapperFn,arr) =>
-        arr.map( mapperFn )
+    (funcionMapeadora,array) =>
+        array.map( funcionMapeadora )
 );
 
 var reduce = curry(
-    (reducerFn,initialValue,arr) =>
-        arr.reduce( reducerFn, initialValue )
+    (funcionReductora,valorInicial,array) =>
+        array.reduce( funcionReductora, valorInicial )
 );
 ```
 
-Working with the utilities defined in this way, the composition flow is a bit nicer:
+Al trabajar con las utilidades definidas de esta manera, el flujo de composición es un poco mejor:
 
 ```js
-compose(
-    reduce( sum )( 0 ),
-    map( double ),
-    filter( isOdd )
+componer(
+    reduce( suma )( 0 ),
+    map( doble ),
+    filter( esImpar )
 )
 ( [1,2,3,4,5] );                    // 18
 ```
 
-The cleanliness of this approach is in part why FPers prefer the standalone utility style instead of instance methods. But your mileage may vary.
+Lo limpio que es este enfoque es en parte por qué los Programadores-Funcionales prefieren el estilo de utilidad independiente en lugar de los métodos de instancia. Pero tu kilometraje puede variar.
 
-### Adapting Methods To Standalones
+### Adaptando Metodos A Independientes
 
-In the previous definition of `filter(..)` / `map(..)` / `reduce(..)`, you might have spotted the common pattern across all three: they all dispatch to the corresponding native array method. So, can we generate these standalone adaptations with a utility? Yes! Let's make a utility called `unboundMethod(..)` to do just that:
+En la definición anterior de `filter(..)`/`map(..)`/`reduce(..)`, es posible que hayas detectado el patrón común en las tres funciones: todas hacen uso del método de array nativo correspondiente. Entonces, ¿podemos generar estas adaptaciones independientes con una utilidad? ¡Si! Hagamos una utilidad llamada `desenlazarMetodo(..)` para hacer justamente eso:
 
 ```js
-var unboundMethod =
-    (methodName,argCount = 2) =>
+var desenlazarMetodo =
+    (nombreMetodo,numeroArgumentos = 2) =>
         curry(
-            (...args) => {
-                var obj = args.pop();
-                return obj[methodName]( ...args );
+            (...argumentos) => {
+                var objeto = argumentos.pop();
+                return objeto[nombreMetodo]( ...argumentos );
             },
-            argCount
+            numeroArgumentos
         );
 ```
 
-And to use this utility:
+Y para usar esta utilidad:
 
 ```js
-var filter = unboundMethod( "filter", 2 );
-var map = unboundMethod( "map", 2 );
-var reduce = unboundMethod( "reduce", 3 );
+var filter = desenlazarMetodo( "filter", 2 );
+var map = desenlazarMetodo( "map", 2 );
+var reduce = desenlazarMetodo( "reduce", 3 );
 
-compose(
-    reduce( sum )( 0 ),
-    map( double ),
-    filter( isOdd )
+componer(
+    reduce( suma )( 0 ),
+    map( doble ),
+    filter( esImpar )
 )
 ( [1,2,3,4,5] );                    // 18
 ```
 
-**Note:** `unboundMethod(..)` is called `invoker(..)` in Ramda.
+**Nota:** `desenlazarMetodo (..)` es llamado `invocador(..)` en Ramda.
 
-### Adapting Standalones To Methods
+### Adaptando Independientes A Metodos
 
-If you prefer to work with only array methods (fluent chain style), you have two choices. You can:
+Si prefieres trabajar solo con métodos de arrays (usando el estilo de cadena fluido), tienes dos opciones. Puedes:
 
-1. Extend the built-in `Array.prototype` with additional methods.
-2. Adapt a standalone utility to work as a reducer function and pass it to the `reduce(..)` instance method.
+1. Extender el `Array.prototype` incorporado con métodos adicionales.
+2. Adaptar una utilidad independiente para que funcione como una función reductora y pasarla al método de instancia `reduce(..)`.
 
-**Don't do (1).** It's never a good idea to extend built-in natives like `Array.prototype` -- unless you define a subclass of `Array`, but that's beyond our discussion scope here. In an effort to discourage bad practices, we won't go any further into this approach.
+**No hagas (1).** Nunca es una buena idea extender nativos incorporados como `Array.prototype` -- a menos que definas una subclase de `Array`, pero eso está más allá de nuestro alcance de discusión aquí. En un esfuerzo por desalentar las malas prácticas, no profundizaremos en este enfoque.
 
-Let's **focus on (2)** instead. To illustrate this point, we'll convert the recursive `flatten(..)` standalone utility from earlier:
+Vamos a **enfocarnos en (2)** en su lugar. Para ilustrar este punto, convertiremos la utilidad recursiva `aplanar(..)` independiente de antes:
 
 ```js
-var flatten =
-    arr =>
-        arr.reduce(
-            (list,v) =>
-                // note: concat(..) used here since it automatically
-                // flattens an array into the concatenation
-                list.concat( Array.isArray( v ) ? flatten( v ) : v )
+var aplanar =
+    array =>
+        array.reduce(
+            (lista,valor) =>
+                // nota: concat(..) es usado aqui ya que automaticamente
+                // aplana al array en la concatenacion
+                lista.concat( Array.isArray( valor ) ? aplanar( valor ) : valor )
         , [] );
 ```
 
-Let's pull out the inner `reducer(..)` function as the standalone utility (and adapt it to work without the outer `flatten(..)`):
+Vamos a sacar la función interna de `reducer(..)` como una utilidad independiente (y adaptarla para que funcione sin el `aplanar(..)` externo):
 
 ```js
-// intentionally a function to allow recursion by name
-function flattenReducer(list,v) {
-    // note: concat(..) used here since it automatically
-    // flattens an array into the concatenation
-    return list.concat(
-        Array.isArray( v ) ? v.reduce( flattenReducer, [] ) : v
+// intencionalmente una funcion para permitir recursion por nombre
+function reductorAplanar(lista,valor) {
+    // nota: concat(..) es usado aqui ya que automaticamente
+    // aplana al array en la concatenacion
+    return lista.concat(
+        Array.isArray( valor ) ? valor.reduce( reductorAplanar, [] ) : valor
     );
 }
 ```
 
-Now, we can use this utility in an array method chain via `reduce(..)`:
+Ahora, podemos usar esta utilidad en una cadena de métodos de array mediante `reduce(..)`:
 
 ```js
 [ [1, 2, 3], 4, 5, [6, [7, 8]] ]
-.reduce( flattenReducer, [] )
+.reduce( reductorAplanar, [] )
 // ..
 ```
 
