@@ -5,7 +5,7 @@
 <a href="https://leanpub.com/fljs"><img src="manuscript/images/marketing/front-cover-small.png" width="25%" align="right" hspace="20" vspace="20" title="Functional-Light JavaScript" alt="Book Cover"></a>
 
 Este libro es un vistazo pragmatico y balanceado a la Programación Funcional en JavaScript.
-La primera edición esta ahora completa. Lee este libro **gratis** aqui online, o:
+La primera edición esta ahora completa. Leela aqui online **gratis**, o:
 
 <p align="center">
     <a href="https://leanpub.com/fljs"><img src="https://img.shields.io/badge/Buy-Leanpub-yellow.svg" title="Compra el libro en Leanpub" alt="Buy on Leanpub"></a> <a href="http://amazon.fljsbook.com"><img src="https://img.shields.io/badge/Buy-Amazon-yellow.svg" title="Compra el libro en Amazon" alt="Buy on Amazon"></a>
