@@ -1,7 +1,7 @@
 # Javascript Funcionalmente-Ligero
 # Capitulo 1: Programacion Funcional, Porque?
 
-> Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y dice patrones de codigo tales como "premorfismo zygohistoricomorfico"
+> Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y nombra patrones de codigo tales como "premorfismo zygohistoricomorfico"
 >
 > James Iry ‏@jamesiry 5/13/15
 >
