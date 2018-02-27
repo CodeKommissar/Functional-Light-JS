@@ -1,20 +1,31 @@
-# JavaScript Funcionalmente-Ligero (libro)
+# JavaScript Funcionalmente-Ligero
 
-Este libro explora los principios claves de la programacion funcional (PF) a la vez que estos son aplicados a JavaScript. Pero lo que hace a este libro diferente, es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a observar un subconjunto de conceptos fundamentales de la PF a la que yo llamo "Programacion Funcionalmente-Ligera" (PFL) y la aplicaremos a JavaScript.
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-blue.svg)](http://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "facil", "para principantes" o una "introduccion" acerca del tema. Este libro es riguroso y esta lleno de crudos detalles; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero", en este contexto, significa limitado en su alcance; en vez de ser mucho mas amplio, este libro va mas alla dentro de cada tema de lo que esperarias encontrar en otros libros de PF relacionados a JavaScript.
+<a href="https://leanpub.com/fljs"><img src="manuscript/images/marketing/front-cover-small.png" width="25%" align="right" hspace="20" vspace="20" title="Functional-Light JavaScript" alt="Book Cover"></a>
 
-Seamos sinceros: a menos de que tu ya seas un miembro del club de PF chicos cool (yo no soy!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
+Este libro es un vistazo pragmatico y balanceado a la Programación Funcional en JavaScript.
+La primera edición esta ahora completa. Leela aqui online **gratis**, o:
 
-Esto no es para decir que los terminos carece de significado o que los Programadores Funcionales son malos por usarlos. Una vez te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y ciertamente tu ya tendras bastante de exposicion a lo que estos terminos significan y al porque.
+<p align="center">
+    <a href="https://leanpub.com/fljs"><img src="https://img.shields.io/badge/Buy-Leanpub-yellow.svg" title="Compra el libro en Leanpub" alt="Buy on Leanpub"></a> <a href="http://amazon.fljsbook.com"><img src="https://img.shields.io/badge/Buy-Amazon-yellow.svg" title="Compra el libro en Amazon" alt="Buy on Amazon"></a>
+</p>
 
-Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales de la PF en tu JavaScript *ahora*, porque yo creo que te ayudara a escribir mejor codigo y mas *razon*able..
+"JavaScript Funcionalmente-Ligero" explora los principios claves de la programación funcional (PF) a la vez que estos son aplicados a JavaScript. Pero lo que hace a este libro diferente, es que abordamos estos principios sin ahogarnos en toda la terminologia pesada. Vamos a observar un subconjunto de conceptos fundamentales de la PF a la que yo llamo "Programacion Funcionalmente-Ligera" (PFL) y la aplicaremos a JavaScript.
+
+**Nota:** A pesar de la palabra "Ligero" en el titulo, yo no considero o recomiendo este libro como un libro "facil", "para principantes" o una "introduccion" al tema. Este libro es riguroso y esta lleno de detalles crudos; este espera una fundacion solida en JS antes de meterse de lleno en el. "Ligero", en este contexto, significa limitado en su alcance; en vez de ser mucho mas amplio, este libro va mas alla dentro de cada tema de lo que esperarias encontrar en otros libros de PF relacionados a JavaScript.
+
+Seamos sinceros: a menos que tu ya seas un miembro del club de chicos cool de la Programación Funcional (juro que yo no soy uno!), una declaracion como, "una monada es solo un monoide en la categoria de los endofuntores", no significa nada particularmente util para nosotros.
+
+Esto no es para decir que los terminos carecen de significado o que los Programadores Funcionales son malos por usarlos. Una vez te gradues de Ligeramente-Functional, tu quizas/ojala quieras estudiar a la PF mas formalmente, y ciertamente tu ya tendras bastante exposicion a lo que estos terminos significan y al porque los usamos.
+
+Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales de la PF en tu JavaScript *ahora*, porque yo creo que te ayudara a escribir codigo mejor y mas *razon*able..
 
 **Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](prefacio.md)**
 
 ## Libro
 
-[Tabla de Contenidos](toc.md)
+[Tabla de Contenidos](manuscript/README.md/#table-of-contents)
 
 * [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
 * [Prefacio](prefacio.md)
@@ -35,7 +46,12 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 ## Publicacion
 
-Yo estoy publicando este libro por mi propia cuenta, mas probablemnte digitalemente [en Leanpub](https://leanpub.com/fljs/). Intentare tambien conseguir una opcion para vender copias fisicas del libro, pero esa parte aun es incierta.
+<a href="https://www.patreon.com/getify">[![patreon.png](https://s13.postimg.org/k9nkc5thz/become_a_patron_button.png)](https://www.patreon.com/getify)</a>
+
+Este libro ha sido publicado [y ahora esta disponible para comprar en Leanpub](https://leanpub.com/fljs/). Tambien estare intentando de conseguir una opción
+para vender el libro en copias fisicas, pero esa parte aun es incierta.
+
+[![Buy on Leanpub](https://img.shields.io/badge/Buy-Leanpub-yellow.svg)](https://leanpub.com/fljs)
 
 Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de mis otros trabajos de OSS) aparte de comprar los libros, tengo un [patreon](https://www.patreon.com/getify) en el cual siempre aprecieria de tu generosidad.
 
@@ -45,9 +61,7 @@ Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de m
 
 El contenido de este libro procede fuertemente de un taller de entrenamiento que enseño profesionalmente (ya sea publicamente o en un formato de taller corporalmente-privado) del mismo nombre.
 
-Si te gusta este contenido y te gustaria contactarme por razon de conducir un entrenamiento en este tema, o de otros temas tales como JS/HTML5/Node.js, por favor contactame a traves de cualquiera de los canales listados aqui:
-
-[http://getify.me](http://getify.me)
+Si te gusta este contenido y te gustaria contactarme por razon de conducir un entrenamiento en este tema, o de otros temas tales como JS/HTML5/Node.js, por favor contactame a traves de mi correo: getify @ gmail
 
 
 ## Entrenamiento en Video Online
@@ -62,6 +76,6 @@ Pero **POR FAVOR** lee la [Guia de Contribuciones](CONTRIBUTING.md) cuidadosamen
 
 ## Licencia & Copyright
 
-Todos los materiales aqui son (c) 2016-2017 Kyle Simpson.
+Todos los materiales aqui son (c) 2016-2018 Kyle Simpson.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivs 4.0 Unported License</a>.
