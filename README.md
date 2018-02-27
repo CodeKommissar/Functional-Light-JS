@@ -5,7 +5,7 @@
 <a href="https://leanpub.com/fljs"><img src="manuscript/images/marketing/front-cover-small.png" width="25%" align="right" hspace="20" vspace="20" title="Functional-Light JavaScript" alt="Book Cover"></a>
 
 Este libro es un vistazo pragmatico y balanceado a la Programación Funcional en JavaScript.
-La primera edición esta ahora completa. Leela aqui online **gratis**, o:
+La primera edición esta ahora completa. Lee este libro **gratis** aqui online, o:
 
 <p align="center">
     <a href="https://leanpub.com/fljs"><img src="https://img.shields.io/badge/Buy-Leanpub-yellow.svg" title="Compra el libro en Leanpub" alt="Buy on Leanpub"></a> <a href="http://amazon.fljsbook.com"><img src="https://img.shields.io/badge/Buy-Amazon-yellow.svg" title="Compra el libro en Amazon" alt="Buy on Amazon"></a>
@@ -78,4 +78,4 @@ Pero **POR FAVOR** lee la [Guia de Contribuciones](CONTRIBUTING.md) cuidadosamen
 
 Todos los materiales aqui son (c) 2016-2018 Kyle Simpson.
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivs 4.0 Unported License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />Este trabajo esta licenciado bajo <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivs 4.0 Unported License</a>.
