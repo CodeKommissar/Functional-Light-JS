@@ -1,5 +1,5 @@
 # Javascript Funcionalmente-Ligero
-# Capítulo 3: Gestión de Entradas de Funciones
+# Capítulo 3: Gestionando Entradas de Funciones
 
 El Capítulo 2 exploró la naturaleza central de las `funciones` en JS, y sentó las bases para lo que hace que una `función` sea una *función* en el mundo de la PF. Pero para aprovechar todo el poder de la PF, también necesitamos patrones y prácticas para manipular a las funciones de forma que podamos cambiar y ajustar sus interacciones -- para someterlas a nuestra voluntad.
 
@@ -820,7 +820,7 @@ sumaSinCurry( 1, 2, 3 )( 4 )( 5 );          // 15
 
 Probablemente el caso más común de usar `uncurry (..)` no es con una función manualmente al curry como se acaba de mostrar, sino con una función que sale ya con "currying" como resultado de algún otro conjunto de operaciones. Ilustraremos ese escenario más adelante en este capítulo en la discusión "Sin puntos".
 
-## El orden importa
+## El Orden Importa
 
 En el Capítulo 2, exploramos el patrón de argumentos nombrado. Una ventaja principal de los argumentos nombrados es no tener que hacer malabarismos con el orden de los argumentos, lo que mejora la legibilidad.
 
@@ -938,7 +938,7 @@ Si bien el orden ya no es una preocupación, el uso de las funciones definidas e
 
 Pondera estas concesiones cuidadosamente.
 
-## Sin puntos
+## Sin Puntos
 
 Un estilo popular de programar en el mundo de la PF tiene como objetivo reducir parte del desorden visual eliminando el mapeo innecesario de parámetros y argumentos. Este estilo se llama formalmente programación tácita, o más comúnmente: estilo sin puntos. El término "punto" aquí se refiere a la entrada de parámetros de una función.
 

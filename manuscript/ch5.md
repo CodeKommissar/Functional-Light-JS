@@ -1,5 +1,5 @@
 # Javascript Funcionalmente-Ligero
-# Capítulo 4: Reduciendo Efectos Secundarios
+# Capítulo 5: Reduciendo Efectos Secundarios
 
 En el Capítulo 2, discutimos cómo una función puede tener salidas además de su valor de 'retorno'. A estas alturas, deberías sentirse bastante cómodo con la definición de la PF de una función, por lo que la idea de tales salidas secundarias -- ¡efectos secundarios! -- debería de irte pareciendo una mala idea.
 
@@ -9,7 +9,7 @@ Pero déjame no enterrar la introduccion aquí. El punto final de este capítulo
 
 El Programador-Funcional no elimina todos los efectos secundarios. Más bien, el objetivo es limitarlos tanto como sea posible. Para hacer eso, primero debemos comprenderlos por completo
 
-## Efectos En El Lado, Por Favor
+## Los Efectos A Un Lado, Por Favor
 
 Causa y efecto: una de las observaciones más fundamentales e intuitivas que los seres humanos podemos hacer sobre el mundo que nos rodea. Empuja un libro fuera del borde de una mesa, cae al suelo. No necesitas un título de física para saber que la causa fuiste tu empujando el libro y el efecto fue la gravedad tirando de él hacia el piso. Hay una relación clara y directa.
 
@@ -276,7 +276,7 @@ Los programadores funcionales detestan este tipo de errores de causa/efecto secu
 
 Existen múltiples estrategias diferentes para evitar/corregir causas/efectos secundarios. Hablaremos de algunos más adelante en este capítulo, y otros en capítulos posteriores. Diré una cosa con certeza: **escribir con causas/efectos secundarios a menudo es nuestra opcion por default**, por lo que evitarlos requerirá un esfuerzo cuidadoso e intencionado.
 
-## Una vez que ya es suficiente, gracias
+## Una Vez Es Suficiente, Gracias
 
 Si debes realizar cambios de tipo de efectos secundarios al estado, una clase de operaciones que es útil para limitar el problema potencial es la idempotencia. Si tu actualización de un valor es idempotente, entonces los datos serán resilientes al caso en que puedas tener múltiples actualizaciones de diferentes fuentes de efectos secundarios.
 
@@ -413,7 +413,7 @@ La diferencia clave que se ilustra aquí es que la actualización idempotente re
 
 No siempre será posible definir sus operaciones en los datos de una manera idempotente, pero si puedes, definitivamente ayudar a reducir las posibilidades de que sus efectos secundarios surjan para romper tus expectativas cuando menos lo esperes.
 
-## Pura felicidad
+## Pura Felicidad
 
 Una función sin causas/efectos secundarios se llama función pura. Una función pura es idempotente en el sentido de la programación, ya que no puede tener ningún efecto secundario. Considera:
 
@@ -622,7 +622,7 @@ La pureza se trata de confianza. Pero tenemos que admitir que en muchos casos **
 
 Cuanto más pura, mejor. Cuanto más esfuerzo dediques a hacer una función pura, mayor será tu confianza cuando leas el código que la usa, y eso hará que esa parte del código sea más legible.
 
-## Alli o No
+## Alli O No
 
 Hasta ahora, hemos definido la pureza de una función como una función sin causas/efectos secundarios y como una función que, con la misma entrada, siempre produce la misma salida. Estas son solo dos formas diferentes de ver las mismas características.
 

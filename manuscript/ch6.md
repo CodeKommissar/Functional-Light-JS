@@ -7,7 +7,7 @@ Si la idempotencia al estilo de programación se trata de definir una operación
 
 Exploremos ahora la inmutabilidad de valores, la noción de que usamos solo valores en nuestros programas que no pueden modificarse.
 
-## Inmutabilidad primitiva
+## Inmutabilidad Primitiva
 
 Los valores de tipos primitivos (`number`, `string`, `boolean`, `null`, y `undefined`) ya son inmutables; no hay nada que puedas hacer para cambiarlos.
 
@@ -74,7 +74,7 @@ s[42] = "?";        // OK
 s;                  // "hola"
 ```
 
-## Valor a Valor
+## Valor A Valor
 
 Descomprimiremos esta idea más a lo largo del capítulo, pero solo para comenzar con un entendimiento claro en mente: la inmutabilidad de valores no significa que no podamos cambiar los valores en el transcurso de nuestro programa. ¡Un programa sin cambiar de estado no es muy interesante! Tampoco significa que nuestras variables no puedan contener valores diferentes. Todos estos son conceptos erróneos comunes sobre la inmutabilidad de valores.
 

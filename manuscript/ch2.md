@@ -1,5 +1,5 @@
 # JavaScript Funcionalmente-Ligero
-# Capítulo 2: La naturaleza de las funciones
+# Capítulo 2: La Naturaleza De Las Funciones
 
 La programación funcional **no es solo programar usando la palabra clave `function`.** ¡Oh, si tan solo fuera así de fácil, podría terminar el libro aquí mismo! Sin embargo, las funciones realmente *son* el centro de la PF. Y el cómo usamos a nuestras funciones es lo que hace que nuestro código sea *funcional*.
 
@@ -189,7 +189,7 @@ function foo(x,y,z,...args) {
 }
 ```
 
-Ves el `...args` en la lista de los parámetros? Esta es una forma declarativa proveniente de ES6 que le dice al motor de JS que recolecte (ejem, "reúna") todos los argumentos restantes (si los hay) no asignados a los parámetros nombrados, y los coloca en una array con el nombre de `args`. `args` siempre será un array, incluso si está vacío. Pero **no** incluirá los valores que ya están asignados a los parámetros `x`,` y`, `` z`, solo cualquier otros valores que esten más allá de esos tres primeros valores.
+Ves el `...args` en la lista de los parámetros? Esta es una forma declarativa proveniente de ES6 que le dice al motor de JS que recolecte (ejem, "reúna") todos los argumentos restantes (si los hay) no asignados a los parámetros nombrados, y los coloca en una array con el nombre de `args`. `args` siempre será un array, incluso si está vacío. Pero **no** incluirá los valores que ya están asignados a los parámetros `x`,` y`, `z`, solo cualquier otros valores que esten más allá de esos tres primeros valores.
 
 ```js
 function foo(x,y,z,...args) {
@@ -356,7 +356,7 @@ Los argumentos nombrados son mucho más flexibles y atractivos desde una perspec
 
 **Sugerencia:** Si este estilo de argumentos de función te parece útil o interesante, consulta la cobertura de mi biblioteca "FPO" en el Apéndice C.
 
-## Salida de una Función
+## Salida de Funciones
 
 Cambiemos nuestra atención de las entradas de una función a su salida.
 
@@ -529,7 +529,7 @@ En lugar de un valor de `undefined` en la ranura vacía en la posición `4`, aho
 
 Esta salida de función implícita tiene un nombre especial en el mundo de la PF: efectos secundarios. Y una función que *no tiene efectos secundarios* también tiene un nombre especial: función pura. Hablaremos mucho más sobre esto en el Capítulo 5, pero la conclusion principal es que queremos preferir a las funciones puras y evitar los efectos secundarios en nuestro codigo siempre que sea posible.
 
-## Funciones de funciones
+## Funciones De Funciones
 
 Las funciones pueden recibir y devolver valores de cualquier tipo. Una función que recibe o devuelve uno o más valores de función tiene el nombre especial: función de orden superior.
 

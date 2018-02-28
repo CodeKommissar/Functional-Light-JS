@@ -19,7 +19,7 @@ Al encadenar y/o componer operaciones de listas en conjunto, los resultados inte
 
 **Nota:** Más que en los capítulos anteriores, para mantener los siguientes fragmentos de código lo más breves posible, confiaremos mucho en el forma `=>` de ES6 . Sin embargo, mi consejo sobre `=>` del Capítulo 2 todavía se aplica a la programacion en general.
 
-## Procesamiento de Listas No-PF
+## Procesamiento De Listas No-PF
 
 Como un rápido preámbulo de nuestra discusión en este capítulo, deseo mencionar algunas operaciones que pueden parecer relacionadas con los arrays de JavaScript y las operaciones de listas en la Programacion-Funcional, pero que no lo son. Estas operaciones no seran cubiertas aquí, porque no son consistentes con las mejores prácticas generales de la Programacion-Funcional:
 
@@ -203,7 +203,7 @@ stringMap( letraMayuscula, "Hola Mundo!" );
 
 `stringMap(..)` le permite a un string que sea un functor. Puedes definir una función de mapeo para cualquier estructura de datos; siempre que la utilidad siga estas reglas, la estructura de datos es un functor.
 
-## Filtro
+## Filter
 
 Imagina que llevo una canasta vacía al supermercado para visitar la sección de frutas; hay una gran exhibición de frutas (manzanas, naranjas y plátanos). Tengo mucha hambre, así que quiero obtener tanta fruta como tengan disponible, pero realmente prefiero las frutas redondas (manzanas y naranjas). Así que examino cada fruta una por una, y me alejo con una canasta llena de solo manzanas y naranjas.
 
@@ -349,7 +349,7 @@ filtrarAfuera( esPar, [1,2,3,4,5] );       // [1,3,5]
 
 Creo que el uso de `filtrarAdentro(..)` y `filtrarAfuera(..)` (conocido como `reject(..)` en Ramda) hará que tu código sea mucho más legible que el simple uso de `filter(..)` y dejando atras la semántica fusionada y confusa para el lector.
 
-## Reducir
+## Reduce
 
 Mientras `map(..)` y `filter(..)` producen nuevas listas, típicamente este tercer operador (`reduce(..)`) combina (también conocido como "reduce") los valores de una lista a un solo valor finito (no-lista), como un número o un string. Sin embargo, más adelante en este capítulo, veremos cómo puedes usar `reduce(..)` de formas más avanzadas. `reduce(..)` es una de las herramientas de Programacion-Funcional más importantes; es como un cuchillo todo en uno del ejército suizo con todas sus utilidades.
 
@@ -535,7 +535,7 @@ var esImpar = v => v % 2 == 1;
 
 **Nota:** Más engaños con un reductor impuro aquí. En lugar de `lista.push(..)`, podríamos haber usado `lista.concat(..)` y devolver la nueva lista. Volveremos a este truco en el Apéndice A.
 
-## Operaciones de Lista Avanzadas
+## Operaciones De Lista Avanzadas
 
 Ahora que nos sentimos algo cómodos con las operaciones de la lista fundamentales `map(..)`, `filter(..)`, y `reduce(..)`, veamos algunas operaciones más sofisticadas que pueden ser útiles en varias situaciones Por lo general, se tratan de utilidades que encontrarás en varias librerias de PF.
 
@@ -818,7 +818,7 @@ Y usando un `reductorUnir(..)`:
 
 **Consejo:** Usaremos el truco `reductorUnir(..)` más adelante en el capítulo.
 
-## Metodo vs. Independiente
+## Método vs. Independiente
 
 Una fuente común de frustración para los Programadores-Funcionales en JavaScript es unificar su estrategia para trabajar con utilidades cuando algunas de ellas se proporcionan como funciones independientes -- piense en las diversas utilidades de PF que hemos derivado en capítulos anteriores -- y otras son métodos del prototipo de Array -- como los que hemos visto en este capítulo.
 

@@ -183,7 +183,7 @@ Es cierto que este es un ejemplo artificial. Pero el punto es que las composicio
 
 ¡La fábrica de dulces debe tener más cuidado si tratan de enviar los caramelos envueltos a la máquina que mezcla y enfría el chocolate!
 
-## Composición general
+## Composición General
 
 Si podemos definir la composición de dos funciones, podemos continuar apoyando la composición de cualquier cantidad de funciones. El flujo de visualización de datos generales para cualquier cantidad de funciones que se componen se ve así:
 
@@ -404,7 +404,7 @@ Creo que el beneficio de una implementación recursiva es principalmente concept
 
 Otros encontrarán el enfoque recursivo un poco más desalentador para malabarear mentalmente. Te invito a que hagas tus propias evaluaciones.
 
-## Composición reordenada
+## Composición Reordenada
 
 Hablamos anteriormente sobre el ordenamiento de derecha a izquierda de las implementaciones de `componer(..)` estándar. La ventaja está en enumerar los argumentos (funciones) en el mismo orden en que aparecerían si se realizara la composición de forma manual.
 

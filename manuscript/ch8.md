@@ -420,7 +420,7 @@ La recursión binaria (o múltiple) -- como se mostró anteriormente, dos (o má
 
 Anteriormente, mostramos un ejemplo de refactorización desde la recursión binaria hasta la recursión mutua. Es posible lograr LCA a partir de un algoritmo recursivo múltiple dividiendo cada uno en llamadas a función separadas, donde cada una se expresa respectivamente en forma de LCA. Sin embargo, ese tipo de refactorización intrincada es altamente dependiente del escenario, y más allá del alcance de lo que podemos cubrir en este texto.
 
-## Reordenación de la Recursion
+## Reordenando La Recursión
 
 Si desea usar la recursividad pero tu conjunto de problemas podría crecer lo suficiente como para exceder el límite de la pila del motor de JS, tendrás que reorganizar tus llamadas recursivas para aprovechar las LCA (o evitar llamadas anidadas por completo). Hay varias estrategias de refactorización que pueden ayudar, pero por supuesto hay que tener en cuenta los beneficios y desventajas de cada una.
 

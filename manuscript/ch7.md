@@ -1,5 +1,5 @@
 # Javascript Funcionalmente-Ligero
-# Capitulo 7:Cierre vs Objeto
+# Capítulo 7: Cierre vs Objeto
 
 Hace algunos años, Anton van Straaten creó lo que se ha convertido en un famoso y comunmente citado [koan](https://www.merriam-webster.com/dictionary/koan) para ilustrar y provocar una importante tensión entre cierre y objetos:
 
@@ -430,7 +430,7 @@ Ahora, esto es todo conceptual. No estoy diciendo literalmente que el motor de J
 
 De hecho, muchos idiomas implementan cierres a través de objetos. Y otros lenguajes implementan objetos en términos de cierres. Pero dejaremos que el lector utilice su imaginación sobre cómo funcionaría eso.
 
-## Dos Caminos Divergen En Un Bosque ...
+## Dos Caminos Divergen En Un Bosque...
 
 Entonces, los cierres y los objetos son equivalentes, ¿verdad? No exactamente. Apuesto a que son más similares de lo que pensabas antes de comenzar este capítulo, pero aún tienen diferencias importantes.
 

@@ -1,5 +1,5 @@
 # Javascript Funcionalmente-Ligero
-# Capitulo 1: Programacion Funcional, Porque?
+# Capitulo 1: ¿Porque Programacion Funcional?
 
 > Programador Funcional: (pronombre) Alguien que nombra a sus variables "x", sus funciones "f", y nombra patrones de codigo tales como "premorfismo zygohistoricomorfico"
 >
@@ -104,7 +104,7 @@ La confianza también aumenta cuando utilizamos técnicas que evitan o minimizan
 
 A medida que avances en este libro, comenzarás a desarrollar más confianza en el código que escribas, porque usarás patrones y prácticas que ya están bien probadas; ¡y ademas evitarás las causas más comunes de errores en los programas!
 
-## Comunicacion
+## Comunicación
 
 ¿Por qué es importante la programación funcional? Para responder esta pregunta, tenemos que dar un paso atrás y hablar acerca de por qué la programación en sí misma es importante.
 
@@ -183,7 +183,7 @@ Conozco a muchos Programadores-Funcionales que creen que el formalismo en sí ay
 
 Así que este libro presenta los conceptos en los que creo esta construida la PF, pero intenta mas en impulsarte desde abajo para trepar por la pared del acantilado, que en gritarte condescendientemente desde lo más alto, instandote a que descubras cómo escalar sobre la marcha.
 
-## Cómo encontrar el equilibrio
+## Cómo Encontrar el Equilibrio
 
 Si has estado programando durante mucho tiempo, es probable que hayas escuchado antes la frase "YAGNI": "You Ain't Gonna Need It" ("No Vas A Necesitarlo" en español). Este principio proviene principalmente de la [programación extrema](https://es.wikipedia.org/wiki/Programaci%C3%B3n_extrema) y enfatiza el alto riesgo y el costo de construir una característica antes de que sea necesaria.
 
