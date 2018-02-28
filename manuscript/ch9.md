@@ -1,4 +1,4 @@
-# JavaScript Funcionalmente-Ligero
+izquierda# JavaScript Funcionalmente-Ligero
 # Capítulo 9: Operaciones de Lista
 
 > Si puedes hacer algo de una manera increíble, sigue haciéndolo repetidamente.
@@ -1019,113 +1019,113 @@ Ahora, podemos usar esta utilidad en una cadena de métodos de array mediante `r
 // ..
 ```
 
-## Looking For Lists
+## Buscando Por Listas
 
-So far, most of the examples have been rather trivial, based on simple lists of numbers or strings. Let's now talk about where list operations can start to shine: modeling an imperative series of statements declaratively.
+Hasta ahora, la mayoría de los ejemplos han sido bastante triviales, basados ​​en simples listas de números o strings. Ahora hablemos en dónde pueden empezar a brillar las operaciones de listas: modelar una serie imperativa de declaraciones declarativamente.
 
-Consider this base example:
-
-```js
-var getSessionId = partial( prop, "sessId" );
-var getUserId = partial( prop, "uId" );
-
-var session, sessionId, user, userId, orders;
-
-session = getCurrentSession();
-if (session != null) sessionId = getSessionId( session );
-if (sessionId != null) user = lookupUser( sessionId );
-if (user != null) userId = getUserId( user );
-if (userId != null) orders = lookupOrders( userId );
-if (orders != null) processOrders( orders );
-```
-
-First, let's observe that the five variable declarations and the running series of `if` conditionals guarding the function calls are effectively one big composition of these six calls `getCurrentSession()`, `getSessionId(..)`, `lookupUser(..)`, `getUserId(..)`, `lookupOrders(..)`, and `processOrders(..)`. Ideally, we'd like to get rid of all these variable declarations and imperative conditionals.
-
-Unfortunately, the `compose(..)` / `pipe(..)` utilties we explored in Chapter 4 don't by themselves offer a convenient way to express the `!= null` conditionals in the composition. Let's define a utility to help:
+Considera este ejemplo base:
 
 ```js
-var guard =
-    fn =>
-        arg =>
-            arg != null ? fn( arg ) : arg;
+var obtenerIdSesion = parcial( propiedad, "IdSesion" );
+var obtenerIdUsuario = parcial( propiedad, "IdUsuario" );
+
+var sesion, IdSesion, usuario, IdUsuario, ordenes;
+
+sesion = obtenerSesionActual();
+if (sesion != null) IdSesion = obtenerIdSesion( sesion );
+if (IdSesion != null) usuario = buscarUsuario( IdSesion );
+if (usuario != null) IdUsuario = obtenerIdUsuario( usuario );
+if (IdUsuario != null) ordenes = buscarOrdenes( IdUsuario );
+if (ordenes != null) procesarOrdenes( ordenes );
 ```
 
-This `guard(..)` utility lets us map the five conditional-guarded functions:
+Primero, observemos que las cinco declaraciones de variables y las series en ejecución de condicionales `if` que protegen las llamadas de función son efectivamente una gran composición de estas seis llamadas `obtenerSesionActual()`, `obtenerIdSesion(..)`, `buscarUsuario(..)`, `obtenerIdUsuario(..)`, `buscarOrdenes(..)`, y `procesarOrdenes(..)`. Idealmente, nos gustaría deshacernos de todas estas declaraciones de variables y condicionales imperativos.
+
+Desafortunadamente, las utilidades `componer(..)`/`tuberia(..)` que exploramos en el Capítulo 4 no ofrecen por sí mismas una forma conveniente de expresar los condicionales `!= null` en la composición. Vamos a definir una utilidad para ayudarnos a resolver este problema:
 
 ```js
-[ getSessionId, lookupUser, getUserId, lookupOrders, processOrders ]
-.map( guard )
+var proteger =
+    funcion =>
+        argumento =>
+            argumento != null ? funcion( argumento ) : argumento;
 ```
 
-The result of this mapping is an array of functions that are ready to compose (actually, pipe, in this listed order). We could spread this array to `pipe(..)`, but since we're already doing list operations, let's do it with a `reduce(..)`, using the session value from `getCurrentSession()` as the initial value:
+Esta utilidad `proteger(..)` nos permite mapear las cinco funciones condicionalmente-protegidas:
+
+```js
+[ obtenerIdSesion, buscarUsuario, obtenerIdUsuario, buscarOrdenes, procesarOrdenes ]
+.map( proteger )
+```
+
+El resultado de este mapeo es un array de funciones que están listas para componer (en realidad, conducir, en este orden listado). Podríamos extender este array a `tuberia(..)`, pero como ya estamos haciendo operaciones de lista, hagámoslo con `reduce(..)`, usando el valor de sesión de `obtenerSesionActual()` como el valor inicial:
 
 ```js
 .reduce(
-    (result,nextFn) => nextFn( result )
-    , getCurrentSession()
+    (resultado,siguienteFuncion) => siguienteFuncion( resultado )
+    , obtenerSesionActual()
 )
 ```
 
-Next, let's observe that `getSessionId(..)` and `getUserId(..)` can be expressed as a mapping from the respective values `"sessId"` and `"uId"`:
+A continuación, observemos que `obtenerIdSesion(..)` y `obtenerIdUsuario(..)` se pueden expresar como un mapeo de los respectivos valores `"IdSesion"` y `"IdUsuario"`:
 
 ```js
-[ "sessId", "uId" ].map( propName => partial( prop, propName ) )
+[ "IdSesion", "IdUsuario" ].map( nombrePropiedad => parcial( propiedad, nombrePropiedad ) )
 ```
 
-But to use these, we'll need to interleave them with the other three functions (`lookupUser(..)`, `lookupOrders(..)`, and `processOrders(..)`) to get the array of five functions to guard / compose as discussed above.
+Pero para usarlos, necesitaremos intercalarlos con las otras tres funciones (`buscarUsuario(..)`, `buscarOrdenes(..)`, y `procesarOrdenes(..)`) para obtener el array de cinco funciones que sera guardado/compuesto como se discutió anteriormente.
 
-To do the interleaving, we can model this as list merging. Recall `mergeReducer(..)` from earlier in the chapter:
+Para hacer el entrelazado, podemos modelar esto como una fusión de listas. Recuerda `reductorUnir(..)` de antes en el capítulo:
 
 ```js
-var mergeReducer =
-    (merged,v,idx) =>
-        (merged.splice( idx * 2, 0, v ), merged);
+var reductorUnir =
+    (unido,valor,index) =>
+        (unido.splice( index * 2, 0, valor ), unido);
 ```
 
-We can use `reduce(..)` (our swiss army knife, remember!?) to "insert" `lookupUser(..)` in the array between the generated `getSessionId(..)` and `getUserId(..)` functions, by merging two lists:
+Podemos usar `reduce(..)` (nuestra navaja suiza, recuerdas!?) para "insertar" `buscarArray(..)` en el array entre las funciones generadas `obtenerIdSesion(..)` y `obtenerIdUsuario(..)`, al combinar dos listas:
 
 ```js
-.reduce( mergeReducer, [ lookupUser ] )
+.reduce( reductorUnir, [ buscarUsuario ] )
 ```
 
-Then we'll concatenate `lookupOrders(..)` and `processOrders(..)` onto the end of the running functions array:
+Luego concatenaremos `buscarOrdenes(..)` y `procesarOrdenes(..)` al final del array de funciones en ejecución:
 
 ```js
-.concat( lookupOrders, processOrders )
+.concat( buscarOrdenes, procesarOrdenes )
 ```
 
-To review, the generated list of five functions is expressed as:
+Para repasar, la lista generada de cinco funciones se expresa como:
 
 ```js
-[ "sessId", "uId" ].map( propName => partial( prop, propName ) )
-.reduce( mergeReducer, [ lookupUser ] )
-.concat( lookupOrders, processOrders )
+[ "IdSesion", "IdUsuario" ].map( nombrePropiedad => parcial( propiedad, nombrePropiedad ) )
+.reduce( reductorUnir, [ buscarUsuario ] )
+.concat( buscarOrdenes, procesarOrdenes )
 ```
 
-Finally, to put it all together, take this list of functions and tack on the guarding and composition from earlier:
+Finalmente, poniendolo todo junto, toma esta lista de funciones y añade la protección y composición de antes:
 
 ```js
-[ "sessId", "uId" ].map( propName => partial( prop, propName ) )
-.reduce( mergeReducer, [ lookupUser ] )
-.concat( lookupOrders, processOrders )
-.map( guard )
+[ "IdSesion", "IdUsuario" ].map( nombrePropiedad => parcial( propiedad, nombrePropiedad ) )
+.reduce( reductorUnir, [ buscarUsuario ] )
+.concat( buscarOrdenes, procesarOrdenes )
+.map( proteger )
 .reduce(
-    (result,nextFn) => nextFn( result )
-    , getCurrentSession()
+    (resultado,siguienteFuncion) => siguienteFuncion( resultado )
+    , obtenerSesionActual()
 );
 ```
 
-Gone are all the imperative variable declarations and conditionals, and in their place we have clean and declarative list operations chained together.
+Atrás han quedado todas las declaraciones de variable y condicionales imperativos, y en su lugar tenemos operaciones de listas limpias y declarativas encadenadas entre ellas.
 
-I know this version is likely harder for most readers to understand right now than the original. Don't worry, that's natural. The original imperative form is one you're probably much more familiar with.
+Sé que esta versión probablemente sea más difícil de entender para la mayoría de los lectores en este momento que la original. No te preocupes, eso es natural. La forma imperativa original es una con la que probablemente estes mucho más familiarizado.
 
-Part of your evolution to become a functional programmer is to develop a recognition of FP patterns such as list operations, and that takes lots of exposure and practice. Over time, these will jump out of the code more readily as your sense of code readability shifts to declarative style.
+Parte de tu evolución para convertirte en un programador funcional es desarrollar un reconocimiento de los patrones de la PF, como las operaciones de lista, y eso requiere mucha exposición y práctica. Con el tiempo, estas destacaran en el código más fácilmente a medida que tu sentido de legibilidad de código cambie al estilo declarativo.
 
-Before we leave this topic, let's take a reality check: the example here is heavily contrived. Not all code segments will be straightforwardly modeled as list operations. The pragmatic take-away is to develop the instinct to look for these opportunities, but not get too hung up on code acrobatics; some improvement is better than none. Always step back and ask if you're **improving or harming** code readability.
+Antes de abandonar este tema, hagamos una revisión de la realidad: el ejemplo aquí está muy fuertemente ideado. No todos los segmentos de código se modelarán directamente como operaciones de lista. El objetivo pragmático es desarrollar el instinto de buscar estas oportunidades, pero no preocuparse demasiado con las acrobacias del código; alguna mejora es mejor que ninguna. Intenta dar siempre un paso atrás y preguntate si **estas mejorando o perjudicando** la legibilidad del código.
 
-## Fusion
+## Fusión
 
-As you roll FP list operations into more of your thinking about code, you'll likely start seeing very quickly chains that combine behavior like:
+A medida que coloques operaciones de lista de la PF en una mayor parte de tu pensamiento sobre el código, es probable que comiences a ver muy rápidamente cadenas que combinan el comportamiento como:
 
 ```js
 ..
@@ -1134,10 +1134,10 @@ As you roll FP list operations into more of your thinking about code, you'll lik
 .reduce(..);
 ```
 
-And more often than not, you're also probably going to end up with chains with multiple adjacent instances of each operation, like:
+Y la mayoría de las veces, también es probable que termines con cadenas con múltiples instancias adyacentes de cada operación, como:
 
 ```js
-someList
+algunaLista
 .filter(..)
 .filter(..)
 .map(..)
@@ -1146,375 +1146,378 @@ someList
 .reduce(..);
 ```
 
-The good news is the chain-style is declarative and it's easy to read the specific steps that will happen, in order. The downside is that each of these operations loops over the entire list, meaning performance can suffer unnecessarily, especially if the list is longer.
+La buena noticia es que el estilo de cadena es declarativo y es fácil de leer los pasos específicos que sucederán, en orden. La desventaja es que cada una de estas operaciones recorre toda la lista, lo que significa que el rendimiento puede sufrir innecesariamente, especialmente si la lista es muy larga.
 
-With the alternate standalone style, you might see code like this:
+Con el estilo independiente alterno, es posible que veas un código como este:
 
 ```js
 map(
-    fn3,
+    funcion3,
     map(
-        fn2,
-        map( fn1, someList )
+        funcion2,
+        map( funcion1, algunaLista )
     )
 );
 ```
 
-With this style, the operations are listed from bottom-to-top, and we still loop over the list 3 times.
+Con este estilo, las operaciones se enumeran de abajo hacia arriba, y aun estamos recorriendo la lista 3 veces.
+
+La fusión trata de combinar operadores adyacentes para reducir el número de veces que la lista es iterada. Nos enfocaremos aquí en colapsar el `map(..)` adyacente ya que es el más sencillo de explicar.
+
+Imagina este escenario:
 
 Fusion deals with combining adjacent operators to reduce the number of times the list is iterated over. We'll focus here on collapsing adjacent `map(..)`s as it's the most straightforward to explain.
 
-Imagine this scenario:
-
 ```js
-var removeInvalidChars = str => str.replace( /[^\w]*/g, "" );
+var removerCaracteresInvalidos = string => string.replace( /[^\w]*/g, "" );
 
-var upper = str => str.toUpperCase();
+var mayuscula = string => string.toUpperCase();
 
-var elide = str =>
-    str.length > 10 ?
-        str.substr( 0, 7 ) + "..." :
-        str;
+var elidir = string =>
+    string.length > 10 ?
+        string.substr( 0, 7 ) + "..." :
+        string;
 
-var words = "Mr. Jones isn't responsible for this disaster!"
+var palabras = "Mr. Jones no es responsable por este disastre!"
     .split( /\s/ );
 
-words;
-// ["Mr.","Jones","isn't","responsible","for","this","disaster!"]
+palabras;
+// ["Mr.","Jones","no","es","responsable","por","este","disastre!"]
 
-words
-.map( removeInvalidChars )
-.map( upper )
-.map( elide );
-// ["MR","JONES","ISNT","RESPONS...","FOR","THIS","DISASTER"]
+palabras
+.map( removerCaracteresInvalidos )
+.map( mayuscula )
+.map( elidir );
+// ["MR","JONES","NO","ES","RESPONS...","POR","ESTE","DISASTRE"]
 ```
 
-Think about each value that goes through this flow of transformations. The first value in the `words` list starts out as `"Mr."`, becomes `"Mr"`, then `"MR"`, and then passes through `elide(..)` unchanged. Another piece of data flows: `"responsible"` -> `"responsible"` -> `"RESPONSIBLE"` -> `"RESPONS..."`.
+Piensa en cada valor que atraviesa este flujo de transformaciones. El primer valor en la lista `palabras` comienza como `"Mr."`, se convierte en `"Mr"`, luego `"MR"`, y luego pasa a través de `elidir(..)` sin cambios. Otra pieza de datos fluye: `"responsable"` -> `"responsable"` -> `"RESPONSABLE"` -> `"RESPONS..."`.
 
-In other words, you could think of these data transformations like this:
+En otras palabras, podrias pensar en estas transformaciones de datos de esta manera:
 
 ```js
-elide( upper( removeInvalidChars( "Mr." ) ) );
+elidir( mayuscula( removerCaracteresInvalidos( "Mr." ) ) );
 // "MR"
 
-elide( upper( removeInvalidChars( "responsible" ) ) );
+elidir( mayuscula( removerCaracteresInvalidos( "responsable" ) ) );
 // "RESPONS..."
 ```
 
-Did you catch the point? We can express the three separate steps of the adjacent `map(..)` calls as a composition of the transformers, since they are all unary functions and each returns the value that's suitable as input to the next. We can fuse the mapper functions using `compose(..)`, and then pass the composed function to a single `map(..)` call:
+¿Entendiste el punto? Podemos expresar los tres pasos separados de las llamadas adyacentes `map(..)` como una composición de los transformadores, ya que son todas funciones unarias y cada una devuelve el valor que es adecuado como entrada para el siguiente. Podemos fusionar las funciones mapeadoras usando `componer(..)`, y luego pasar la función compuesta a una sola llamada a `map(..)`:
 
 ```js
-words
+palabras
 .map(
-    compose( elide, upper, removeInvalidChars )
+    componer( elidir, mayuscula, removerCaracteresInvalidos )
 );
-// ["MR","JONES","ISNT","RESPONS...","FOR","THIS","DISASTER"]
+// ["MR","JONES","NO","ES","RESPONS...","POR","ESTE","DISASTRE"]
 ```
 
-This is another case where `pipe(..)` can be a more convenient form of composition, for its ordering readability:
+Este es otro caso donde `tuberia(..)` puede ser una forma más conveniente de composición, por su legibilidad de ordenamiento:
 
 ```js
-words
+palabras
 .map(
-    pipe( removeInvalidChars, upper, elide )
+    tuberia( removerCaracteresInvalidos, mayuscula, elidir )
 );
-// ["MR","JONES","ISNT","RESPONS...","FOR","THIS","DISASTER"]
+// ["MR","JONES","NO","ES","RESPONS...","POR","ESTE","DISASTRE"]
 ```
 
-What about fusing two or more `filter(..)` predicate functions? Typically treated as unary functions, they seem suitable for composition. But the wrinkle is they each return a different kind of value (`boolean`) than the next one would want as input. Fusing adjacent `reduce(..)` calls is also possible, but reducers are not unary so that's a bit more challenging; we need more sophisticated tricks to pull this kind of fusion off. We'll cover these advanced techniques in Appendix A "Transducing".
+¿Qué hay de la fusión de dos o más funciones de predicado `filter(..)`? Típicamente tratadas como funciones unarias, parecen adecuados para la composición. Pero la arruga es que cada una devuelve un tipo diferente de valor (`boolean`) que el siguiente como entrada. También es posible fusionar llamadas `reduce (..)` adyacentes, pero los reductores no son funciones unarias, por lo que es un poco más desafiante; necesitamos trucos más sofisticados para obtener este tipo de fusión. Cubriremos estas técnicas avanzadas en el Apéndice A "Transducción".
 
-## Beyond Lists
+## Más Allá De Las Listas
 
-So far we've been discussing operations in the context of the list (array) data structure; it's by far the most common scenario you encounter them. But in a more general sense, these operations can be performed against any collection of values.
+Hasta ahora hemos estado discutiendo operaciones en el contexto de la estructura de datos lista (array); es de lejos el escenario más común en las que las encontraras. Pero en un sentido más general, estas operaciones pueden realizarse contra cualquier colección de valores.
 
-Just as we said earlier that array's `map(..)` adapts a single-value operation to all its values, any data structure can provide a `map(..)` operation to do the same. Likewise, it can implement `filter(..)`, `reduce(..)`, or any other operation that makes sense for working with the data structure's values.
+Tal y como dijimos anteriormente, el`map(..)` del array adapta una operación de un solo valor a todos sus valores, cualquier estructura de datos puede proporcionar una operación `map (..)` para hacer lo mismo. Del mismo modo, puedes implementar `filter(..)`, `reduce(..)`, o cualquier otra operación que tenga sentido para trabajar con los valores de la estructura de datos.
 
-The important part to maintain in the spirit of FP is that these operators must behave according to value immutability, meaning that they must return a new data structure rather than mutating the existing one.
+La parte importante para mantener en el espíritu de la PF es que estos operadores deben comportarse de acuerdo con la inmutabilidad del valor, lo que significa que deben devolver una nueva estructura de datos en lugar de mutar la existente.
 
-Let's illustrate with a well-known data structure: the binary tree. A binary tree is a node (just an object!) that has at most two references to other nodes (themselves binary trees), typically referred to as *left* and *right* child trees. Each node in the tree holds one value of the overall data structure.
+Vamos a ilustrarlo con una estructura de datos conocida: el árbol binario. Un árbol binario es un nodo (¡solo un objeto!) Que tiene como máximo dos referencias a otros nodos (árboles binarios en sí mismos), generalmente denominados árboles secundarios *izquierda* y *derecha*. Cada nodo en el árbol tiene un valor de la estructura de datos general.
 
 <p align="center">
     <img src="fig7.png" width="250">
 </p>
 
-For ease of illustration, we'll make our binary tree a binary search tree (BST). However, the operations we'll identify work the same for any regular non-BST binary tree.
+Para facilitar la ilustración, haremos que nuestro árbol binario sea un árbol de búsqueda binario (ABB). Sin embargo, las operaciones que identificaremos funcionan igual para cualquier árbol binario no-ABB regular.
 
-**Note:** A binary search tree is a general binary tree with a special constraint on the relationship of values in the tree to each other. Each value of nodes on the left side of a tree is less than the value of the node at the root of that tree, which in turn is less than each value of nodes in the right side of the tree. The notion of "less than" is relative to the kind of data stored; it can be numerical for numbers, lexicographic for strings, etc. BSTs by definition must remain balanced, which makes searching for a value in the tree more efficient, using a recursive binary search algorithm.
+**Nota:** Un árbol de búsqueda binario es un árbol binario general con una restricción especial acerca de la relación de valores en el árbol entre sí. Cada valor de los nodos en el lado izquierdo de un árbol es menor que el valor del nodo en la raíz de ese árbol, que a su vez es menor que cada valor de los nodos en el lado derecho del árbol. La noción de "menor que" es relativa al tipo de datos almacenados; puede ser numérico para números, lexicográfico para strings, etc. Los ABB por definición deben permanecer equilibrados, lo que hace que la búsqueda de un valor en el árbol sea más eficiente, utilizando un algoritmo de búsqueda binario recursivo.
 
-To make a binary tree node object, let's use this factory function:
-
-```js
-var BinaryTree =
-    (value,parent,left,right) => ({ value, parent, left, right });
-```
-
-For convenience, we make each node store the `left` and `right` child trees as well as a reference to its own `parent` node.
-
-Let's now define a BST of names of common produce (fruits, vegetables):
+Para hacer un objeto de nodo de árbol binario, usemos esta función de fábrica:
 
 ```js
-var banana = BinaryTree( "banana" );
-var apple = banana.left = BinaryTree( "apple", banana );
-var cherry = banana.right = BinaryTree( "cherry", banana );
-var apricot = apple.right = BinaryTree( "apricot", apple );
-var avocado = apricot.right = BinaryTree( "avocado", apricot );
-var cantelope = cherry.left = BinaryTree( "cantelope", cherry );
-var cucumber = cherry.right = BinaryTree( "cucumber", cherry );
-var grape = cucumber.right = BinaryTree( "grape", cucumber );
+var ArbolBinario =
+    (valor,padre,izquierda,derecha) => ({ valor, padre, izquierda, derecha });
 ```
 
-In this particular tree structure, `banana` is the root node; this tree could have been set up with nodes in different locations, but still had a BST with the same traversal.
+Para mayor conveniencia, hacemos que cada nodo almacene los árboles secundarios `izquierda` y `derecha`, así como también una referencia a su propio nodo `padre`.
 
-Our tree looks like:
+Definamos ahora un ABB de nombres de productos comunes (frutas, verduras):
+
+```js
+var banana = ArbolBinario( "banana" );
+var manzana = banana.izquierda = ArbolBinario( "manzana", banana );
+var cereza = banana.derecha = ArbolBinario( "cereza", banana );
+var albaricoque = manzana.derecha = ArbolBinario( "albaricoque", manzana );
+var aguacate = albaricoque.derecha = ArbolBinario( "aguacate", albaricoque );
+var cantalupo = cereza.izquierda = ArbolBinario( "cantalupo", cereza );
+var pepino = cereza.derecha = ArbolBinario( "pepino", cereza );
+var uva = pepino.derecha = ArbolBinario( "uva", pepino );
+```
+
+En esta estructura de árbol particular, `banana` es el nodo raíz; este árbol podría haberse configurado con nodos en diferentes ubicaciones, pero aún tendria un ABB con el mismo recorrido.
+
+Nuestro árbol se ve así:
 
 <p align="center">
     <img src="fig8.png" width="450">
 </p>
 
-There are multiple ways to traverse a binary tree to process its values. If it's a BST (our's is!) and we do an *in-order* traversal -- always visit the left child tree first, then the node itself, then the right child tree -- we'll visit the values in ascending (sorted) order.
+Existen múltiples formas de atravesar un árbol binario para procesar sus valores. Si es un ABB (¡como el nuestro!) Y hacemos un recorrido *en orden* -- siempre visita primero el árbol secundario izquierdo, luego al nodo en sí y luego al árbol secundario derecho -- visitaremos los valores en orden ascendente (ordenado).
 
-Since you can't just easily `console.log(..)` a binary tree like you can with an array, let's first define a convenience method, mostly to use for printing. `forEach(..)` will visit the nodes of a binary tree in the same manner as an array:
+Como no puedes simplemente usar `console.log(..)` con un árbol binario tal y como podrias hacerlo con una array, primero definamos un método de conveniencia, principalmente para usarlo para imprimir. `forEach(..)` visitará los nodos de un árbol binario de la misma manera que un array:
 
 ```js
-// in-order traversal
-BinaryTree.forEach = function forEach(visitFn,node){
-    if (node) {
-        if (node.left) {
-            forEach( visitFn, node.left );
+// recorrido en orden
+ArbolBinario.forEach = function forEach(funcionVisita,nodo){
+    if (nodo) {
+        if (nodo.izquierda) {
+            forEach( funcionVisita, nodo.izquierda );
         }
 
-        visitFn( node );
+        funcionVisita( nodo );
 
-        if (node.right) {
-            forEach( visitFn, node.right );
+        if (nodo.derecha) {
+            forEach( funcionVisita, nodo.derecha );
         }
     }
 };
 ```
 
-**Note:** Working with binary trees lends itself most naturally to recursive processing. Our `forEach(..)` utility recursively calls itself to process both the left and right child trees. We already covered recursion in Chapter 8, where we covered recursion in the chapter on recursion.
+**Nota:** Trabajar con árboles binarios se presta asi mismo más naturalmente al procesamiento recursivo. Nuestra utilidad `forEach(..)` recursivamente se llama a sí misma para procesar los árboles secundarios izquierdo y derecho. Ya cubrimos la recursión en el Capítulo 8, donde cubrimos la recursión en el capítulo acerca de la recursión.
 
-Recall `forEach(..)` was described at the beginning of this chapter as only being useful for side effects, which is not very typically desired in FP. In this case, we'll use `forEach(..)` only for the side effect of I/O, so it's perfectly reasonable as a helper.
+Recuerda que `forEach(..)` se describió al comienzo de este capítulo como solo útil para los efectos secundarios, lo que no suele desearse en la PF. En este caso, usaremos `forEach(..)` solo para el efecto secundario de E/S, por lo que es perfectamente razonable como ayudante.
 
-Use `forEach(..)` to print out values from the tree:
+Usa `forEach (..)` para imprimir valores del árbol:
 
 ```js
-BinaryTree.forEach( node => console.log( node.value ), banana );
-// apple apricot avocado banana cantelope cherry cucumber grape
+ArbolBinario.forEach( nodo => console.log( nodo.valor ), banana );
+// manzana albaricoque aguacate banana cantalupo cereza pepino uva
 
-// visit only the `cherry`-rooted subtree
-BinaryTree.forEach( node => console.log( node.value ), cherry );
-// cantelope cherry cucumber grape
+// solo visita el sub-árbol `cereza`
+ArbolBinario.forEach( nodo => console.log( nodo.valor ), cereza );
+// cantalupo cereza pepino uva
 ```
 
-To operate on our binary tree data structure using FP patterns, let's start by defining a `map(..)`:
+Para operar en nuestra estructura de datos de árbol binario usando patrones de la PF, comencemos definiendo un `map(..)`:
 
 ```js
-BinaryTree.map = function map(mapperFn,node){
-    if (node) {
-        let newNode = mapperFn( node );
-        newNode.parent = node.parent;
-        newNode.left = node.left ?
-            map( mapperFn, node.left ) : undefined;
-        newNode.right = node.right ?
-            map( mapperFn, node.right ): undefined;
+ArbolBinario.map = function map(funcionMapeadora,nodo){
+    if (nodo) {
+        let nuevoNodo = funcionMapeadora( nodo );
+        nuevoNodo.padre = nodo.padre;
+        nuevoNodo.izquierda = nodo.izquierda ?
+            map( funcionMapeadora, nodo.izquierda ) : undefined;
+        nuevoNodo.derecha = nodo.derecha ?
+            map( funcionMapeadora, nodo.derecha ): undefined;
 
-        if (newNode.left) {
-            newNode.left.parent = newNode;
+        if (nuevoNodo.izquierda) {
+            nuevoNodo.izquierda.padre = nuevoNodo;
         }
-        if (newNode.right) {
-            newNode.right.parent = newNode;
+        if (nuevoNodo.derecha) {
+            nuevoNodo.derecha.padre = nuevoNodo;
         }
 
-        return newNode;
+        return nuevoNodo;
     }
 };
 ```
 
-You might have assumed we'd `map(..)` only the node `value` properties, but in general we might actually want to map the tree nodes themselves. So, the `mapperFn(..)` is passed the whole node being visited, and it expects to receive a new `BinaryTree(..)` node back, with the transformation applied. If you just return the same node, this operation will mutate your tree and quite possibly cause unexpected results!
+Es posible que hayas asumido que usamos `map(..)` solo en las propiedades del `valor` del nodo, pero, en general, podríamos querer mapear los nodos del árbol. Entonces, la `funcionMapeadora(..)` pasa el nodo completo que se está visitando, y espera recibir un nuevo nodo `ArbolBinario(..)`, con la transformación aplicada. Si solo devuelve el mismo nodo, esta operación mutará su árbol y posiblemente cause resultados inesperados.
 
-Let's map our tree to a list of produce with all uppercase names:
+Vamos a asignar nuestro árbol a una lista de productos con todos los nombres en mayúsculas:
 
 ```js
-var BANANA = BinaryTree.map(
-    node => BinaryTree( node.value.toUpperCase() ),
+var BANANA = ArbolBinario.map(
+    nodo => ArbolBinario( nodo.valor.toUpperCase() ),
     banana
 );
 
-BinaryTree.forEach( node => console.log( node.value ), BANANA );
-// APPLE APRICOT AVOCADO BANANA CANTELOPE CHERRY CUCUMBER GRAPE
+ArbolBinario.forEach( nodo => console.log( nodo.valor ), BANANA );
+// MANZANA ALBARICOQUE AGUACATE BANANA CANTALUPO CEREZA PEPINO UVA
 ```
 
-`BANANA` is a different tree (with all different nodes) than `banana`, just like calling `map(..)` on an array returns a new array. Just like arrays of other objects/arrays, if `node.value` itself references some object/array, you'll also need to handle manually copying it in the mapper function if you want deeper immutability.
+`BANANA` es un árbol diferente (con todos los nodos diferentes) a `banana`, al igual que llamar `map(..)` en un array devuelve un nuevo array. Al igual que los arrays de otros objetos/arrays, si `nodo.valor` hace referencia a algún objeto/array, también tendrás que manejar como copiarlo manualmente en la función mapper si deseas una inmutabilidad más profunda.
 
-How about `reduce(..)`? Same basic process: do an in-order traversal of the tree nodes. One usage would be to `reduce(..)` our tree to an array of its values, which would be useful in further adapting other typical list operations. Or we can `reduce(..)` our tree to a string concatenation of all its produce names.
+¿Qué tal `reduce(..)`? El mismo proceso básico: realiza un recorrido en orden de los nodos de los árboles. Un uso sería usar `reduce(...)` en nuestro árbol para obtener una array de sus valores, lo que sería útil para adaptar aún más otras operaciones de lista típicas. O podemos usar `reduce(..)` en nuestro árbol para obtener una concatenación de string con todos los nombres de los productos.
 
-We'll mimic the behavior of the array `reduce(..)`, which makes passing the `initialValue` argument optional. This algorithm is a little trickier, but still manageable:
+Imitaremos el comportamiento de `reduce(..)` de un array, lo que hace que pasar el argumento `valorInicial` sea opcional. Este algoritmo es un poco más complicado, pero aún es manejable:
 
 ```js
-BinaryTree.reduce = function reduce(reducerFn,initialValue,node){
+ArbolBinario.reduce = function reduce(funcionReductora,valorInicial,nodo){
     if (arguments.length < 3) {
-        // shift the parameters since `initialValue` was omitted
-        node = initialValue;
+        // cambia los parámetros ya que `valorInicial` fue omitido
+        nodo = valorInicial;
     }
 
-    if (node) {
-        let result;
+    if (nodo) {
+        let resultado;
 
         if (arguments.length < 3) {
-            if (node.left) {
-                result = reduce( reducerFn, node.left );
+            if (nodo.izquierda) {
+                resultado = reduce( funcionReductora, nodo.izquierda );
             }
             else {
-                return node.right ?
-                    reduce( reducerFn, node, node.right ) :
-                    node;
+                return nodo.derecha ?
+                    reduce( funcionReductora, nodo, nodo.derecha ) :
+                    nodo;
             }
         }
         else {
-            result = node.left ?
-                reduce( reducerFn, initialValue, node.left ) :
-                initialValue;
+            resultado = nodo.izquierda ?
+                reduce( funcionReductora, valorInicial, nodo.izquierda ) :
+                valorInicial;
         }
 
-        result = reducerFn( result, node );
-        result = node.right ?
-            reduce( reducerFn, result, node.right ) : result;
-        return result;
+        resultado = funcionReductora( resultado, nodo );
+        resultado = nodo.derecha ?
+            reduce( funcionReductora, resultado, nodo.derecha ) : resultado;
+        return resultado;
     }
 
-    return initialValue;
+    return valorInicial;
 };
 ```
 
-Let's use `reduce(..)` to make our shopping list (an array):
+Usemos `reduce(..)` para hacer nuestra lista de compras (un array):
 
 ```js
-BinaryTree.reduce(
-    (result,node) => [ ...result, node.value ],
+ArbolBinario.reduce(
+    (resultado,nodo) => [ ...resultado, nodo.valor ],
     [],
     banana
 );
-// ["apple","apricot","avocado","banana","cantelope"
-//   "cherry","cucumber","grape"]
+// ["manzana","albaricoque","aguacate","banana","cantalupo"
+//   "cereza","pepino","uva"]
 ```
 
-Finally, let's consider `filter(..)` for our tree. This algorithm is trickiest so far because it effectively (not actually) involves removing nodes from the tree, which requires handling several corner cases. Don't get intimiated by the implementation, though. Just skip over it for now, if you prefer, and focus on how we use it instead.
+Finalmente, consideremos `filter(..)` para nuestro árbol. Este algoritmo es el más complicado hasta ahora porque efectivamente (en realidad no) implica eliminar nodos del árbol, lo que requiere el manejo de varios casos de esquina. Sin embargo, no te dejes engañar por la implementación. Simplemente omitela por el momento, si asi lo prefieres, y concentrate en cómo la usamos en su lugar.
 
 ```js
-BinaryTree.filter = function filter(predicateFn,node){
-    if (node) {
-        let newNode;
-        let newLeft = node.left ?
-            filter( predicateFn, node.left ) : undefined;
-        let newRight = node.right ?
-            filter( predicateFn, node.right ) : undefined;
+ArbolBinario.filter = function filter(funcionPredicado,nodo){
+    if (nodo) {
+        let nuevoNodo;
+        let nuevaIzquierda = nodo.izquierda ?
+            filter( funcionPredicado, nodo.izquierda ) : undefined;
+        let nuevaDerecha = nodo.derecha ?
+            filter( funcionPredicado, nodo.derecha ) : undefined;
 
-        if (predicateFn( node )) {
-            newNode = BinaryTree(
-                node.value,
-                node.parent,
-                newLeft,
-                newRight
+        if (funcionPredicado( nodo )) {
+            nuevoNodo = ArbolBinario(
+                nodo.valor,
+                nodo.padre,
+                nuevaIzquierda,
+                nuevaDerecha
             );
-            if (newLeft) {
-                newLeft.parent = newNode;
+            if (nuevaIzquierda) {
+                nuevaIzquierda.padre = nuevoNodo;
             }
-            if (newRight) {
-                newRight.parent = newNode;
+            if (nuevaDerecha) {
+                nuevaDerecha.padre = nuevoNodo;
             }
         }
         else {
-            if (newLeft) {
-                if (newRight) {
-                    newNode = BinaryTree(
+            if (nuevaIzquierda) {
+                if (nuevaDerecha) {
+                    nuevoNodo = ArbolBinario(
                         undefined,
-                        node.parent,
-                        newLeft,
-                        newRight
+                        nodo.padre,
+                        nuevaIzquierda,
+                        nuevaDerecha
                     );
-                    newLeft.parent = newRight.parent = newNode;
+                    nuevaIzquierda.padre = nuevaDerecha.padre = nuevoNodo;
 
-                    if (newRight.left) {
-                        let minRightNode = newRight;
-                        while (minRightNode.left) {
-                            minRightNode = minRightNode.left;
+                    if (nuevaDerecha.izquierda) {
+                        let nodoDerechoMinimo = nuevaDerecha;
+                        while (nodoDerechoMinimo.izquierda) {
+                            nodoDerechoMinimo = nodoDerechoMinimo.izquierda;
                         }
 
-                        newNode.value = minRightNode.value;
+                        nuevoNodo.valor = nodoDerechoMinimo.valor;
 
-                        if (minRightNode.right) {
-                            minRightNode.parent.left =
-                                minRightNode.right;
-                            minRightNode.right.parent =
-                                minRightNode.parent;
+                        if (nodoDerechoMinimo.derecha) {
+                            nodoDerechoMinimo.padre.izquierda =
+                                nodoDerechoMinimo.derecha;
+                            nodoDerechoMinimo.derecha.padre =
+                                nodoDerechoMinimo.padre;
                         }
                         else {
-                            minRightNode.parent.left = undefined;
+                            nodoDerechoMinimo.padre.izquierda = undefined;
                         }
 
-                        minRightNode.right =
-                            minRightNode.parent = undefined;
+                        nodoDerechoMinimo.derecha =
+                            nodoDerechoMinimo.padre = undefined;
                     }
                     else {
-                        newNode.value = newRight.value;
-                        newNode.right = newRight.right;
-                        if (newRight.right) {
-                            newRight.right.parent = newNode;
+                        nuevoNodo.valor = nuevaDerecha.valor;
+                        nuevoNodo.derecha = nuevaDerecha.derecha;
+                        if (nuevaDerecha.derecha) {
+                            nuevaDerecha.derecha.padre = nuevoNodo;
                         }
                     }
                 }
                 else {
-                    return newLeft;
+                    return nuevaIzquierda;
                 }
             }
             else {
-                return newRight;
+                return nuevaDerecha;
             }
         }
 
-        return newNode;
+        return nuevoNodo;
     }
 };
 ```
-The majority of this code listing is dedicated to handling the shifting of a node's parent/child references if it's "removed" (filtered out) of the duplicated tree structure.
 
-As an example to illustrate using `filter(..)`, let's narrow our produce tree down to only vegetables:
+La mayoría de este listado de código está dedicado a manejar el desplazamiento de las referencias padre/hijo de un nodo si este es "eliminado" (filtrado) de la estructura de árbol duplicada.
+
+Como ejemplo para ilustrar el uso de `filter(..)`, reduzcamos nuestro árbol de productos solo a vegetales:
 
 ```js
-var vegetables = [ "asparagus", "avocado", "brocolli", "carrot",
-    "celery", "corn", "cucumber", "lettuce", "potato", "squash",
-    "zucchini" ];
+var vegetables = [ "esparrago", "aguacate", "brocoli", "zanahoria",
+    "apio", "maiz", "pepino", "lechuga", "papa", "berenjena",
+    "calabacin" ];
 
-var whatToBuy = BinaryTree.filter(
-    // filter the produce list only for vegetables
-    node => vegetables.indexOf( node.value ) != -1,
+var queComprar = ArbolBinario.filter(
+    // filtra la lista de productos para obtener solo vegetales
+    nodo => vegetables.indexOf( nodo.valor ) != -1,
     banana
 );
 
-// shopping list
-BinaryTree.reduce(
-    (result,node) => [ ...result, node.value ],
+// lista de compras
+ArbolBinario.reduce(
+    (resultado,nodo) => [ ...resultado, nodo.valor ],
     [],
-    whatToBuy
+    queComprar
 );
-// ["avocado","cucumber"]
+// ["aguacate","pepino"]
 ```
 
-**Note:** We aren't making any effort to rebalance a tree after any of the `map` / `reduce` / `filter` operations on BSTs. Technically, this means the results are not themselves binary *search* trees. Most JS values have a reasonable `<` less-than operation by which we could rebalance such a tree, but some values (like promises) wouldn't have any such definition. For the sake of keeping this chapter practical in length, we'll punt on handling this complication.
+**Nota:** No estamos haciendo ningún esfuerzo para reequilibrar un árbol después de cualquiera de las operaciones `map`/`reduce`/`filter` en los ABB. Técnicamente, esto significa que los resultados no son en sí mismos árboles binarios *de búsqueda*. La mayoría de los valores de JS tienen una operación razonable menor "<" que podríamos utilizar para reequilibrar tal árbol, pero algunos valores (como las promesas) no tendrían esa definición. Con el fin de mantener este capítulo práctico, nos apartaremos de esta complicación.
 
-You will likely use most of the list operations from this chapter in the context of simple arrays. But now we've seen that the concepts apply to whatever data structures and operations you might need. That's a powerful expression of how FP can be widely applied to many different application scenarios!
+Es probable que uses la mayoría de las operaciones de lista de este capítulo en el contexto de arrays simples. Pero ahora hemos visto que los conceptos se aplican a cualquier estructura de datos y operaciones que puedas necesitar. ¡Esa es una poderosa expresión de cómo la PF puede aplicarse ampliamente a muchos escenarios de aplicaciones diferentes!
 
-## Summary
+## Resumen
 
-Three common and powerful list operations we looked at:
+Las tres operaciones de lista mas comunes y potentes que vimos:
 
-* `map(..)`: transforms values as it projects them to a new list.
-* `filter(..)`: selects or excludes values as it projects them to a new list.
-* `reduce(..)`: combines values in a list to produce some other (usually but not always non-list) value.
+* `map(..)`: transforma los valores a medida que los proyecta a una nueva lista.
+* `filter(..)`: selecciona o excluye valores a medida que los proyecta a una nueva lista.
+* `reduce(..)`: combina valores en una lista para producir algún otro valor.
 
-Other more advanced operations that can be very useful in processing lists: `unique(..)`, `flatten(..)`, and `merge(..)`.
+Otras operaciones más avanzadas que pueden ser muy útiles en el procesamiento de listas: `unica(..)`, `aplanar(..)`, y `fusionar(..)`.
 
-Fusion uses function composition techniques to consolidate multiple adjacent `map(..)` calls. This is mostly a performance optimization, but it also improves the declarative nature of your list operations.
+La fusion utiliza técnicas de composición de funciones para consolidar múltiples llamadas adyacentes a `map(..)`. Esto es principalmente una optimización en el rendimiento, pero también mejora la naturaleza declarativa en tus operaciones de lista.
 
-Lists are typically visualized as arrays, but can be generalized as any data structure that represents/produces an ordered collection of values. As such, all these "list operations" are actually "data structure operations".
+Las listas se visualizan normalmente como arrays, pero pueden ser generalizadas como cualquier estructura de datos que represente/produzca una colección ordenada de valores. Como tal, todas estas "operaciones de lista" son en realidad "operaciones de estructura de datos".
