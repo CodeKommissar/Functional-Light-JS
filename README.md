@@ -25,7 +25,7 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 ## Libro
 
-[Tabla de Contenidos](manuscript/README.md/#table-of-contents)
+[Tabla de Contenidos](manuscrito/README.md/#tabla-de-contenidos)
 
 * [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
 * [Prefacio](manuscrito/prefacio.md)
