@@ -131,7 +131,7 @@ La PF (al menos, sin toda la terminología que la hace pesada) es una de las her
 La legibilidad no es una característica binaria. Es un factor humano (en gran parte subjetivo) que describe nuestra relación con el código. Y naturalmente variará con el tiempo a medida que nuestras habilidades y comprension evolucionen. Yo he experimentado efectos similares a la siguiente figura, y anecdóticamente muchos otros con los que he hablado también.
 
 <p align="center">
-    <img src="fig17.png" width="600">
+    <img src="images/fig17.png" width="600">
 </p>
 
 Puede que experimente efectos similares a medida que trabajes en el libro. Pero anímate; si aguantas esto, ¡la curva vuelve a subir!

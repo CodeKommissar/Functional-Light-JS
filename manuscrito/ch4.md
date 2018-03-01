@@ -32,7 +32,7 @@ valorFuncion <-- unaria <-- sumar <-- 3
 Piensa en este flujo de datos como una cinta transportadora en una fábrica de dulces, donde cada operación es un paso en el proceso de enfriamiento, corte y envoltura de un dulce. Utilizaremos la metáfora de la fábrica de dulces a lo largo de este capítulo para explicar qué es la composición.
 
 <p align="center">
-    <img src="fig2.png">
+    <img src="images/fig2.png">
 </p>
 
 Examinemos la composición en acción un paso a la vez. Considera estas dos utilidades que podrías tener en su programa:
@@ -83,7 +83,7 @@ Llamamos `palabrasEncontradas` a la salida del array proveniente de `palabras(..
 
 De vuelta a la línea de montaje de la fábrica de dulces: la primera máquina toma como "entrada" el chocolate derretido, y su "salida" es un trozo de chocolate formado y enfriado. La siguiente máquina, un poco más abajo de la línea de montaje, toma como "entrada" el trozo de chocolate, y su "salida" es un trozo de trozo de chocolate. A continuación, una máquina en la línea toma pequeños trozos de caramelo de chocolate de la cinta transportadora y saca caramelos envueltos listos para ensacar y enviar.
 
-<img src="fig3.png" align="right" width="70" hspace="20">
+<img src="images/fig3.png" align="right" width="70" hspace="20">
 
 La fábrica de dulces es bastante exitosa con este proceso, pero al igual que con todas las empresas, la administración siempre esta buscando formas de crecer.
 
@@ -101,7 +101,7 @@ var palabrasUsadas = unica( palabras( texto ) );
 
 Las máquinas apiladas funcionan bien, pero es un poco torpe tener los cables colgando por todos lados. Cuantas más pilas de máquinas sean creadas, más abarrotada estara la fábrica. Y el esfuerzo para ensamblar y mantener todas estas pilas de máquinas requiere mucho tiempo.
 
-<img src="fig4.png" align="left" width="130" hspace="20">
+<img src="images/fig4.png" align="left" width="130" hspace="20">
 
 Una mañana, un ingeniero en la fábrica de dulces tiene una gran idea. Se imagina que sería mucho más eficiente si hiciera una caja exterior para ocultar todos los cables; en el interior, las tres máquinas están conectadas entre sí, y en el exterior todo está limpio y ordenado. En la parte superior de esta nueva y elegante máquina hay una válvula para verter el chocolate derretido y en el fondo una válvula que escupe dulces de chocolate envueltos. ¡Brillante!
 
@@ -132,7 +132,7 @@ Pero los ingenieros de la fábrica luchan por mantenerse al día, porque cada ve
 Por lo tanto, los ingenieros de la fábrica se ponen en contacto con un vendedor de maquinaria industrial para obtener ayuda. ¡Están asombrados de descubrir que este vendedor ofrece una **máquina que fabrica máquinas**! Por increíble que parezca, compran una máquina que puede llevar un par de las máquinas más pequeñas de la fábrica (la de refrigeración de chocolate y la de corte, por ejemplo) y unirlas automáticamente, incluso envolviendo una bonita y limpia caja más grande a su alrededor. ¡Esto seguramente hará que la fábrica de dulces realmente despegue!
 
 <p align="center">
-    <img src="fig5.png" width="300">
+    <img src="images/fig5.png" width="300">
 </p>
 
 De vuelta a la tierra del código, consideremos una utilidad llamada `componer2(..)` que crea una composición de dos funciones automáticamente, exactamente de la misma manera que lo hicimos manualmente:
@@ -192,7 +192,7 @@ valorFinal <-- funcion1 <-- funcion2 <-- ... <-- funcionN <-- valorOriginal
 ```
 
 <p align="center">
-    <img src="fig6.png" width="300">
+    <img src="images/fig6.png" width="300">
 </p>
 
 Ahora la fábrica de dulces posee la mejor máquina de todas: una máquina que puede llevar cualquier cantidad de máquinas más pequeñas por separado y escupir una gran máquina elegante que hace cada paso en orden. Esa es una genial operación de dulces! Es el sueño de Willy Wonka!

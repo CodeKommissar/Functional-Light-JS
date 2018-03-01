@@ -63,7 +63,7 @@ y = multiplicarPor3( x );
 Naturalmente, podemos extender el mapeo desde una única transformación de valores a una colección de valores. `map(..)` es una operación que transforma todos los valores de una lista a medida que los proyecta a una nueva lista:
 
 <p align="center">
-    <img src="fig9.png" width="400">
+    <img src="images/fig9.png" width="400">
 </p>
 
 Para implementar `map(..)`:
@@ -232,7 +232,7 @@ La razón por la cual este desajuste semántico importa es por la forma en que p
 A continuación se explica cómo visualizar una operación `filter(..)` en una lista de valores:
 
 <p align="center">
-    <img src="fig10.png" width="400">
+    <img src="images/fig10.png" width="400">
 </p>
 
 Para implementar `filter(..)`:
@@ -360,13 +360,13 @@ Al igual que con el mapeo y el filtrado, la forma de la combinación depende tot
 A veces, una reducción especificará un `valorInicial` y comenzará su trabajo combinándolo con el primer valor de la lista, descendiendo en cascada a través de cada uno de los demás valores de la lista. Eso se ve así:
 
 <p align="center">
-    <img src="fig11.png" width="400">
+    <img src="images/fig11.png" width="400">
 </p>
 
 Alternativamente, puedes omitir el `valorInicial`, en cuyo caso el primer valor de la lista actuará como el `valorInicial` y la combinación comenzará con el segundo valor de la lista, asi:
 
 <p align="center">
-    <img src="fig12.png" width="400">
+    <img src="images/fig12.png" width="400">
 </p>
 
 **Advertencia:** En JavaScript, si no hay al menos un valor en la reducción (ya sea en el array o especificado como `valorInicial`), se produce un error. Ten cuidado de no omitir el `valorInicial` si la lista para la reducción podría estar vacía en una circunstancia cualquiera.
@@ -1236,7 +1236,7 @@ La parte importante para mantener en el espíritu de la PF es que estos operador
 Vamos a ilustrarlo con una estructura de datos conocida: el árbol binario. Un árbol binario es un nodo (¡solo un objeto!) Que tiene como máximo dos referencias a otros nodos (árboles binarios en sí mismos), generalmente denominados árboles secundarios *izquierda* y *derecha*. Cada nodo en el árbol tiene un valor de la estructura de datos general.
 
 <p align="center">
-    <img src="fig7.png" width="250">
+    <img src="images/fig7.png" width="250">
 </p>
 
 Para facilitar la ilustración, haremos que nuestro árbol binario sea un árbol de búsqueda binario (ABB). Sin embargo, las operaciones que identificaremos funcionan igual para cualquier árbol binario no-ABB regular.
@@ -1270,7 +1270,7 @@ En esta estructura de árbol particular, `banana` es el nodo raíz; este árbol 
 Nuestro árbol se ve así:
 
 <p align="center">
-    <img src="fig8.png" width="450">
+    <img src="images/fig8.png" width="450">
 </p>
 
 Existen múltiples formas de atravesar un árbol binario para procesar sus valores. Si es un ABB (¡como el nuestro!) Y hacemos un recorrido *en orden* -- siempre visita primero el árbol secundario izquierdo, luego al nodo en sí y luego al árbol secundario derecho -- visitaremos los valores en orden ascendente (ordenado).

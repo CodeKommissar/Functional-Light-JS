@@ -53,7 +53,7 @@ function foo(x) {
 Visualicemos qué ocurre con esta función cuando llamamos `foo( 16 )`:
 
 <p align="center">
-    <img src="fig13.png" width="850">
+    <img src="images/fig13.png" width="850">
 </p>
 
 En el paso 2, `x / 2` produce `8`, y eso se transmite como el argumento para una llamada `foo(..)` recursiva. En el paso 3, lo mismo, `x / 2` produce `4`, y eso es pasado como el argumento de otra llamada `foo(..)`. Esa parte es, con suerte, bastante sencilla.
@@ -61,7 +61,7 @@ En el paso 2, `x / 2` produce `8`, y eso se transmite como el argumento para una
 Pero donde a menudo alguien se tropieza es lo que sucede en el paso 4. Una vez que hemos satisfecho la condición base donde `x` (valor `4`) es `< 5`, ya no hacemos más llamadas recursivas, y solo (efectivamente) hacer `return 4`. Específicamente, el retorno de la línea de puntos de `4` en esta figura simplifica lo que está sucediendo allí, así que profundicemos en ese último paso y visualicemos estos tres subpasos:
 
 <p align="center">
-    <img src="fig14.png" width="850">
+    <img src="images/fig14.png" width="850">
 </p>
 
 Una vez que la condición base es cumplida, el valor devuelto regresa en cascada a través de todas las llamadas de funciones actuales (a traves de su `return`s), y eventualmente el resultado final es `devuelto`.
@@ -69,7 +69,7 @@ Una vez que la condición base es cumplida, el valor devuelto regresa en cascada
 Otra forma de visualizar esta recursión es considerar las llamadas de función en el orden en que ocurren (comúnmente denominadas pila de llamadas):
 
 <p align="center">
-    <img src="fig19.png" width="188">
+    <img src="images/fig19.png" width="188">
 </p>
 
 Más información sobre la pila de llamadas más adelante en este capítulo.
@@ -343,7 +343,7 @@ baz();
 Visualizando el marco de pila de este programa paso a paso:
 
 <p align="center">
-    <img src="fig15.png" width="600">
+    <img src="images/fig15.png" width="600">
 </p>
 
 **Nota:** Si estas funciones no se llamaran entre sí, sino que simplemente se llamaran secuencialmente, como `baz(); bar(); foo();`, donde cada una termina antes de que comience la siguiente -- los cuadros no se apilarian; cada llamada a la función finaliza y elimina su marco de la pila antes de agregar el siguiente.
@@ -365,7 +365,7 @@ Afortunadamente, se realizó una observación poderosa en aquellos primeros día
 La idea es que si una llamada de la función `baz()` a la función `bar()` ocurre al final de la función ejecucion de `baz()` -- a la que se hace referencia como una llamada de cola -- el marco de pila para `baz()` ya no es necesario. Eso significa que la memoria puede ser recuperada, o incluso mejor, simplemente reutilizada para manejar la ejecución de la función `bar()`. Visualizando:
 
 <p align="center">
-    <img src="fig16.png" width="600">
+    <img src="images/fig16.png" width="600">
 </p>
 
 Por si mismas, las llamadas de cola no están realmente relacionadas directamente con la recursividad; esta noción se cumple para cualquier llamada de función. Pero es poco probable que las pilas de llamadas manuales no recurrentes vayan más allá de los 10 niveles de profundidad en la mayoría de los casos, por lo que las posibilidades de que las llamadas finales afecten la memoria de tu programa son bastante bajas.

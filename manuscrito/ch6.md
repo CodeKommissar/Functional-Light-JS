@@ -344,7 +344,7 @@ Piense en una estructura de datos especializada que sea como un array, pero a la
 Internamente, podría ser como un árbol de listas enlazadas de referencias de objetos en donde cada nodo en el árbol representa una mutación del valor original. En realidad, esto es conceptualmente similar a cómo funciona el control de versión **git**.
 
 <p align="center">
-    <img src="fig18.png" width="490">
+    <img src="images/fig18.png" width="490">
 </p>
 
 En la ilustración conceptual de arriba, un array original `[3,6,1,0]` primero tiene la mutación del valor `4` asignado a la posición `0` (lo que da como resultado `[4,6,1,0]`) , entonces `1` se asigna a la posición `3` (ahora `[4,6,1,1]`), finalmente `2` se asigna a la posición `4` (resultado: `[4,6,1,1,2] `). La idea clave es que en cada mutación, solo se registra el cambio de la versión anterior, no una duplicación de la estructura de datos original completa. En general, este enfoque es mucho más eficiente en la memoria y en el rendimiento de la CPU.
