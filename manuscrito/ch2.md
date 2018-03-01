@@ -23,7 +23,7 @@ Sé que he prometido que nos mantendríamos alejados de las matemáticas tanto c
 
 Digamos que una ecuación se define así: <code>f(x) = 2x<sup>2</sup> + 3 </code>. Qué significa eso? ¿Qué significa graficar esa ecuación? Aquí está el gráfico:
 
-<img src="fig1.png">
+<img src="images/fig1.png">
 
 Lo que puedes notar es que para cualquier valor de `x`, digamos` 2`, si lo insertas en la ecuación, obtienes `11`. ¿Sin embargo, qué es `11`? Es el *valor de retorno* de la función `f(x)`, que antes dijimos representa un valor `y`.
 
