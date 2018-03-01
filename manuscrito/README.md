@@ -16,7 +16,7 @@
     * [Perspectiva](ch1.md/#perspectiva)
     * [Cómo Encontrar el Equilibrio](ch1.md/#como-encontrar-el-equilibrio)
     * [Recursos](ch1.md/#recursos)
-* [Capítulo 2: La Naturaleza De Las Funciones](ch2.md/#capitulo-2-la-naturaleza-de-las-funciones)
+* [Capítulo 2: La Naturaleza De Las Funciones](ch2.md/#capítulo-2-la-naturaleza-de-las-funciones)
     * [¿Qué Es Una Función?](ch2.md/#que-es-una-funcion)
     * [Entrada De Funciones](ch2.md/#entrada-de-funciones)
     * [Argumentos Nombrados](ch2.md/#argumentos-nombrados)
