@@ -21,28 +21,28 @@ Esto no es para decir que los terminos carecen de significado o que los Programa
 
 Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales de la PF en tu JavaScript *ahora*, porque yo creo que te ayudara a escribir codigo mejor y mas *razon*able..
 
-**Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](prefacio.md)**
+**Para leer mas acerca de las motivaciones y la perspectiva detras de este libro, chequea el [Prefacio](manuscrito/prefacio.md)**
 
 ## Libro
 
 [Tabla de Contenidos](manuscript/README.md/#table-of-contents)
 
 * [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
-* [Prefacio](prefacio.md)
-* [Capitulo 1: Programacion Funcional, Porque?](ch1.md)
-* [Capitulo 2: La Naturaleza de las Funciones](ch2.md)
-* [Capitulo 3: Manejando la Entrada de las Funciones](ch3.md)
-* [Capitulo 4: Componiendo Funciones](ch4.md)
-* [Capitulo 5: Reduciendo Efectos Secundarios](ch5.md)
-* [Capitulo 6: Immutabilitidad de los Valores](ch6.md)
-* [Capitulo 7: Cierre vs Objeto](ch7.md)
-* [Capitulo 8: Recursion](ch8.md)
-* [Capitulo 9: Operaciones en Listas](ch9.md)
-* [Capitulo 10: Async Funcional](ch10.md)
-* [Capitulo 11: Poniendolo Todo Junto](ch11.md)
-* [Apendice A: Transduciendo](apA.md)
-* [Apendice B: La Humilde Monada](apB.md)
-* [Apendice C: Librerias de PF](apC.md)
+* [Prefacio](manuscrito/prefacio.md)
+* [Capitulo 1: Programacion Funcional, Porque?](manuscrito/ch1.md)
+* [Capitulo 2: La Naturaleza de las Funciones](manuscrito/ch2.md)
+* [Capitulo 3: Manejando la Entrada de las Funciones](manuscrito/ch3.md)
+* [Capitulo 4: Componiendo Funciones](manuscrito/ch4.md)
+* [Capitulo 5: Reduciendo Efectos Secundarios](manuscrito/ch5.md)
+* [Capitulo 6: Immutabilitidad de los Valores](manuscrito/ch6.md)
+* [Capitulo 7: Cierre vs Objeto](manuscrito/ch7.md)
+* [Capitulo 8: Recursion](manuscrito/ch8.md)
+* [Capitulo 9: Operaciones en Listas](manuscrito/ch9.md)
+* [Capitulo 10: Async Funcional](manuscrito/ch10.md)
+* [Capitulo 11: Poniendolo Todo Junto](manuscrito/ch11.md)
+* [Apendice A: Transduciendo](manuscrito/apA.md)
+* [Apendice B: La Humilde Monada](manuscrito/apB.md)
+* [Apendice C: Librerias de PF](manuscrito/apC.md)
 
 ## Publicacion
 
