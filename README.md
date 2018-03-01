@@ -27,7 +27,7 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 [Tabla de Contenidos](manuscrito/README.md/#tabla-de-contenidos)
 
-* [Prólogo](prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
+* [Prólogo](manuscrito/prologo.md) (por [Brian Lonsdorf aka "Prof Frisby"](https://twitter.com/DrBoolean))
 * [Prefacio](manuscrito/prefacio.md)
 * [Capitulo 1: Programacion Funcional, Porque?](manuscrito/ch1.md)
 * [Capitulo 2: La Naturaleza de las Funciones](manuscrito/ch2.md)
