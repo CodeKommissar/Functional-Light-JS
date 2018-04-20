@@ -1,102 +1,102 @@
-# Functional-Light JavaScript
-# Appendix A: Transducing
+# Javascript Funcionalmente-Ligero
+# Apéndice A: Transducción
 
-Transducing is a more advanced technique than we've covered in this book. It extends many of the concepts from Chapter 9 on list operations.
+Transducir es una técnica más avanzada que lo que hemos cubierto en este libro. Amplía muchos de los conceptos del Capítulo 9 sobre operaciones de lista.
 
-I wouldn't necessarily call this topic strictly "Functional-Light", but more like a bonus on top. I've left this to an appendix because you might very well need to skip the discussion for now and come back to it once you feel fairly comfortable with -- and make sure you've practiced! -- the main book concepts.
+Necesariamente no llamaría a este tema estrictamente "Funcionalmente-Ligero", sino más bien como un bonus en la parte superior. Dejé esto como un apéndice porque es muy posible que necesites omitir la discusión por ahora y volver a ella una vez que te sientas bastante cómodo con -- y asegúrate de haber practicado! -- los conceptos principales del libro.
 
-To be honest, even after teaching transducing many times, and writing this chapter, I am still trying to fully wrap my brain around this technique. So don't feel bad if it twists you up. Bookmark this appendix and come back when you're ready.
+Para ser honesto, incluso después de enseñar lo que es la transducción muchas veces, y de escribir este capítulo, todavía estoy tratando de adaptar completamente mi cerebro a esta técnica. Así que no te sientas mal si te retuerce un poco. Marca este apéndice en tus favoritos y regresa cuando estes listo.
 
-Transducing means transforming with reduction.
+Transducir significa transformar con reducción.
 
-I know that may sound like a jumble of words that confuses more than it clarifies. But let's take a look at how powerful it can be. I actually think it's one of the best illustrations of what you can do once you grasp the principles of Functional-Light Programming.
+Sé que puede sonar como un revoltijo de palabras que confunde más de lo que aclara. Pero echemos un vistazo a lo poderoso que puede ser. De hecho, creo que es una de las mejores ilustraciones de lo que puedes hacer una vez que captas los principios de la Programación Funcionalmente-Ligera.
 
-As with the rest of this book, my approach is to first explain *why*, then *how*, then finally boil it down to a simplified, repeatable *what*. That's often backwards of how many teach, but I think you'll learn the topic more deeply this way.
+Al igual que con el resto de este libro, mi enfoque es primero explicar el *porque*, luego el *como*, y finalmente reducirlo al *que* simplificado y repetible. Eso es a menudo al reves de como muchos enseñan, pero creo que aprenderás el tema más profundamente de esta manera.
 
-## Why, First
+## Porque, Primero
 
-Let's start by extending a scenario we covered back in Chapter 3, testing words to see if they're short enough and/or long enough:
+Comencemos ampliando un escenario que cubrimos en el Capítulo 3, probando palabras para ver si son lo suficientemente cortas y/o suficientemente largas:
 
 ```js
-function isLongEnough(str) {
-    return str.length >= 5;
+function esSuficientementeLarga(palabra) {
+    return palabra.length >= 5;
 }
 
-function isShortEnough(str) {
-    return str.length <= 10;
+function esSuficientementeCorta(palabra) {
+    return palabra.length <= 10;
 }
 ```
 
-In Chapter 3, we used these predicate functions to test a single word. Then in Chapter 9, we learned how to repeat such tests using list operations like `filter(..)`. For example:
+En el Capítulo 3, usamos estas funciones predicativas para probar una sola palabra. Luego, en el Capítulo 9, aprendimos cómo repetir tales pruebas usando operaciones de lista como `filter(..)`. Por ejemplo:
 
 ```js
-var words = [ "You", "have", "written", "something", "very", "interesting" ];
+var palabras = [ "Tu", "has", "escrito", "algo", "muy", "interesante" ];
 
-words
-.filter( isLongEnough )
-.filter( isShortEnough );
-// ["written","something"]
+palabras
+.filter( esSuficientementeLarga )
+.filter( esSuficientementeCorta );
+// ["escrito"]
 ```
 
-It may not be obvious, but this pattern of separate adjacent list operations has some non-ideal characteristics. When we're dealing with only a single array of a small number of values, everything is fine. But if there were lots of values in the array, each `filter(..)` processing the list separately can slow down a bit more than we'd like.
+Puede que no sea obvio, pero este patrón de operaciones de listas adyacentes separadas tiene algunas características no ideales. Cuando tratamos con un solo array con una cantidad pequeña de valores, todo está bien. Pero si hubiera muchos valores en el array, cada `filter(..)` que procesa la lista por separado puede ralentizar el programa un poco más de lo que nos gustaría.
 
-A similar performance problem arises when our arrays are async/lazy (aka Observables), processing values over time in response to events (see Chapter 10). In this scenario, only a single value comes down the event stream at a time, so processing that discrete value with two separate `filter(..)`s function calls isn't really such a big deal.
+Un problema de rendimiento similar surge cuando nuestros arrays son asincrónicos/flojos (también conocidos como Observables), procesando valores a lo largo del tiempo en respuesta a eventos (ver Capítulo 10). En este escenario, solo un valor individual baja por la secuencia de eventos a la vez, por lo que procesar ese valor discreto con dos llamadas a funciones de `filter(..)` por separado no es algo tan importante.
 
-But, what's not obvious is that each `filter(..)` method produces a separate observable. The overhead of pumping a value out of one observable into another can really add up. That's especially true since in these cases, it's not uncommon for thousands or millions of values to be processed; even such small overhead costs add up quickly.
+Pero, lo que no es obvio es que cada método `filter(..)` produce un observable por separado. La sobrecarga de bombear un valor de uno observable a otro realmente puede sumar. Eso es especialmente cierto ya que en estos casos, no es raro que se procesen miles o millones de valores; incluso esos costos indirectos pequeños se acumulan rápidamente.
 
-The other downside is readability, especially when we need to repeat the same series of operations against multiple lists (or Observables). For example:
+El otro inconveniente es la legibilidad, especialmente cuando necesitamos repetir la misma serie de operaciones contra listas múltiples (u Observables). Por ejemplo:
 
 ```js
-zip(
-    list1.filter( isLongEnough ).filter( isShortEnough ),
-    list2.filter( isLongEnough ).filter( isShortEnough ),
-    list3.filter( isLongEnough ).filter( isShortEnough )
+cremallera(
+    lista1.filter( esSuficientementeLarga ).filter( esSuficientementeCorta ),
+    lista2.filter( esSuficientementeLarga ).filter( esSuficientementeCorta ),
+    lista3.filter( esSuficientementeLarga ).filter( esSuficientementeCorta )
 )
 ```
 
-Repetitive, right?
+Repetitivo, cierto?
 
-Wouldn't it be better (both for readability and performance) if we could combine the `isLongEnough(..)` predicate with the `isShortEnough(..)` predicate? You could do so manually:
+¿No sería mejor (tanto para la legibilidad y el rendimiento) si pudiéramos combinar el predicado `esSuficientementeLarga(..)` con el predicado `esSuficientementeCorta(..)`? Puedes hacerlo manualmente:
 
 ```js
-function isCorrectLength(str) {
-    return isLongEnough( str ) && isShortEnough( str );
+function esDeLongitudCorrecta(palabra) {
+    return esSuficientementeLarga( palabra ) && esSuficientementeCorta( palabra );
 }
 ```
 
-But that's not the FP way!
+¡Pero esa no es la forma de la PF!
 
-In Chapter 9, we talked about fusion -- composing adjacent mapping functions. Recall:
+En el Capítulo 9, hablamos sobre la fusión -- componer funciones de mapeo adyacentes. Recuerda:
 
 ```js
-words
+palabras
 .map(
-    pipe( removeInvalidChars, upper, elide )
+    tuberia( removerCaracteresInvalidos, mayuscula, elidir )
 );
 ```
 
-Unfortunately, combining adjacent predicate functions doesn't work as easily as combining adjacent mapping functions. To understand why, think about the "shape" of the predicate function -- a sort of academic way of describing the signature of inputs and output. It takes a single value in, and it returns a `true` or a `false`.
+Desafortunadamente, combinar funciones de predicados adyacentes no funciona tan fácilmente como la combinación de funciones de mapeo adyacentes. Para comprender por qué, piensa en la "forma" de la función predicativa -- una especie de forma académica de describir la firma de entradas y salidas. Toma un valor único adentro, y devuelve un `true` o un` false`.
 
-If you tried `isShortEnough(isLongEnough(str))`, it wouldn't work properly. `isLongEnough(..)` will return `true` / `false`, not the string value that `isShortEnough(..)` is expecting. Bummer.
+Si has intentado `esSuficientementeCorta(esSuficientementeLarga(str))`, no funcionaría correctamente. `esSuficientementeLarga(..)` devolverá `true` / `false`, no el valor de cadena que `esSuficientementeCorta(..)` está esperando. Que mal.
 
-A similar frustration exists trying to compose two adjacent reducer functions. The "shape" of a reducer is a function that receives two values as input, and returns a single combined value. The output of a reducer as a single value is not suitable for input to another reducer expecting two inputs.
+Existe una frustración similar al tratar de componer dos funciones reductoras adyacentes. La "forma" de un reductor es una función que recibe dos valores como entrada, y devuelve un solo valor combinado. La salida de un reductor como un solo valor no es adecuada para la entrada a otro reductor que espera dos entradas.
 
-Moreover, the `reduce(..)` helper takes an optional `initialValue` input. Sometimes this can be omitted, but sometimes it has to be passed in. That even further complicates composition, since one reduction might need one `initialValue` and the other reduction might seem like it needs a different `initialValue`. How can we possibly do that if we only make one `reduce(..)` call with some sort of composed reducer?
+Además, el helper `reduce(..)` toma una entrada `valorInicial` opcional. A veces esto puede omitirse, pero a veces tiene que transmitirse. Eso complica aún más la composición, ya que una reducción podría necesitar un `valorInicial` y la otra reducción podría parecer que necesita un `valorInicial` diferente. ¿Cómo podemos hacer eso si solo hacemos una llamada `reduce(..)` con algún tipo de reductor compuesto?
 
-Consider a chain like this:
+Considera una cadena como esta:
 
 ```js
-words
-.map( strUppercase )
-.filter( isLongEnough )
-.filter( isShortEnough )
-.reduce( strConcat, "" );
-// "WRITTENSOMETHING"
+palabras
+.map( stringMayuscula )
+.filter( esSuficientementeLarga )
+.filter( esSuficientementeCorta )
+.reduce( stringConcat, "" );
+// "ESCRITO"
 ```
 
-Can you envision a composition that includes all of these steps: `map(strUppercase)`, `filter(isLongEnough)`, `filter(isShortEnough)`, `reduce(strConcat)`? The shape of each operator is different, so they won't directly compose together. We need to bend their shapes a little bit to fit them together.
+¿Puedes imaginar una composición que incluya todos estos pasos: `map(stringMayuscula)`, `filter(esSuficientementeLarga)`, `filter(esSuficientementeCorta)`, `reduce(stringConcat)`? La forma de cada operador es diferente, por lo que no compondrán directamente. Necesitamos doblar sus formas un poco para poder unirlas.
 
-Hopefully these observations have illustrated why simple fusion-style composition isn't up to the task. We need a more powerful technique, and transducing is that tool.
+Esperemos que estas observaciones hayan ilustrado por qué la composición de estilo de fusión simple no está a la altura de la tarea. Necesitamos una técnica más poderosa, y transducir es esa herramienta.
 
 ## How, Next
 
