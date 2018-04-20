@@ -46,8 +46,6 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 ## Publicacion
 
-<a href="https://www.patreon.com/getify">[![patreon.png](https://s13.postimg.org/k9nkc5thz/become_a_patron_button.png)](https://www.patreon.com/getify)</a>
-
 Este libro ha sido publicado [y ahora esta disponible para comprar en Leanpub](https://leanpub.com/fljs/). Tambien estare intentando de conseguir una opción
 para vender el libro en copias fisicas, pero esa parte aun es incierta.
 
