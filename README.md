@@ -46,8 +46,6 @@ Pero yo quiero que tu seas capaz de aplicar algunas de las partes fundamentales 
 
 ## Publicacion
 
-<a href="https://www.patreon.com/getify">[![patreon.png](https://s13.postimg.org/k9nkc5thz/become_a_patron_button.png)](https://www.patreon.com/getify)</a>
-
 Este libro ha sido publicado [y ahora esta disponible para comprar en Leanpub](https://leanpub.com/fljs/). Tambien estare intentando de conseguir una opción
 para vender el libro en copias fisicas, pero esa parte aun es incierta.
 
@@ -55,7 +53,7 @@ para vender el libro en copias fisicas, pero esa parte aun es incierta.
 
 Si te gustaria contribuir financieramente hacia los esfuerzos (o cualquiera de mis otros trabajos de OSS) aparte de comprar los libros, tengo un [patreon](https://www.patreon.com/getify) en el cual siempre aprecieria de tu generosidad.
 
-<a href="https://www.patreon.com/getify">[![patreon.png](https://s11.postimg.org/axpzguh77/patreon.png)](https://www.patreon.com/getify)</a>
+<a href="https://www.patreon.com/getify">[![patreon.png](https://s13.postimg.org/k9nkc5thz/become_a_patron_button.png)](https://www.patreon.com/getify)</a>
 
 ## Entrenamiento en Persona
 
