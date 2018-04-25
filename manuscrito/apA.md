@@ -98,323 +98,325 @@ palabras
 
 Esperemos que estas observaciones hayan ilustrado por qué la composición de estilo de fusión simple no está a la altura de la tarea. Necesitamos una técnica más poderosa, y transducir es esa herramienta.
 
-## How, Next
+## Cómo, siguiente
 
-Let's talk about how we might derive a composition of mappers, predicates and/or reducers.
+Vamos a hablar sobre cómo podríamos derivar una composición de mapeadores, predicados y/o reductores.
 
-Don't get too overwhelmed: you won't have to go through all these mental steps we're about to explore in your own programming. Once you understand and can recognize the problem transducing solves, you'll be able just jump straight to using a `transduce(..)` utility from a FP library and move on with the rest of your application!
+No te sientas demasiado abrumado: no tendrás que pasar por todos estos pasos mentales por los que estamos a punto de explorar en tu propia programación. Una vez que comprendas y puedas reconocer el problema que la transducción resuelve, podrás ir directamente a usar una utilidad `transducir(..)` de una libreria de PF y continuar con el resto de tu aplicación!
 
-Let's jump in.
+Comencemos.
 
-### Expressing Map/Filter As Reduce
+### Expresando Mapa/Filtro como Reducir
 
-The first trick we need to perform is expressing our `filter(..)` and `map(..)` calls as `reduce(..)` calls. Recall how we did that in Chapter 9:
+El primer truco que debemos realizar es expresar nuestras llamadas `filter(..)` y `map(..)` como llamadas `reduce(..)`. Recuerda cómo lo hicimos en el Capítulo 9:
 
 ```js
-function strUppercase(str) { return str.toUpperCase(); }
-function strConcat(str1,str2) { return str1 + str2; }
+function stringMayuscula(string) { return string.toUpperCase(); }
+function concatenarStrings(string1,string2) { return string1 + string2; }
 
-function strUppercaseReducer(list,str) {
-    list.push( strUppercase( str ) );
-    return list;
+function reductorStringMayuscula(lista,string) {
+    lista.push( stringMayuscula( string ) );
+    return lista;
 }
 
-function isLongEnoughReducer(list,str) {
-    if (isLongEnough( str )) list.push( str );
-    return list;
+function reductorEsSuficientementeLarga(lista,string) {
+    if (esSuficientementeLarga( string )) lista.push( string );
+    return lista;
 }
 
-function isShortEnoughReducer(list,str) {
-    if (isShortEnough( str )) list.push( str );
-    return list;
+function reductorEsSuficientementeCorta(lista,string) {
+    if (esSuficientementeCorta( string )) lista.push( string );
+    return lista;
 }
 
-words
-.reduce( strUppercaseReducer, [] )
-.reduce( isLongEnoughReducer, [] )
-.reduce( isShortEnough, [] )
-.reduce( strConcat, "" );
-// "WRITTENSOMETHING"
+palabras
+.reduce( reductorStringMayuscula, [] )
+.reduce( reductorEsSuficientementeLarga, [] )
+.reduce( reductorEsSuficientementeCorta, [] )
+.reduce( concatenarStrings, "" );
+// "ESCRITO"
 ```
 
-That's a decent improvement. We now have four adjacent `reduce(..)` calls instead of a mixture of three different methods all with different shapes. We still can't just `compose(..)` those four reducers, however, because they accept two arguments instead of one.
+Esa es una mejora decente. Ahora tenemos cuatro llamadas `reduce(..)` adyacentes en lugar de una mezcla de tres métodos diferentes, todos con diferentes formas. Sin embargo, todavía no podemos `componer(..)` esos cuatro reductores porque aceptan dos argumentos en lugar de uno.
 
-In Chapter 9, we sort of cheated and used `list.push(..)` to mutate as a side effect rather than creating a whole new array to concatenate onto. Let's step back and be a bit more formal for now:
+En el Capítulo 9, hicimos una especie de trampa y usamos `lista.push(..)` para mutar como un efecto secundario en lugar de crear un nuevo array para concatenar. Retrocedamos y seamos un poco más formales por ahora:
 
 ```js
-function strUppercaseReducer(list,str) {
-    return [ ...list, strUppercase( str ) ];
+function reductorStringMayuscula(lista,string) {
+    return [ ...lista, stringMayuscula( string ) ];
 }
 
-function isLongEnoughReducer(list,str) {
-    if (isLongEnough( str )) return [ ...list, str ];
-    return list;
+function reductorEsSuficientementeLarga(lista,string) {
+    if (isLongEnough( string )) return [ ...lista, string ];
+    return lista;
 }
 
-function isShortEnoughReducer(list,str) {
-    if (isShortEnough( str )) return [ ...list, str ];
-    return list;
+function reductorEsSuficientementeCorta(lista,string) {
+    if (isShortEnough( string )) return [ ...lista, string ];
+    return lista;
 }
 ```
 
-Later, we'll revisit whether creating a new array to concatenate onto (e.g., `[...list,str]`) is necessary here or not.
+Más adelante, revisitaremos si es necesario crear o no un nuevo array al cual concatenar (por ejemplo, `[...lista, string]`).
 
-### Parameterizing The Reducers
+### Parametrizando Los Reductores
 
-Both filter reducers are almost identical, except they use a different predicate function. Let's parameterize that so we get one utility that can define any filter-reducer:
+Ambos filtros reductores son casi idénticos, excepto que usan una función de predicado diferente. Vamos a parametrizar esto para que tengamos una utilidad que podamos usar para definir cualquier filtro-reductor:
 
 ```js
-function filterReducer(predicateFn) {
-    return function reducer(list,val){
-        if (predicateFn( val )) return [ ...list, val ];
-        return list;
+function reductorFiltrar(funcionPredicadora) {
+    return function reductor(lista,valor){
+        if (funcionPredicadora( valor )) return [ ...lista, valor ];
+        return lista;
     };
 }
 
-var isLongEnoughReducer = filterReducer( isLongEnough );
-var isShortEnoughReducer = filterReducer( isShortEnough );
+var reductorEsSuficientementeLarga = reductorFiltrar( esSuficientementeLarga );
+var reductorEsSuficientementeCorta = reductorFiltrar( esSuficientementeCorta );
 ```
 
-Let's do the same parameterization of the `mapperFn(..)` for a utility to produce any map-reducer:
+Hagamos la misma parametrización de la `funcionMapeadora(..)` para una utilidad que produzca cualquier mapeo-reductor:
 
 ```js
-function mapReducer(mapperFn) {
-    return function reducer(list,val){
-        return [ ...list, mapperFn( val ) ];
+function reductorMapeo(funcionMapeadora) {
+    return function reductor(lista,valor){
+        return [ ...lista, funcionMapeadora( valor ) ];
     };
 }
 
-var strToUppercaseReducer = mapReducer( strUppercase );
+var reductorStringMayuscula = reductorMapeo( stringMayuscula );
 ```
 
-Our chain still looks the same:
+Nuestra cadena todavía se ve igual:
 
 ```js
-words
-.reduce( strUppercaseReducer, [] )
-.reduce( isLongEnoughReducer, [] )
-.reduce( isShortEnough, [] )
-.reduce( strConcat, "" );
+palabras
+.reduce( reductorStringMayuscula, [] )
+.reduce( reductorEsSuficientementeLarga, [] )
+.reduce( reductorEsSuficientementeCorta, [] )
+.reduce( concatenarStrings, "" );
 ```
 
-### Extracting Common Combination Logic
+### Extrayendo Lógica Común De Combinación
 
-Look very closely at the above `mapReducer(..)` and `filterReducer(..)` functions. Do you spot the common functionality shared in each?
+Mira muy de cerca las funciones `reductorMapeo(..)` y `reductorFiltrar(..)` anteriores. ¿Ves la funcionalidad común compartida en cada una?
+
+Esta parte:
 
 This part:
 
 ```js
-return [ ...list, .. ];
+return [ ...lista, .. ];
 
-// or
-return list;
+// o
+return lista;
 ```
 
-Let's define a helper for that common logic. But what shall we call it?
+Definamos un ayudante para esa lógica común. ¿Pero cómo lo deberiamos llamar?
 
 ```js
-function WHATSITCALLED(list,val) {
-    return [ ...list, val ];
+function COMOSELLAMA(lista,valor) {
+    return [ ...lista, valor ];
 }
 ```
 
-If you examine what that `WHATSITCALLED(..)` function does, it takes two values (an array and another value) and it "combines" them by creating a new array and concatenating the value onto the end of it. Very uncreatively, we could name this `listCombination(..)`:
+Si examinas lo qué hace esa función `COMOSELLAMA(..)`, toma dos valores (un array y otro valor) y los "combina" creando un nuevo array concatenando el valor al final del mismo. De una manera poco creativa, podríamos llamar a esto `combinacionLista(..)`:
 
 ```js
-function listCombination(list,val) {
-    return [ ...list, val ];
+function combinacionLista(lista,valor) {
+    return [ ...lista, valor ];
 }
 ```
 
-Let's now re-define our reducer helpers to use `listCombination(..)`:
+Vamos a redefinir ahora nuestros reductores ayudantes para usar `combinacionLista(..)`:
 
 ```js
-function mapReducer(mapperFn) {
-    return function reducer(list,val){
-        return listCombination( list, mapperFn( val ) );
+function reductorMapeo(funcionMapeadora) {
+    return function reductor(lista,valor){
+        return combinacionLista( lista, funcionMapeadora( valor ) );
     };
 }
 
-function filterReducer(predicateFn) {
-    return function reducer(list,val){
-        if (predicateFn( val )) return listCombination( list, val );
-        return list;
-    };
-}
-```
-
-Our chain still looks the same (so we won't repeat it).
-
-### Parameterizing The Combination
-
-Our simple `listCombination(..)` utility is only one possible way that we might combine two values. Let's parameterize the use of it to make our reducers more generalized:
-
-```js
-function mapReducer(mapperFn,combinationFn) {
-    return function reducer(list,val){
-        return combinationFn( list, mapperFn( val ) );
-    };
-}
-
-function filterReducer(predicateFn,combinationFn) {
-    return function reducer(list,val){
-        if (predicateFn( val )) return combinationFn( list, val );
-        return list;
+function reductorFiltrar(funcionPredicadora) {
+    return function reductor(lista,valor){
+        if (funcionPredicadora( valor )) return combinacionLista( lista, valor );
+        return lista;
     };
 }
 ```
 
-To use this form of our helpers:
+Nuestra cadena todavía se ve igual (así que no la repetiremos).
+
+### Parametrizando La Combinación
+
+Nuestra sencilla utilidad `combinacionLista(..)` es solo una forma posible de combinar dos valores. Vamos a parametrizar su uso para que nuestros reductores sean más generalizados:
 
 ```js
-var strToUppercaseReducer = mapReducer( strUppercase, listCombination );
-var isLongEnoughReducer = filterReducer( isLongEnough, listCombination );
-var isShortEnoughReducer = filterReducer( isShortEnough, listCombination );
+function reductorMapeo(funcionMapeadora,funcionCombinacion) {
+    return function reductor(lista,valor){
+        return funcionCombinacion( lista, funcionMapeadora( valor ) );
+    };
+}
+
+function reductorFiltrar(funcionPredicadora,funcionCombinacion) {
+    return function reductor(lista,valor){
+        if (funcionPredicadora( valor )) return funcionCombinacion( lista, valor );
+        return lista;
+    };
+}
 ```
 
-Defining these utilities to take two arguments instead of one is less convenient for composition, so let's use our `curry(..)` approach:
+Para usar esta forma de nuestros ayudantes:
 
 ```js
-var curriedMapReducer = curry( function mapReducer(mapperFn,combinationFn){
-    return function reducer(list,val){
-        return combinationFn( list, mapperFn( val ) );
-    };
-} );
+var reductorStringMayuscula = reductorMapeo( stringMayuscula, combinacionLista );
+var reductorEsSuficientementeLarga = reductorFiltrar( esSuficientementeLarga, combinacionLista );
+var reductorEsSuficientementeCorta = reductorFiltrar( esSuficientementeCorta, combinacionLista );
+```
 
-var curriedFilterReducer = curry( function filterReducer(predicateFn,combinationFn){
-    return function reducer(list,val){
-        if (predicateFn( val )) return combinationFn( list, val );
-        return list;
+Definir estas utilidades para tomar dos argumentos en lugar de uno es menos conveniente para la composición, así que usemos nuestro enfoque `curry(..)`:
+
+```js
+var reductorMapeoAlCurry = curry( function reductorMapeo(funcionMapeadora,funcionCombinacion){
+    return function reductor(lista,valor){
+        return funcionCombinacion( lista, funcionMapeadora( valor ) );
     };
 } );
 
-var strToUppercaseReducer =
-    curriedMapReducer( strUppercase )( listCombination );
-var isLongEnoughReducer =
-    curriedFilterReducer( isLongEnough )( listCombination );
-var isShortEnoughReducer =
-    curriedFilterReducer( isShortEnough )( listCombination );
+var reductorFiltrarAlCurry = curry( function reductorFiltrar(funcionPredicadora,funcionCombinacion){
+    return function reductor(lista,valor){
+        if (funcionPredicadora( valor )) return funcionCombinacion( lista, valor );
+        return lista;
+    };
+} );
+
+var reductorStringMayuscula =
+    reductorMapeoAlCurry( strUppercase )( combinacionLista );
+var reductorEsSuficientementeLarga =
+    reductorFiltrarAlCurry( isLongEnough )( combinacionLista );
+var reductorEsSuficientementeCorta =
+    reductorFiltrarAlCurry( isShortEnough )( combinacionLista );
 ```
 
-That looks a bit more verbose, and probably doesn't seem very useful.
+Eso parece un poco más verboso, y probablemente no parezca muy útil.
 
-But this is actually necessary to get to the next step of our derivation. Remember, our ultimate goal here is to be able to `compose(..)` these reducers. We're almost there.
+Pero esto es realmente necesario para llegar al siguiente paso de nuestra derivación. Recuerda, nuestro objetivo final aquí es poder `componer(..)` estos reductores. Ya casi estámos allí.
 
-### Composing Curried
+### Componer Al Curry
 
-This step is the trickiest of all to visualize. So read slowly and pay close attention here.
+Este paso es el más complicado de visualizar. Así que lee despacio y presta mucha atención a esta sección.
 
-Let's consider the curried functions from above, but without the `listCombination(..)` function having been passed in to each:
+Consideremos las funciones al curry de arriba, pero sin que la función `listCombination(..)` haya sido pasada a cada una:
 
 ```js
-var x = curriedMapReducer( strUppercase );
-var y = curriedFilterReducer( isLongEnough );
-var z = curriedFilterReducer( isShortEnough );
+var x = reductorMapeoAlCurry( stringMayuscula );
+var y = reductorFiltrarAlCurry( esSuficientementeLarga );
+var z = reductorFiltrarAlCurry( esSuficientementeCorta );
 ```
 
-Think about the shape of all three of these intermediate functions, `x(..)`, `y(..)`, and `z(..)`. Each one expects a single combination function, and produces a reducer function with it.
+Piensa en la forma de estas tres funciones intermedias, `x(..)`, `y(..)` y `z(..)`. Cada una espera una sola función de combinación, y produce una función de reducción con ella.
 
-Remember, if we wanted the independent reducers from all these, we could do:
+Recuerde, si quisiéramos los reductores independientes de todos estos, podríamos hacer:
 
 ```js
-var upperReducer = x( listCombination );
-var longEnoughReducer = y( listCombination );
-var shortEnoughReducer = z( listCombination );
+var reductorMayuscula = x( combinacionLista );
+var reductorSuficientementeLarga = y( combinacionLista );
+var reductorSuficientementeCorta = z( combinacionLista );
 ```
 
-But what would you get back if you called `y(z)`, instead of `y(listCombination)`? Basically, what happens when passing `z` in as the `combinationFn(..)` for the `y(..)` call? That returned reducer function internally looks kinda like this:
+Pero, ¿qué obtendrías si llamaras `y(z)`, en lugar de `y(combinacionLista)`? Básicamente, ¿qué ocurre cuando se pasa `z` como argumento `funcionCombinacion(..)` para la llamada `y(...)`? La funcion reductora regresada internamente se veria mas o menos así:
 
 ```js
-function reducer(list,val) {
-    if (isLongEnough( val )) return z( list, val );
-    return list;
+function reductor(lista,valor) {
+    if (esSuficientementeLarga( valor )) return z( lista, valor );
+    return lista;
 }
 ```
 
-See the `z(..)` call inside? That should look wrong to you, because the `z(..)` function is supposed to receive only a single argument (a `combinationFn(..)`), not two arguments (`list` and `val`). The shapes don't match. That won't work.
+Ves la llamada a `z(..)` dentro de la función? Eso debería de parecerte incorrecto, porque se supone que la función `z(..)` solo recibe un argumento (una `funcionCombinacion(..)`), no dos argumentos (`lista` y` valor`). Las formas no coinciden. Esto no funcionará.
 
-Let's instead look at the composition `y(z(listCombination))`. We'll break that down into two separate steps:
+Veamos en cambio la composición `y(z(combinacionLista))`. La dividiremos en dos pasos por separado:
 
 ```js
-var shortEnoughReducer = z( listCombination );
-var longAndShortEnoughReducer = y( shortEnoughReducer );
+var reductorEsSuficientementeCorta = z( combinacionLista );
+var reductorEsSuficientementeLargaYCorta = y( reductorEsSuficientementeCorta );
 ```
 
-We create `shortEnoughReducer(..)`, then we pass *it* in as the `combinationFn(..)` to `y(..)` instead of calling `y(listCombination)`; this new call produces `longAndShortEnoughReducer(..)`. Re-read that a few times until it clicks.
+Creamos el `reductorEsSuficientementeCorta(..)`, y luego *lo* pasamos como la `funcionCombinacion(..)` a `y(..)` en lugar de llamar a `y(combinacionLista)`; esta nueva llamada produce `reductorEsSuficientementeLargaYCorta(..)`. Vuelve a leer esa pieza de codigo varias veces hasta que haga clic en tu cerebro.
 
-Now consider: what do `shortEnoughReducer(..)` and `longAndShortEnoughReducer(..)` look like internally? Can you see them in your mind?
+Ahora considera: ¿qué aspecto tienen `reductorEsSuficientementeCorta(..)` y `reductorEsSuficientementeLargaYCorta(..)` internamente? ¿Puedes verlos en tu mente?
 
 ```js
-// shortEnoughReducer, from calling z(..):
-function reducer(list,val) {
-    if (isShortEnough( val )) return listCombination( list, val );
-    return list;
+// reductorEsSuficientementeCorta, desde una llamada a z(..):
+function reductor(lista,valor) {
+    if (esSuficientementeCorta( valor )) return combinacionLista( lista, valor );
+    return lista;
 }
 
-// longAndShortEnoughReducer, from calling y(..):
-function reducer(list,val) {
-    if (isLongEnough( val )) return shortEnoughReducer( list, val );
-    return list;
-}
-```
-
-Do you see how `shortEnoughReducer(..)` has taken the place of `listCombination(..)` inside `longAndShortEnoughReducer(..)`? Why does that work?
-
-Because **the shape of a `reducer(..)` and the shape of `listCombination(..)` are the same.** In other words, a reducer can be used as a combination function for another reducer; that's how they compose! The `listCombination(..)` function makes the first reducer, then *that reducer* can be used as the combination function to make the next reducer, and so on.
-
-Let's test out our `longAndShortEnoughReducer(..)` with a few different values:
-
-```js
-longAndShortEnoughReducer( [], "nope" );
-// []
-
-longAndShortEnoughReducer( [], "hello" );
-// ["hello"]
-
-longAndShortEnoughReducer( [], "hello world" );
-// []
-```
-
-The `longAndShortEnoughReducer(..)` utility is filtering out both values that are not long enough and values that are not short enough, and it's doing both these filterings in the same step. It's a composed reducer!
-
-Take another moment to let that sink in. It still kinda blows my mind.
-
-Now, to bring `x(..)` (the uppercase reducer producer) into the composition:
-
-```js
-var longAndShortEnoughReducer = y( z( listCombination) );
-var upperLongAndShortEnoughReducer = x( longAndShortEnoughReducer );
-```
-
-As the name `upperLongAndShortEnoughReducer(..)` implies, it does all three steps at once -- a mapping and two filters! What it kinda look likes internally:
-
-```js
-// upperLongAndShortEnoughReducer:
-function reducer(list,val) {
-    return longAndShortEnoughReducer( list, strUppercase( val ) );
+// reductorEsSuficientementeLargaYCorta, desde una llamada a y(..):
+function reductor(lista,valor) {
+    if (esSuficientementeLarga( valor )) return reductorEsSuficientementeCorta( lista, valor );
+    return lista;
 }
 ```
 
-A string `val` is passed in, uppercased by `strUppercase(..)` and then passed along to `longAndShortEnoughReducer(..)`. *That* function only conditionally adds this uppercased string to the `list` if it's both long enough and short enough. Otherwise, `list` will remain unchanged.
+¿Ves cómo `reductorEsSuficientementeCorta(..)` ha tomado el lugar de `combinacionLista(..)` dentro de `reductorEsSuficientementeLargaYCorta(..)`? ¿Por qué funciona eso?
 
-It took my brain weeks to fully understand the implications of that juggling. So don't worry if you need to stop here and re-read a few (dozen!) times to get it. Take your time.
+Esto funciona porque **la forma de un `reductor(..)` y la forma de `combinacionLista(..)` son iguales.** En otras palabras, un reductor puede usarse como una función de combinación para otro reductor; ¡así es como componen! La función `combinacionLista(..)` crea el primer reductor, luego *ese reductor* se puede usar como la función de combinación para hacer el próximo reductor, y así sucesivamente.
 
-Now let's verify:
+Probemos nuestro `reductorEsSuficientementeLargaYCorta(..)` con algunos valores diferentes:
 
 ```js
-upperLongAndShortEnoughReducer( [], "nope" );
+reductorEsSuficientementeLargaYCorta( [], "nope" );
 // []
 
-upperLongAndShortEnoughReducer( [], "hello" );
-// ["HELLO"]
+reductorEsSuficientementeLargaYCorta( [], "mundo" );
+// ["mundo"]
 
-upperLongAndShortEnoughReducer( [], "hello world" );
+reductorEsSuficientementeLargaYCorta( [], "hola mundo" );
 // []
 ```
 
-This reducer is the composition of the map and both filters! That's amazing!
+La utilidad `reductorEsSuficientementeLargaYCorta(..)` está filtrando los valores que no son lo suficientemente largos y los valores que no son lo suficientemente cortos, y está haciendo ambas filtraciones en el mismo paso. ¡Es un reductor compuesto!
 
-Let's recap where we're at so far:
+Toma un momento para dejar que esto se sumerga en tu mente. A mi todavía me da vueltas en la cabeza.
+
+Ahora, para llevar `x(..)` (el reductor productor de mayúsculas) a la composición:
+
+```js
+var reductorEsSuficientementeLargaYCorta = y( z( combinacionLista) );
+var reductorEsSuficientementeLargaYCortaMayuscula = x( reductorEsSuficientementeLargaYCorta );
+```
+
+Como el nombre `reductorEsSuficientementeLargaYCortaMayuscula(..)` implica, este hace los tres pasos a la vez -- ¡un mapeo y dos filtros! Internamente se veria mas o menos asi:
+
+```js
+// reductorEsSuficientementeLargaYCortaMayuscula:
+function reductor(lista,valor) {
+    return reductorEsSuficientementeLargaYCorta( lista, stringMayuscula( valor ) );
+}
+```
+
+Se pasa un string `valor`, el cual es convertido a mayúsculas por `stringMayuscula(..)` y luego se pasa a `reductorEsSuficientementeLargaYCorta(..)`. *Esa* función solo agrega condicionalmente esta string en mayúscula a la `lista` si esta string es lo suficientemente larga y corta. De lo contrario, `lista` permanecerá sin cambios.
+
+A mi cerebro le llevó semanas entender completamente las implicaciones de ese malabarismo. Así que no te preocupes si necesitas detenerte aquí y re-leer algunas (¡docenas!) de veces para poder entenderlo completamente. Tomate tu tiempo.
+
+Ahora verifiquemos:
+
+```js
+reductorEsSuficientementeLargaYCortaMayuscula( [], "nope" );
+// []
+
+reductorEsSuficientementeLargaYCortaMayuscula( [], "mundo" );
+// ["MUNDO"]
+
+reductorEsSuficientementeLargaYCortaMayuscula( [], "hola mundo" );
+// []
+```
+
+Este reductor es la composición del mapa y ambos filtros! Eso es increíble!
+
+Repasemos dónde estamos hasta ahora:
 
 ```js
 var x = curriedMapReducer( strUppercase );
