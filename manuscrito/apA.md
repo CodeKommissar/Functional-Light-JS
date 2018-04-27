@@ -419,240 +419,302 @@ Este reductor es la composición del mapa y ambos filtros! Eso es increíble!
 Repasemos dónde estamos hasta ahora:
 
 ```js
-var x = curriedMapReducer( strUppercase );
-var y = curriedFilterReducer( isLongEnough );
-var z = curriedFilterReducer( isShortEnough );
+var x = reductorMapeoAlCurry( stringMayuscula );
+var y = reductorFiltrarAlCurry( esSuficientementeLarga );
+var z = reductorFiltrarAlCurry( esSuficientementeCorta );
 
-var upperLongAndShortEnoughReducer = x( y( z( listCombination ) ) );
+var reductorEsSuficientementeLargaYCortaMayuscula = x( y( z( listCombination ) ) );
 
-words.reduce( upperLongAndShortEnoughReducer, [] );
-// ["WRITTEN","SOMETHING"]
+palabras.reduce( reductorEsSuficientementeLargaYCortaMayuscula, [] );
+// ["ESCRITO"]
 ```
 
-That's pretty cool. But let's make it even better.
+Eso es bastante cool. Pero hagámoslo aún mejor.
 
-`x(y(z( .. )))` is a composition. Let's skip the intermediate `x` / `y` / `z` variable names, and just express that composition directly:
+`x(y(z( .. )))` es una composición. Vamos a omitir los nombres de las variables intermedias
+`x`/`y`/`z`, y solo expresemos esa composición directamente:
 
 ```js
-var composition = compose(
-    curriedMapReducer( strUppercase ),
-    curriedFilterReducer( isLongEnough ),
-    curriedFilterReducer( isShortEnough )
+var composicion = componer(
+    reductorMapeoAlCurry( stringMayuscula ),
+    reductorFiltrarAlCurry( esSuficientementeLarga ),
+    reductorFiltrarAlCurry( esSuficientementeCorta )
 );
 
-var upperLongAndShortEnoughReducer = composition( listCombination );
+var reductorEsSuficientementeLargaYCortaMayuscula = composicion( combinacionLista );
 
-words.reduce( upperLongAndShortEnoughReducer, [] );
-// ["WRITTEN","SOMETHING"]
+palabras.reduce( reductorEsSuficientementeLargaYCortaMayuscula, [] );
+// ["ESCRITO"]
 ```
 
-Think about the flow of "data" in that composed function:
+Piensa en el flujo de "datos" en esa función compuesta:
 
-1. `listCombination(..)` flows in as the combination function to make the filter-reducer for `isShortEnough(..)`.
-2. *That* resulting reducer function then flows in as the combination function to make the filter-reducer for `isLongEnough(..)`.
-3. Finally, *that* resulting reducer function flows in as the combination function to make the map-reducer for `strUppercase(..)`.
+1. `combinacionLista(..)` fluye como la función de combinación para hacer el filtro-reductor para `esSuficientementeCorta(..)`.
+2. *Esa* función resultante del reductor fluye como la función de combinación para hacer el filtro-reductor para `esSuficientementeLarga(..)`.
+3. Finalmente, *eso* función del reductor resultante fluye como la función de combinación para hacer el el mapeo-reductor para `stringMayuscula(..)`.
 
-In the previous snippet, `composition(..)` is a composed function expecting a combination function to make a reducer; `composition(..)` here has a special name: transducer. Providing the combination function to a transducer produces the composed reducer:
+En el fragmento anterior, `composicion(..)` es una función compuesta que espera una función
+de combinación para hacer un reductor; `composicion(..)` aquí tiene un nombre especial: transductor. Al proporcionar la función de combinación a un transductor, se produce el reductor compuesto:
 
 ```js
-var transducer = compose(
-    curriedMapReducer( strUppercase ),
-    curriedFilterReducer( isLongEnough ),
-    curriedFilterReducer( isShortEnough )
+var transductor = componer(
+    reductorMapeoAlCurry( stringMayuscula ),
+    reductorFiltrarAlCurry( esSuficientementeLarga ),
+    reductorFiltrarAlCurry( esSuficientementeCorta )
 );
 
-words
-.reduce( transducer( listCombination ), [] );
-// ["WRITTEN","SOMETHING"]
+palabras
+.reduce( transductor( combinacionLista ), [] );
+// ["ESCRITO"]
 ```
 
-**Note:** We should make an observation about the `compose(..)` order in the previous two snippets, which may be confusing. Recall that in our original example chain, we `map(strUppercase)` and then `filter(isLongEnough)` and finally `filter(isShortEnough)`; those operations indeed happen in that order. But in Chapter 4, we learned that `compose(..)` typically has the effect of running its functions in reverse order of listing. So why don't we need to reverse the order *here* to get the same desired outcome? The abstraction of the `combinationFn(..)` from each reducer reverses the effective applied order of operations under the hood. So counter-intuitively, when composing a tranducer, you actually want to list them in desired order of execution!
+**Nota:** Debemos hacer una observación acerca del orden de `componer (..)` en los dos fragmentos anteriores, el cual puede ser confuso. Recordemos que en nuestra cadena de ejemplos original, usamos `map(stringMayuscula)` y luego `filter(esSuficientementeLarga)` y finalmente `filter(esSuficientementeCorta)`; esas operaciones realmente suceden en ese orden. Pero en el
+Capítulo 4, aprendimos que `componer(..)` típicamente tiene el efecto de ejecutar sus
+funciones en orden inverso al listado. Entonces, ¿por qué no tenemos que invertir el orden
+*aquí* para obtener el mismo resultado deseado? La abstracción de `funcionCombinacion(..)` de
+cada reductor invierte el orden del efecto de las operaciones aplicadas bajo el capó. Entonces,
+de manera contra-intuitiva, al componer un transductor, ¡realmente deseas enumerarlos en el orden
+de ejecución deseado!
 
-#### List Combination: Pure vs Impure
+#### Combinación de Listas: Puro vs. Impuro
 
-As a quick aside, let's revisit our `listCombination(..)` combination function implementation:
+Como un desvio rápido, revisitemos nuestra implementación de la función de combinación
+`combinacionLista(..)`:
 
 ```js
-function listCombination(list,val) {
-    return [ ...list, val ];
+function combinacionLista(lista,valor) {
+    return [ ...lista, valor ];
 }
 ```
 
-While this approach is pure, it has negative consequences for performance: for each step in the reduction, we're creating a whole new array to append the value onto, effectively throwing away the previous array. That's a lot of arrays being created and thrown away, which is not only bad for CPU but also GC memory churn.
+Si bien este enfoque es puro, tiene consecuencias negativas para el rendimiento: para cada paso
+en la reducción, estamos creando un array completamente nueva para agregar el valor,
+descartando de manera efectiva el array anterior. Esos son muchos arrays creados y
+desechados, lo que no solo es malo para la CPU sino también para la rotación de la
+memoria del GC (Garbage Collector/Recolector de Basura).
 
-By contrast, look again at the better-performing but impure version:
+Como contraste, mira de nuevo a la versión de mejor rendimiento, pero impura:
 
 ```js
-function listCombination(list,val) {
-    list.push( val );
-    return list;
+function combinacionLista(lista,valor) {
+    lista.push( valor );
+    return lista;
 }
 ```
 
-Thinking about `listCombination(..)` in isolation, there's no question it's impure and that's usually something we'd want to avoid. However, there's a bigger context we should consider.
+Si pensamos en `combinacionLista(..)` de forma aislada, no cabe duda de que es impura y, por lo
+general, es algo que queremos evitar. Sin embargo, hay un contexto aun más grande que
+debemos considerar.
 
-`listCombination(..)` is not a function we interact with at all. We don't directly use it anywhere in the program, instead we let the transducing process use it.
+`combinacionLista(..)` no es una función con la que interactuamos en absoluto. No la
+usamos directamente en ninguna parte del programa, sino que dejamos que el proceso
+de transducción la use.
 
-Back in Chapter 5, we asserted that our goal with reducing side effects and defining pure functions was only that we expose pure functions to the API level of functions we'll use throughout our program. We observed that under the covers, inside a pure function, it can cheat for performance sake all it wants, as long as it doesn't violate the external contract of purity.
+En el Capítulo 5, afirmamos que nuestro objetivo con la reducción de los efectos secundarios
+y la definición de funciones puras era solo que exponieramos funciones puras al nivel de API de
+las funciones que utilizariamos a lo largo todo nuestro programa. Observamos que, bajo las cubiertas,
+dentro de una función pura, puedes hacer trampa por el bien del rendimiento todo lo que
+quieras, siempre que no violes el contrato externo de pureza.
 
-`listCombination(..)` is more an internal implementation detail of the transducing -- in fact, it'll often be provided by the transducing library for you! -- rather than a top-level method you'd interact with on a normal basis throughout your program.
+`combinacionLista(..)` es más un detalle de implementación interna de la transducción --
+de hecho, a menudo será provisto por la libreria transductora para ti -- en lugar de ser
+un método de nivel superior con el que interactuarías de manera normal en tu programa.
 
-Bottom line: I think it's perfectly acceptable, and advisable even, to use the performance-optimal impure version of `listCombination(..)`. Just make sure you document that it's impure with a code comment!
+En pocas palabras: creo que es perfectamente aceptable, y recomendable incluso, utilizar
+la versión impura de `combinacionLista(..)` con un rendimiento mas óptimo. ¡Solo asegúrate de
+documentar que es impura con un comentario de código!
 
-### Alternate Combination
+### Combinación Alterna
 
-So far, this is what we've derived with transducing:
+Hasta ahora, esto es lo que hemos derivado con la transducción:
 
 ```js
-words
-.reduce( transducer( listCombination ), [] )
-.reduce( strConcat, "" );
-// WRITTENSOMETHING
+palabras
+.reduce( transductor( combinacionLista ), [] )
+.reduce( concatenarStrings, "" );
+// ESCRITO
 ```
 
-That's pretty good, but we have one final trick up our sleeve with transducing. And frankly, I think this part is what makes all this mental effort you've expended thus far, actually worth it.
+Eso es bastante bueno, pero tenemos un truco final bajo la manga con la transducción. Y,
+francamente, creo que esta parte es lo que hace que todo este esfuerzo mental que has
+gastado hasta ahora valga la pena.
 
-Can we somehow "compose" these two `reduce(..)` calls to get it down to just one `reduce(..)`? Unfortunately, we can't just add `strConcat(..)` into the `compose(..)` call; since its a reducer and not a combination-expecting function, its shape is not correct for the composition.
+¿Podemos de alguna manera "componer" estas dos llamadas a `reduce(..)` para bajar a una sola
+llamada a `reduce(...)`? Desafortunadamente, no podemos simplemente agregar `concatenarStrings(..)`
+en la llamada a `componer(..)`; ya que es una función reductora y no una función que espera
+una combinación, su forma no es correcta para la composición.
 
-But let's look at these two functions side-by-side:
+Pero veamos estas dos funciones una al lado de la otra:
 
 ```js
-function strConcat(str1,str2) { return str1 + str2; }
+function concatenarStrings(str1,str2) { return str1 + str2; }
 
-function listCombination(list,val) { list.push( val ); return list; }
+function combinacionLista(lista,valor) { lista.push( valor ); return lista; }
 ```
 
-If you squint your eyes, you can almost see how these two functions are interchangable. They operate with different data types, but conceptually they do the same thing: combine two values into one.
+Si entrecierras los ojos, casi puedes ver cómo estas dos funciones son intercambiables. Operan con diferentes tipos de datos, pero conceptualmente hacen lo mismo: combinar dos valores en uno.
 
-In other words, `strConcat(..)` is a combination function!
+En otras palabras, `concatenarStrings(..)` es una función de combinación!
 
-That means that we can use *it* instead of `listCombination(..)` if our end goal is to get a string concatenation rather than a list:
+Eso significa que podemos *usarla* en lugar de `combinacionLista(..)` si nuestro objetivo final
+es obtener una concatenación de strings en lugar de una lista:
 
 ```js
-words.reduce( transducer( strConcat ), "" );
-// WRITTENSOMETHING
+palabras.reduce( transductor( concatenarStrings ), "" );
+// ESCRITO
 ```
 
-Boom! That's transducing for you. I won't actually drop the mic here, but just gently set it down...
+Boom! Eso es transducción para ti. No dejaré caer el micrófono aquí, sino que lo
+dejaré con cuidado en el piso...
 
-## What, Finally
+## Qué, Finalmente
 
-Take a deep breath. That was a lot to digest.
+Respira profundamente. Eso fue mucho para digerir.
 
-Clearing our brains for a minute, let's turn our attention back to just using transducing in our applications without jumping through all those mental hoops to derive how it works.
+Limpiando nuestros cerebros por un minuto, volvamos nuestra atención al uso de la transducción
+en nuestras aplicaciones sin saltar a través de todos los aros mentales para derivar cómo funciona.
 
-Recall the helpers we defined earlier; let's rename them for clarity:
+Recuerda los ayudantes que definimos anteriormente; vamos a cambiarles los nombres para
+tener mas claridad:
 
 ```js
-var transduceMap = curry( function mapReducer(mapperFn,combinationFn){
-    return function reducer(list,v){
-        return combinationFn( list, mapperFn( v ) );
+var transducirMap = curry( function reductorMapeo(funcionMapeadora,funcionCombinacion){
+    return function reductor(lista,v){
+        return funcionCombinacion( lista, funcionMapeadora( v ) );
     };
 } );
 
-var transduceFilter = curry( function filterReducer(predicateFn,combinationFn){
-    return function reducer(list,v){
-        if (predicateFn( v )) return combinationFn( list, v );
-        return list;
+var transducirFiltro = curry( function reductorFiltrar(funcionPredicado,funcionCombinacion){
+    return function reductor(lista,v){
+        if (funcionPredicado( v )) return funcionCombinacion( lista, v );
+        return lista;
     };
 } );
 ```
 
-Also recall that we use them like this:
+Recuerda también que los usamos así:
 
 ```js
-var transducer = compose(
-    transduceMap( strUppercase ),
-    transduceFilter( isLongEnough ),
-    transduceFilter( isShortEnough )
+var transductor = componer(
+    transducirMap( stringMayuscula ),
+    transducirFiltro( esSuficientementeLarga ),
+    transducirFiltro( esSuficientementeCorta )
 );
 ```
 
-`transducer(..)` still needs a combination function (like `listCombination(..)` or `strConcat(..)`) passed to it to produce a transduce-reducer function, which then can then be used (along with an initial value) in `reduce(..)`.
+`transductor(..)` todavía necesita una función de combinación (como `combinacionLista(..)`
+o `concatenarStrings(..)`) pasada a él para producir una función transductora-reductora, que
+luego pueda usarse (junto con un valor inicial) con `reduce(..)`.
 
-But to express all these transducing steps more declaratively, let's make a `transduce(..)` utility that does these steps for us:
+Pero para expresar todos estos pasos de transducción de manera más declarativa,
+hagamos una utilidad `transducir(..)` que haga estos pasos por nosotros.
 
 ```js
-function transduce(transducer,combinationFn,initialValue,list) {
-    var reducer = transducer( combinationFn );
-    return list.reduce( reducer, initialValue );
+function transducir(transductor,funcionCombinacion,valorInicial,lista) {
+    var reductor = transductor( funcionCombinacion );
+    return lista.reduce( reductor, valorInicial );
 }
 ```
 
-Here's our running example, cleaned up:
+Aquí está nuestro ejemplo en ejecución, de una forma mas limpia:
 
 ```js
-var transducer = compose(
-    transduceMap( strUppercase ),
-    transduceFilter( isLongEnough ),
-    transduceFilter( isShortEnough )
+var transductor = componer(
+    transducirMapeo( stringMayuscula ),
+    transducirFiltro( esSuficientementeLarga ),
+    transducirFiltro( esSuficientementeCorta )
 );
 
-transduce( transducer, listCombination, [], words );
-// ["WRITTEN","SOMETHING"]
+transducir( transductor, combinacionLista, [], palabras );
+// ["ESCRITO"]
 
-transduce( transducer, strConcat, "", words );
-// WRITTENSOMETHING
+transducir( transductor, concatenarStrings, "", palabras );
+// ESCRITO
 ```
 
-Not bad, huh!? See the `listCombination(..)` and `strConcat(..)` functions used interchangably as combination functions?
+No está mal, eh!? Ves las funciones `combinacionLista(..)` y `concatenarStrings(..)`
+usadas de forma intercambiable como funciones de combinación?
 
 ### Transducers.js
 
-Finally, let's illustrate our running example using the `transducers-js` library (https://github.com/cognitect-labs/transducers-js):
+Finalmente, vamos a ilustrar nuestro ejemplo de ejecución usando la libreria (https://github.com/cognitect-labs/transducers-js) `transducers-js` :
 
 ```js
-var transformer = transducers.comp(
-    transducers.map( strUppercase ),
-    transducers.filter( isLongEnough ),
-    transducers.filter( isShortEnough )
+var transformador = transducers.comp(
+    transducers.map( stringMayuscula ),
+    transducers.filter( esSuficientementeLarga ),
+    transducers.filter( esSuficientementeCorta )
 );
 
-transducers.transduce( transformer, listCombination, [], words );
-// ["WRITTEN","SOMETHING"]
+transducers.transduce( transformador, combinacionLista, [], palabras );
+// ["ESCRITO"]
 
-transducers.transduce( transformer, strConcat, "", words );
-// WRITTENSOMETHING
+transducers.transduce( transformador, strConcat, "", palabras );
+// ESCRITO
 ```
 
-Looks almost identical to above.
+Parece casi idéntico al ejemplo que teniamos arriba.
 
-**Note:** The above snippet uses `transformers.comp(..)` since the library provides it, but in this case our `compose(..)` from Chapter 4 would produce the same outcome. In other words, composition itself isn't a transducing-sensitive operation.
+**Nota:** El fragmento de arriba usa `transducers.comp(..)` dado que la biblioteca lo proporciona,
+pero en este caso nuestro `componer(..)` del Capítulo 4 produciría el mismo resultado.
+En otras palabras, la composición en sí misma no es una operación sensible a la transducción.
 
-The composed function in this snippet is named `transformer` instead of `transducer`. That's because if we call `transformer(listCombination)` (or `transformer(strConcat)`), we won't get a straight up transduce-reducer function as earlier.
+La función compuesta en este fragmento se llama `transformador` en lugar de `transductor`.
+Eso es porque si llamamos a `transformador(combinacionLista)` (o `transformador(concatenarStrings)`),
+no obtendremos una función de transductor-reductor de una vez como antes.
 
-`transducers.map(..)` and `transducers.filter(..)` are special helpers that adapt regular predicate or mapper functions into functions that produce a special transform object (with the transducer function wrapped underneath); the library uses these transform objects for transducing. The extra capabilities of this transform object abstraction are beyond what we'll explore, so consult the library's documentation for more information.
+`transducers.map(..)` y `transducers.filter(..)` son ayudantes especiales que adaptan
+las funciones regulares de predicado o mapeador en funciones que producen un objeto de
+transformación especial (con la función de transductor envuelta debajo); la libreria
+usa estos objetos de transformación para transducir. Las capacidades adicionales de
+esta abstracción de objetos de transformación van más allá de lo que exploraremos,
+por lo tanto, consulta la documentación de la libreria para obtener más información.
 
-Since calling `transformer(..)` produces a transform object and not a typical binary transduce-reducer function, the library also provides `toFn(..)` to adapt the transform object to be useable by native array `reduce(..)`:
+Como la llamada `transformador(..)` produce un objeto transformador y no una función binaria transductora-reductora típica, la biblioteca también proporciona `toFn(..)` para adaptar el objeto transformador para que sea utilizable por el arreglo nativo `reduce(..)`:
 
 ```js
-words.reduce(
-    transducers.toFn( transformer, strConcat ),
+palabras.reduce(
+    transducers.toFn( transformador, concatenarStrings ),
     ""
 );
-// WRITTENSOMETHING
+// ESCRITO
 ```
 
-`into(..)` is another provided helper that automatically selects a default combination function based on the type of empty/initial value specified:
+`into(..)` es otro ayudante proporcionado que selecciona automáticamente una función de combinación predeterminada en base a el tipo de valor inicial/vacío especificado:
 
 ```js
-transducers.into( [], transformer, words );
-// ["WRITTEN","SOMETHING"]
+transducers.into( [], transformador, palabras );
+// ["ESCRITO"]
 
-transducers.into( "", transformer, words );
-// WRITTENSOMETHING
+transducers.into( "", transformador, palabras );
+// ESCRITO
 ```
 
-When specifying an empty `[]` array, the `transduce(..)` called under the covers uses a default implementation of a function like our `listCombination(..)` helper. But when specifying an empty `""` string, something like our `strConcat(..)` is used. Cool!
+Al especificar un array `[]` vacío, la llamada a `transduce(..)` bajo las cubiertas
+usa una implementación predeterminada de una función parecida a nuestra ayudante
+`combinacionLista(..)`. Pero cuando se especifica una cadena `""` vacía, se usa algo
+como nuestro `concatenarStrings(..)`. Cool!
 
-As you can see, the `transducers-js` library makes transducing pretty straightforward. We can very effectively leverage the power of this technique without getting into the weeds of defining all those intermediate transducer-producing utilities ourselves.
+Como puedes ver, la libreria `transducers-js` hace que la transducción sea bastante sencilla.
+Podemos aprovechar de manera muy efectiva el poder de esta técnica sin meternos en la
+maleza de definir todas esas utilidades intermedias que producen transductores nosotros mismos.
 
-## Summary
+## Resumen
 
-To transduce means to transform with a reduce. More specifically, a transducer is a composable reducer.
+Transducir significa transformar con un reducir. Más específicamente, un transductor es
+un reductor componible.
 
-We use transducing to compose adjacent `map(..)`, `filter(..)`, and `reduce(..)` operations together. We accomplish this by first expressing `map(..)`s and `filter(..)`s as `reduce(..)`s, and then abstracting out the common combination operation to create unary reducer-producing functions that are easily composed.
+Usamos la transducción para componer operaciones `map(..)`, `filter(..)` y `reduce(..)`
+adyacentes. Logramos esto al expresar `map(..)`s y `filter(..)`s como `reduce(..)`s,
+y luego abstraer la operación de combinación común para crear funciones unarias de
+reducción que son compuestas fácilmente.
 
-Transducing primarily improves performance, which is especially obvious if used on an observable.
+La transducción mejora principalmente el rendimiento, lo que es especialmente obvio
+si se usa en un observable.
 
-But more broadly, transducing is how we express a more declarative composition of functions that would otherwise not be directly composable. The result, if used appropriately as with all other techniques in this book, is clearer, more readable code! A single `reduce(..)` call with a transducer is easier to reason about than tracing through multiple `reduce(..)` calls.
+Pero en términos más generales, transducir es cómo expresamos una composición más
+declarativa de funciones que de otro modo no serían directamente componibles.
+¡El resultado, si se usa apropiadamente como con todas las otras técnicas en este
+libro, es un código más claro y legible! Una sola llamada `reduce(..)` con un
+transductor es más fácil de razonar que rastrear el codigo a través de
+múltiples llamadas `reduce (..)`.
