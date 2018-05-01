@@ -1,429 +1,430 @@
-# Functional-Light JavaScript
-# Appendix B: The Humble Monad
+# Javascript Funcionalmente-Ligero
+# Apéndice A: La Humilde Mónada
 
-Let me just start off this appendix by admitting: I did not know much about what a monad was before starting to write the following. And it took a lot of mistakes to get something sensible. If you don't believe me, go look at the commit history of this appendix in the Git repo for this book (https://github.com/getify/Functional-Light-JS)!
+Permítanme comenzar este apéndice admitiendo: no sabía mucho sobre qué era una mónada antes de comenzar a escribir lo siguiente. Y se necesitaron de muchos errores para obtener algo sensato. Si no me crees, ve el historial de commits de este apéndice en el repositorio de Git para este libro (https://github.com/getify/Functional-Light-JS).
 
-I am including the topic of monads in the book because it's part of the journey that every developer will encounter while learning FP, just as I have in this book writing.
+Estoy incluyendo el tema de las mónadas en el libro porque es parte del viaje que todo desarrollador encontrará mientras aprende PF, tal y como me ha pasado al escribir este libro.
 
-We're basically ending this book with a brief glimpse at monads, whereas most other FP literature kinda almost starts with monads! I do not encounter in my "functional light" programming much of a need to think explicitly in terms of monads, so that's why this material is more bonus than main core. But that's not to say monads aren't useful or prevalent -- they very much are.
+Básicamente estamos terminando este libro con un breve vistazo a las mónadas, mientras que la mayoría de las otras publicaciones de PF casi siempre comienzan con mónadas. No encuentro en mi programación "ligeramente funcional" mucha necesidad de pensar explícitamente en términos de mónadas, por eso es que este material es más un bonus que parte del núcleo principal. Pero eso no quiere decir que las mónadas no sean útiles o prevalentes -- lo son en gran medida.
 
-There's a bit of a joke around the JavaScript FP world that pretty much everybody has to write their own tutorial or blog post on what a monad is, like the writing of it alone is some rite-of-passage. Over the years, monads have variously been depicted as burritos, onions, and all sorts of other wacky conceptual abstractions. I hope there's none of that silly business going on here!
+Hay un pequeño chiste en el mundo de la PF en JavaScript en el que casi todo el mundo tiene que escribir su propio tutorial o publicación de blog acerca de lo que es una mónada, como si sola la escritura de él es un rito de iniciación. Con los años, las mónadas se han representado de diversas maneras como burritos, cebollas y todo tipo de extrañas abstracciones conceptuales. Espero que no hayan nada de esas tontas analogías aquí!
 
-> A monad is just a monoid in the category of endofunctors.
+> Una mónada es solo un monoide en la categoría de los endofunctores.
 
-We started the preface with this quote, so it seems fitting we come back to it here. But no, we won't be talking about monoids, endofunctors, or category theory. That quote is not only condescending, but totally unhelpful.
+Comenzamos el prefacio con esta cita, por lo que parece apropiado que volvamos a ella aquí. Pero no, no hablaremos de monoides, endofunctores o de la teoría de categorías. Esa cita no es solo condescendiente, sino totalmente inútil.
 
-My only hope for what you get out of this discussion is to not be scared of the term monad or the concept anymore -- I have been, for years! -- and to be able to recognize them when you see them. You might, just maybe, even use them on occasion.
+Mi única esperanza acerca de lo que puedas obtener de esta discusión es que no tengas miedo del término mónada o del concepto -- lo que he estado haciendo durante años! -- y que seas capaz de reconocerlas cuando las veas. Tal vez, solo tal vez, incluso las uses en ocasiones.
 
-## Type
+## Tipo
 
-There's a huge area of interest in FP that we've basically stayed entirely away from throughout this book: type theory. I'm not going to get very deep into type theory, because quite frankly I'm not qualified to do so. And you wouldn't appreciate it even if I did.
+Hay un gran área de interés en la PF de la cual básicamente nos hemos mantenido completamente alejados a lo largo de este libro: la teoría de tipos. No voy a profundizar mucho en la teoría de tipos, porque francamente no estoy calificado para hacerlo. Y no lo apreciarás incluso si lo hiciera.
 
-But what I will say is that a monad is basically a value type.
+Pero lo que diré es que una mónada es básicamente un tipo de valor.
 
-The number `42` has a value type (number!) that brings with it certain characteristics and capabilities that we rely on. The string `"42"` may look very similar, but it has a different purpose in our program.
+El número `42` tiene un tipo de valor (número!) Que trae consigo ciertas características y capacidades en las que confiamos. El string `"42"` puede parecer muy similar, pero tiene un propósito diferente en nuestro programa.
 
-In object oriented programming, when you have a set of data (even a single discrete value) and you have some behavior you want to bundle with it, you create an object/class to represent that "type". Instances are then members of that type. This practice generally goes by the name "Data Structures".
+En la programación orientada a objetos, cuando tienes un conjunto de datos (incluso un único valor discreto) y tienes algún comportamiento que deseas agrupar con él, creas un objeto/clase para representar ese "tipo". Las instancias son entonces miembros de ese tipo. Esta práctica generalmente se conoce con el nombre de "Estructuras de Datos".
 
-I'm going to use the notion of data structures very loosely here, and assert that we may find it useful in a program to define a set of behaviors and constraints for a certain value, and bundle them together with that value into a single abstraction. That way, as we work with one or more of those kinds of values in our program, their behaviors come along for free and will make working with them more convenient. And by convenient, I mean more declarative and approachable for the reader of your code!
+Voy a utilizar la noción de estructuras de datos muy libremente aquí, y afirmar que podemos encontrar útil en un programa el definir un conjunto de comportamientos y restricciones para un cierto valor, y agruparlos con ese valor en una sola abstracción . De esa manera, a medida que trabajemos con uno o más de esos tipos de valores en nuestro programa, sus comportamientos vienen de forma gratuita y harán que trabajar con ellos sea más conveniente. Y por conveniente, me refiero a más declarativo y accesible para el lector de tu código!
 
-A monad is a data structure. It's a type. It's a set of behaviors that are specifically designed to make working with a value predictable.
+Una mónada es una estructura de datos. Es un tipo. Es un conjunto de comportamientos diseñados específicamente para hacer que el trabajo con un valor sea predecible.
 
-Recall in Chapter 9 that we talked about functors: a value along with a map-like utility to perform an operation on all its constitute data members. A monad is a functor that includes some additional behavior.
+Recuerda que en el Capítulo 9 hablamos sobre functores: un valor junto con una utilidad tipo-mapa para realizar una operación en todos sus miembros de datos constituyentes. Una mónada es un functor que incluye algún comportamiento adicional.
 
-## Loose Interface
+## Interfaz Suelta
 
-Actually, a monad isn't a single data type, it's really more like a related collection of data types. It's kind of an interface that's implemented differently depending on the needs of different values. Each implementation is a different type of monad.
+En realidad, una mónada no es un tipo de datos único, realmente se parece más a una colección relacionada de tipos de datos. Es una especie de interfaz que se implementa de manera diferente según las necesidades de los diferentes valores. Cada implementación es un tipo diferente de mónada.
 
-For example, you may read about the "Identity Monad", the "IO Monad", the "Maybe Monad", the "Either Monad", or a variety of others. Each of these has the basic monad behavior defined, but it extends or overrides the interactions according to the use cases for each different type of monad.
+Por ejemplo, puedes leer acerca de la "Monada Identidad", "Monad ES", "Monada Quizas", "Monada Otra", o una variedad de otras. Cada uno de estas tiene definido el comportamiento de mónada básico, pero extiende o anula las interacciones de acuerdo con los casos de uso para cada tipo diferente de mónada.
 
-It's a little more than an interface though, because it's not just the presence of certain API methods that makes an object a monad. There's a certain set of guarantees about the interactions of these methods that is necessary, to be monadic. These well-known invariants are critical to usage of monads improving readability by familiarity; otherwise, it's just an ad hoc data structure that must be fully read to be understood by the reader.
+Sin embargo, es algo más que una interfaz, porque no es solo la presencia de ciertos métodos API lo que hace que un objeto sea una mónada. Existe un cierto conjunto de garantías sobre las interacciones de estos métodos que es necesario, para ser monádica. Estas invariantes bien conocidas son fundamentales para el uso de mónadas mejorando la legibilidad por la familiaridad; de lo contrario, es solo una estructura de datos ad hoc que debe leerse completamente para que el lector la comprenda.
 
-As a matter of fact, there's not even just one single unified agreement on the names of these monadic methods, the way a true interface would mandate; a monad is more like a loose interface. Some people call a certain method `bind(..)`, some call it `chain(..)`, some call it `flatMap(..)`, etc.
+De hecho, ni siquiera hay un solo acuerdo unificado sobre los nombres de estos métodos monádicos, como lo haría una verdadera interfaz; una mónada es más como una interfaz suelta. Algunas personas llaman a cierto método `bin(..)`, algunos lo llaman `chain(..)`, algunos lo llaman `flatMap(..)`, etc.
 
-So a monad is an object data structure with sufficient methods (of practically any name or sort) that at a minimum satisfy the main behavioral requirements of the monad definition. Each kind of monad has a different kind of extension above the minimum. But, because they all have an overlap in behavior, using two different kinds of monads together is still straightforward and predictable.
+Entonces, una mónada es una estructura de datos de objeto con métodos suficientes (de prácticamente cualquier nombre u orden) que como mínimo satisfacen los requisitos de comportamiento principales de la definición de mónada. Cada tipo de mónada tiene un tipo diferente de extensión por encima del mínimo. Pero, debido a que todas tienen una superposición en el comportamiento, el uso de dos tipos diferentes de mónadas en conjunto sigue siendo directo y predecible.
 
-It's in that sense that monads are sort of like an interface.
+Es en ese sentido que las mónadas son como una interfaz.
 
-## Just A Monad
+## Solamente Una Monada
 
-A basic primitive monad underlying many other monads you will run across is called Just. It's *just* a simple monadic wrapper for any regular (aka, non-empty) value.
+Una mónada básica primitiva subyacente a muchas otras mónadas con las que te encontrarás se llama Solamente. Es *solamente* un envoltorio monádico simple para cualquier valor regular (es decir, no vacío).
 
-Since a monad is a type, you might think we'd define `Just` as a class to be instantiated. That's a valid way of doing it, but it introduces `this`-binding issues in the methods that I don't want to juggle; instead I'm going to stick with just a simple function approach.
+Como una mónada es un tipo, podrías pensar que definiríamos `Solamente` como una clase para crear una instancia. Esa es una forma válida de hacerlo, pero introduce problemas de enlaces-`this` en los métodos con los que no quiero hacer malabares; en cambio, voy a usar un simple enfoque de función.
 
-Here's a simple implementation:
+Aquí hay una implementación simple:
 
 ```js
-function Just(val) {
-    return { map, chain, ap, inspect };
+function Solamente(valor) {
+    return { map, cadena, aplicar, inspeccionar };
 
     // *********************
 
-    function map(fn) { return Just( fn( val ) ); }
+    function map(funcion) { return Solamente( funcion( valor ) ); }
 
-    // aka: bind, flatMap
-    function chain(fn) { return fn( val ); }
+    // tambien llamado: bind, flatMap
+    function cadena(funcion) { return funcion( valor ); }
 
-    function ap(anotherMonad) { return anotherMonad.map( val ); }
+    function aplicar(otraMonada) { return otraMonada.map( valor ); }
 
-    function inspect() {
-        return `Just(${ val })`;
+    function inspeccionar() {
+        return `Solamente(${ valor })`;
     }
 }
 ```
 
-**Note:** The `inspect(..)` method is included here only for our demonstration purposes. It serves no direct role in the monadic sense.
+**Nota:** El método `inspeccionar(..)` se incluye aquí solo para nuestros propósitos de demostración. No tiene un papel directo en el sentido monádico.
 
-You'll notice that whatever `val` value a `Just(..)` instance holds, it's never changed. All monad methods create new monad instances instead of mutating the monad's value itself.
+Notarás que cualquier valor `valor` que tenga una instancia `Solamente(..)`, nunca cambiará. Todos los métodos de mónada crean nuevas instancias de mónada en lugar de mutar el valor de la mónada.
 
-Don't worry if most of this doesn't make sense right now. We're not gonna obsess too much over the details or the math/theory behind the design of the Monad. Instead, we'll focus more on illustrating what we can do with them.
+No te preocupes si la mayoría de esto no tiene sentido ahora. No vamos a obsesionarnos demasiado con los detalles o la teoría matemática detrás del diseño de la Mónada. En cambio, nos enfocaremos más en ilustrar lo que podemos hacer con ellas.
 
-### Working With Monad Methods
+### Trabajando Con Métodos De Mónada
 
-All monad instances will have `map(..)`, `chain(..)` (also called `bind(..)` or `flatMap(..)`), and `ap(..)` methods. The purpose of these methods and their behavior is to provide a standardized way of multiple monad instances interacting with each other.
+Todas las instancias de mónada tendrán los métodos `map(..)`, `cadena(..)` (también llamado `bind(..)` o `flatMap(..)`), y `aplicar(..)`. El objetivo de estos métodos y su comportamiento es proporcionar una forma estandarizada de múltiples instancias de mónadas que interactúan entre sí.
 
-Let's look first at the monadic `map(..)` function. Like `map(..)` on an array (see Chapter 9) that calls a mapper function with its value(s) and produces a new array, a monad's `map(..)` calls a mapper function with the monad's value, and whatever is returned is wrapped in a new Just monad instance:
-
-```js
-var A = Just( 10 );
-var B = A.map( v => v * 2 );
-
-B.inspect();                // Just(20)
-```
-
-Monadic `chain(..)` kinda does the same thing as `map(..)`, but then it sort of unwraps the resulting value from its new monad. However, instead of thinking informally about "unwrapping" a monad, the more formal explanation would be that `chain(..)` flattens the monad. Consider:
+Veamos primero la función monadic `map(..)`. Al igual que `map(..)` en un array (ver Capítulo 9) que llama a una función mapeadora con su(s) valor(es) y produce un nuevo array, el `map(..)` de una mónada llama a una función mapeadora con el valor de la mónada, y lo que sea devuelto se envuelve en una nueva instancia de una monada Solamente:
 
 ```js
-var A = Just( 10 );
-var eleven = A.chain( v => v + 1 );
+var A = Solamente( 10 );
+var B = A.map( valor => valor * 2 );
 
-eleven;                 // 11
-typeof eleven;              // "number"
+B.inspeccionar();                // Solamente(20)
 ```
 
-`eleven` is the actual primitive number `11`, not a monad holding that value.
+El `cadena(..)` monadico hace lo mismo que `map(..)`, pero luego mas o menos desenvuelve el valor resultante de su nueva mónada. Sin embargo, en lugar de pensar informalmente sobre "desenvolver" una mónada, la explicación más formal sería que `cadena(..)` aplana la mónada. Considera:
 
-To connect this `chain(..)` method conceptually to stuff we've already learned, we'll point out that many monad implementations name this method `flatMap(..)`. Now, recall from Chapter 9 what `flatMap(..)` does (as compared to `map(..)`) with an array:
+```js
+var A = Solamente( 10 );
+var once = A.cadena( valor => valor + 1 );
+
+once;                 // 11
+typeof once;              // "number"
+```
+
+`once` es el número primitivo real `11`, no una mónada que tenga ese valor.
+
+Para conectar conceptualmente este método `cadena(..)` a las cosas que ya hemos aprendido, señalaremos que muchas implementaciones de mónada nombran este método `flatMap(..)`. Ahora, recuerda del Capítulo 9 qué hace `flatMap(..)` (en comparación con `map(..)`) con un array:
 
 ```js
 var x = [3];
 
-map( v => [v,v+1], x );         // [[3,4]]
-flatMap( v => [v,v+1], x );     // [3,4]
+map( valor => [valor,valor+1], x );         // [[3,4]]
+flatMap( valor => [valor,valor+1], x );     // [3,4]
 ```
 
-See the difference? The mapper function `v => [v,v+1]` results in a `[3,4]` array, which ends up in the single first position of the outer array, so we get `[[3,4]]`. But `flatMap(..)` flattens out the inner array into the outer array, so we get just `[3,4]` instead.
+Ves la diferencia? La función mapeadora `valor => [valor,valor+1]` da como resultado un array `[3,4]`, que termina en la primera posición única del array externo, por lo que obtenemos `[[3,4]]`. Pero `flatMap(..)` aplana el array interno en el array externo, por lo que obtenemos simplemente `[3,4]` en su lugar.
 
-That's the same kind of thing going on with a monad's `chain(..)` (aka `flatMap(..)`). Instead of getting a monad holding the value as `map(..)` does, `chain(..)` additionally flattens the monad into the underlying value. Actually, instead of creating that intermediate monad only to immediately flatten it, `chain(..)` is generally implemented more performantly to just take a shortcut and not create the monad in the first place. Either way, the end result is the same.
+Ese es el mismo tipo de cosas que sucede con el metodo `cadena(..)` de una mónada (también conocido como `flatMap(..)`). En lugar de obtener una mónada que contenga el valor como `map(..)` lo hace, `cadena(..)` aplana además la mónada en el valor subyacente. En realidad, en lugar de crear esa mónada intermedia solo para aplanarla inmediatamente, `cadena(..)` generalmente se implementa de forma más eficiente para simplemente tomar un atajo y no crear la mónada en primer lugar. De cualquier manera, el resultado final es el mismo.
 
-One way to illustrate `chain(..)` in this manner is in combination with the `identity(..)` utility (see Chapter 3), to effectively extract a value from a monad:
+Una forma de ilustrar `cadena(..)` de esta manera es en combinación con la utilidad `identidad(..)` (ver Capítulo 3), para extraer efectivamente un valor de una mónada:
 
 ```js
-var identity = v => v;
+var identidad = valor => valor;
 
-A.chain( identity );        // 10
+A.cadena( identidad );        // 10
 ```
 
-`A.chain(..)` calls `identity(..)` with the value in `A`, and whatever value `identity(..)` returns (`10` in this case) just comes right out without any intervening monad. In other words, from that earlier `Just(..)` code listing, we wouldn't actually need to include that optional `inspect(..)` helper, as `chain(inspect)` accomplishes the same goal; it's purely for ease of debugging as we learn monads.
+`A.cadena(..)` invoca `identidad(..)` con el valor en `A`, y cualquier valor `identidad(..)` retorna (`10` en este caso) simplemente sale sin ningún mónada interviniente. En otras palabras, a partir de la anterior lista de códigos `Solamente(..)`, no necesitaríamos incluir esa ayuda opcional `inspeccionar(..)`, ya que `cadena(inspeccionar)` logra el mismo objetivo; es puramente por facilidad de depuración a medida que aprendemos mónadas.
 
-At this point, hopefully both `map(..)` and `chain(..)` feel fairly reasonable to you.
+En este punto, es de esperar que tanto `map(..)` como `cadena(..)` te parezcan bastante razonables.
 
-By contrast, a monad's `ap(..)` method will likely be much less intuitive at first glance. It will seem like a strange contortion of interaction, but there's deep and important reasoning behind the design. Let's take a moment to break it down.
+Por el contrario, el método `aplicar(..)` de una mónada probablemente sea mucho menos intuitivo a primera vista. Parecerá una extraña contorsión de interacción, pero hay un razonamiento profundo e importante detrás del diseño. Tomemos un momento para descomponerlo.
 
-`ap(..)` takes the value wrapped in a monad and "applies" it to another monad using that other monad's `map(..)`. OK, fine so far.
+`aplicar(..)` toma el valor envuelto en una mónada y lo "aplica" a otra mónada usando el `map(..)` de esa otra mónada. OK, bien hasta ahora.
 
-However, `map(..)` always expects a function. So that means the monad you call `ap(..)` on has to actually contain a function as its value, to pass to that other monad's `map(..)`.
+Sin embargo, `map(..)` siempre espera una función. Entonces eso significa que la mónada en la que llamas `aplicar(..)` tiene que contener realmente una función como su valor, para pasar eso al `map(..)` de otrad mónadas.
 
-Confused? Yeah, not what you might have expected. We'll try to briefly illuminate, but just expect that these things will be fuzzy for awhile until you've had a lot more exposure and practice with monads.
+Confundido? Sí, no lo que podrías haber esperado. Trataremos de iluminarlo brevemente, pero solo espera que estas cosas sean borrosas por un tiempo hasta que hayas tenido mucha más exposición y practica con las mónadas.
 
-We'll define `A` as a monad that contains a value `10`, and `B` as a monad that contains the value `3`:
+Definiremos `A` como una mónada que contiene un valor `10` y `B` como una mónada que contiene el valor `3`:
 
 ```js
-var A = Just( 10 );
-var B = Just( 3 );
+var A = Solamente( 10 );
+var B = Solamente( 3 );
 
-A.inspect();                // Just(10)
-B.inspect();                // Just(3)
+A.inspeccionar();                // Solamente(10)
+B.inspeccionar();                // Solamente(3)
 ```
 
-Now, how could we make a new monad where the values `10` and `3` had been added together, say via a `sum(..)` function? Turns out `ap(..)` can help.
+Ahora, cómo podríamos hacer una nueva mónada donde se hayan agregado los valores `10` y `3`, digamos a través de una función `sumar(..)`? Resulta que `aplicar(..)` puede ayudar.
 
-To use `ap(..)`, we said we first need to construct a monad that holds a function. Specifically, we need one that holds a function that itself holds (remembers via closure) the value in `A`. Let that sink in for a moment.
+Para usar `aplicar(..)`, dijimos que primero necesitamos construir una mónada que tenga una función. Específicamente, necesitamos una que tenga una función que en sí misma tenga (recuerde mediante un cierre) el valor en `A`. Piensa en eso por un momento.
 
-To make a monad from `A` that holds a value-containing function, we'll call `A.map(..)`, giving it a curried function that "remembers" that extracted value (see Chapter 3) as its first argument. We'll call this new function-containing monad `C`:
+Para hacer una mónada de `A` que contenga una función que contenga un valor, llamaremos `A.map(..)`, dándole una función al curry que "recuerde" ese valor extraído (vea el Capítulo 3) como su primera argumento. Llamaremos a esta nueva mónada que contiene funciones `C`:
 
 ```js
-function sum(x,y) { return x + y; }
+function sumar(x,y) { return x + y; }
 
-var C = A.map( curry( sum ) );
+var C = A.map( curry( sumar ) );
 
-C.inspect();
-// Just(function curried...)
+C.inspeccionar();
+// Solamente(function al curry...)
 ```
 
-Think about how that works. The curried `sum(..)` function is expecting two values to do its work, and we give it the first of those values by having `A.map(..)` extract `10` and pass it in. `C` now holds the function that remembers `10` via closure.
+Piensa en cómo funciona eso. La función al curry `sumar(..)` espera que dos valores hagan su trabajo, y le damos el primero de esos valores al tener `A.map(..)` extraer `10` y pasarlo. `C` ahora tiene la función que recuerda `10` a través del cierre.
 
-Now, to get the second value (`3` inside `B`) passed to the waiting curried function in `C`:
+Ahora, para obtener el segundo valor (`3` dentro de` B`) pasado a la función al curry de espera en `C`:
 
 ```js
-var D = C.ap( B );
+var D = C.aplicar( B );
 
-D.inspect();                // Just(13)
+D.inspeccionar();                // Solamente(13)
 ```
 
-The value `10` came out of `C`, and `3` came out of `B`, and `sum(..)` added them together to `13` and wrapped that in the monad `D`. Let's put the two steps together so you can see their connection more clearly:
+El valor `10` salió de `C`, y `3` salió de `B`, y `sumar(..)` los agregó juntos a `13` y lo envolvió en la mónada `D`. Vamos a unir los dos pasos para que puedas ver su conexión de una manera más clara:
 
 ```js
-var D = A.map( curry( sum ) ).ap( B );
+var D = A.map( curry( sumar ) ).aplicar( B );
 
-D.inspect();                // Just(13)
+D.inspeccionar();                // Solamente(13)
 ```
 
-To illustrate what `ap(..)` is helping us with, we could have achieved the same result this way:
+Para ilustrar en lo que `aplicar(..)` nos está ayudando, podríamos haber logrado el mismo resultado de esta manera:
 
 ```js
-var D = B.map( A.chain( curry( sum ) ) );
+var D = B.map( A.cadena( curry( sumar ) ) );
 
-D.inspect();                // Just(13);
+D.inspeccionar();                // Solamente(13);
 ```
 
-And that of course is just a composition (see Chapter 4):
+Y eso, por supuesto, es solo una composición (ver el Capítulo 4)
 
 ```js
-var D = compose( B.map, A.chain, curry )( sum );
+var D = componer( B.map, A.cadena, curry )( sumar );
 
-D.inspect();                // Just(13)
+D.inspeccionar();                // Solamente(13)
 ```
 
-Cool, huh!?
+Genial, eh!?
 
-If the *how* of this discussion on monad methods is unclear so far, go back and re-read. If the *why* is elusive, just hang in there. Monads so easily confound developers, that's *just* how it is!
+Si el *cómo* de esta discusión sobre métodos de mónada no está claro hasta el momento, retrocede y vuelve a leer. Si el *por qué* te parece elusivo, sigue intentnado entender. Las mónadas fácilmente confunden a los programadores, *solamente* es asi!
 
-## Maybe
+## Quizas
 
-It's very common in FP material to cover well-known monads like Maybe. Actually, the Maybe monad is a particular pairing of two other simpler monads: Just and Nothing.
+Es muy común en los materiales relacionados a PF cubrir mónadas bien conocidas como Quizas. En realidad, la mónada Quizas es un emparejamiento particular de otras dos mónadas más simples: Solamente y Nada.
 
-We've already seen Just; Nothing is a monad that holds an empty value. Maybe is a monad that either holds a Just or an Empty.
+Ya vimos a Solamente; Nada es una mónada que tiene un valor vacío. Quizas es una mónada que tiene un Solamente o un Vacio.
 
-Here's a minimal implementation of Maybe:
+Aquí hay una implementación mínima de Quizas:
 
 ```js
-var Maybe = { Just, Nothing, of/* aka: unit, pure */: Just };
+var Quizas = { Solamente, Nada, de/* tambien conocido como: unidad, pura */: Solamente };
 
-function Just(val) { /* .. */ }
+function Solamente(valor) { /* .. */ }
 
-function Nothing() {
-    return { map: Nothing, chain: Nothing, ap: Nothing, inspect };
+function Nada() {
+    return { map: Nada, cadena: Nada, aplicar: Nada, inspeccionar };
 
     // *********************
 
-    function inspect() {
-        return "Nothing";
+    function inspeccionar() {
+        return "Nada";
     }
 }
 ```
 
-**Note:** `Maybe.of(..)` (sometimes referred to as `unit(..)` or `pure(..)`) is a convenience alias for `Just(..)`.
+**Nota:** `Quizas.de(..)` (a veces referido como `unidad(..)` o `pura(..)`) es un alias de conveniencia para `Solamente(..)`.
 
-In contrast to `Just()` instances, `Nothing()` instances have no-op definitions for all monadic methods. So if such a monad instance shows up in any monadic operations, it has the effect of basically short-circuiting to have no behavior happen. Notice there's no imposition here of what "empty" means -- your code gets to decide that. More on that later.
+A diferencia de las instancias `Solamente()`, las instancias `Nada()` tienen definiciones no operativas para todos los métodos monádicos. Entonces, si tal instancia de mónada aparece en cualquier operación monádica, tiene el efecto de básicamente hacer un corto circuito para que no suceda ningún comportamiento. Ten en cuenta que aquí no hay imposición de lo que significa "vacío" -- tu código decide eso. Más sobre eso más adelante.
 
-In Maybe, if a value is non-empty, it's represented by an instance of `Just(..)`; if it's empty, it's represented by an instance of `Nothing()`.
+En Quizas, si un valor no está vacío, se representa mediante una instancia de `Solamente(..)`; si está vacío, se representa mediante una instancia de `Nada()`.
 
-But the importance of this kind of monad representation is that whether we have a `Just(..)` instance or a `Nothing()` instance, we'll use the API methods the same.
+Pero la importancia de este tipo de representación mónadica es que si tenemos una instancia `Solamente(..)` o una instancia `Nada()`, usaremos los métodos API de la misma manera.
 
-The power of the Maybe abstraction is to encapsulate that behavior/no-op duality implicitly.
+El poder de la abstracción Quizás es encapsular esa dualidad de comportamiento/no-operación de una manera implicita.
 
-### Different Maybes
+### Diferentes Quizas
 
-Many implementations of a JavaScript Maybe monad include a check (usually in `map(..)`) to see if the value is `null` / `undefined`, and skipping the behavior if so. In fact, Maybe is trumpeted as being valuable precisely because it sort of automatically short-circuits its behavior with the encapsulated empty-value check.
+Muchas implementaciones de una mónada Quizas en JavaScript incluyen un chequeo (generalmente en `map(..)`) para ver si el valor es `null` / `undefined`, y omitiendo el comportamiento si es así. De hecho, Quizas es pregonado por ser valiosa precisamente porque de alguna manera hace un cortocircuito automático en su comportamiento con la verificación encapsulada de valores vacíos.
 
-Here's how Maybe is usually illustrated:
+Así es como Quizas suele ser ilustrada:
 
 ```js
-// instead of unsafe `console.log( someObj.something.else.entirely )`:
+// en lugar del inseguro `console.log (algunObjeto.algo.completamente.diferente)`:
 
-Maybe.of( someObj )
-.map( prop( "something" ) )
-.map( prop( "else" ) )
-.map( prop( "entirely" ) )
+Quizas.de( algunObjeto )
+.map( prop( "algo" ) )
+.map( prop( "completamente" ) )
+.map( prop( "diferente" ) )
 .map( console.log );
 ```
 
-In other words, if at any point in the chain we get a `null` / `undefined` value, the Maybe magically switches into no-op mode -- it's now a `Nothing()` monad instance! -- and stops doing anything for the rest of the chain. That makes the nested property access safe against throwing JS exceptions if some property is missing/empty. That's cool, and a nice helpful abstraction for sure!
+En otras palabras, si en algún punto de la cadena obtenemos un valor `null` / `undefined`, el Quizas mágicamente cambia al modo no-operación -- ahora es una instancia de mónada `Nada()`! -- y deja de hacer cualquier cosa por el resto de la cadena. Eso hace que el acceso a la propiedad anidada sea seguro contra excepciones arrojadas por JS si propiedad no existe/está vacía. Eso es genial, y una buena abstracción!
 
-But... that approach to Maybe is not a pure monad.
+Pero... ese enfoque de Quizas no es una mónada pura.
 
-The core spirit of a Monad says that it must be valid for all values and cannot do any inspection of the value, at all -- not even a null check. So those other implementations are cutting corners for the sake of convenience. It's not a huge deal, but when it comes to learning something, you should probably learn it in its purest form first before you go bending the rules.
+El espíritu central de una Monada dice que debe ser válida para todos los valores y no puede hacer ninguna inspección del valor, en absoluto -- ni siquiera un chequeo nulo. Entonces esas otras implementaciones estan recortando esquinas por conveniencia. No es un gran problema, pero cuando se trata de aprender algo, probablemente deberías aprenderlo en su forma más pura primero antes de ir a doblar las reglas.
 
-The earlier implementation of the Maybe monad I provided differs from other Maybes primarily in that it does not have the empty-check in it. Also, we present `Maybe` merely as a loose pairing of `Just(..)` / `Nothing()`.
+La implementación anterior de la Monada Quizas que proporcioné difiere de otros Quizas principalmente en que no tiene el cheque vacío en ella. Además, presentamos `Quizas` simplemente como un emparejamiento suelto de `Solamente(..)` / `Nada()`.
 
-So wait. If we don't get the automatic short-circuting, why is Maybe useful at all?!? That seems like its whole point.
+Entonces espera. Si no obtenemos el cortocircuito automático, ¿por qué es útil Quizas?!? Ese parece ser todo el punto.
 
-Never fear! We can simply provide the empty-check externally, and the rest of the short-circuting behavior of the Maybe monad will work just fine. Here's how you could do the `someObj.something.else.entirely` nested-property access from before, but more "correctly":
+Nunca temas! Simplemente podemos proporcionar la verificación vacía externamente, y el resto del comportamiento de cortocircuito de la mónada Quizas funcionará perfectamente. A continuación, te muestro cómo puedes hacer el acceso a la propiedad anidada `algunObjeto.algo.completamente.diferente` de antes, pero de una manera más "correcta":
 
 ```js
-function isEmpty(val) {
-    return val === null || val === undefined;
+function estaVacio(valor) {
+    return valor === null || valor === undefined;
 }
 
-var safeProp = curry( function safeProp(prop,obj){
-    if (isEmpty( obj[prop] )) return Maybe.Nothing();
-    return Maybe.of( obj[prop] );
+var propiedadSegura = curry( function propiedadSegura(propiedad,objeto){
+    if (estaVacio( objeto[propiedad] )) return Quizas.Nada();
+    return Quizas.de( objeto[propiedad] );
 } );
 
-Maybe.of( someObj )
-.chain( safeProp( "something" ) )
-.chain( safeProp( "else" ) )
-.chain( safeProp( "entirely" ) )
+Quizas.de( algunObjeto )
+.cadena( propiedadSegura( "algo" ) )
+.cadena( propiedadSegura( "completamente" ) )
+.cadena( propiedadSegura( "diferente" ) )
 .map( console.log );
 ```
 
-We made a `safeProp(..)` that does the empty-check, and selects either a `Nothing()` monad instance if so, or wraps the value in a `Just(..)` instance (via `Maybe.of(..)`). Then instead of `map(..)`, we use `chain(..)` which knows how to "unwrap" the monad that `safeProp(..)` returns.
+Hicimos una `propiedadSegura(..)` que realiza la comprobación vacía, y selecciona una instancia de mónada `Nada()` si es así o ajusta el valor en una instancia `Solamente(..)` (mediante `Quizas.de(..)`). Luego, en lugar de `map(..)`, usamos `cadena (..)` que sabe cómo "desenvolver" la mónada que devuelve `propiedadSegura(..)`.
 
-We get the same chain short-circuiting upon encountering an empty value. We just don't embed that logic into the Maybe.
+Obtenemos la misma cadena en cortocircuito al encontrar un valor vacío. Simplemente no incorporamos esa lógica en Quizas.
 
-The benefit of the monad, and Maybe specifically, is that our `map(..)` and `chain(..)` methods have a consistent and predictable interaction regardless of which kind of monad comes back. That's pretty cool!
+El beneficio de la mónada, y quizás específicamente, es que nuestros métodos `map(..)` y `cadena(..)` tienen una interacción constante y predecible independientemente de qué tipo de mónada regrese. Eso es bastante cool!
 
-## Humble
+## Humilde
 
-Now that we have a little more understanding of Maybe and what it does, I'm going to put a little twist on it -- and add some self-deferential humor to our discussion -- by inventing the Maybe+Humble monad. Technically, `MaybeHumble(..)` is not a monad itself, but a factory function that produces a Maybe monad instance.
+Ahora que tenemos un poco más de comprensión de Quizas y de lo que hace, voy a darle un pequeño giro -- y añadir un poco de humor autodeferente a nuestra discusión -- al inventar la mónada Quizas+Humilde. Técnicamente, `QuizasHumilde(..)` no es una mónada en sí, sino una función de fábrica que produce una instancia de una mónada Quizas.
 
-Humble is an admittedly contrived data structure wrapper that uses Maybe to track the status of an `egoLevel` number. Specifically, `MaybeHumble(..)`-produced monad instances only operate affirmatively if their ego level value is low enough (less than `42`!) to be considered humble; otherwise it's a `Nothing()` no-op. That should sound a lot like Maybe; it's pretty similar!
+Humilde es admitidamente una envoltura de estructura de datos algo complicada que utiliza Quizas para rastrear el estado de un número `nivelEgo`. Específicamente, las instancias de mónada `QuizasHumilde(..)` solo funcionan afirmativamente si su valor de nivel de ego es lo suficientemente bajo (menos de `42`!) para ser considerada humilde; de lo contrario, se trata de es una `Nada()` sin operaciones. Eso debería sonar bastante parecido a Quizas; es bastante similar!
 
-Here's the factory function for our Maybe+Humble monad:
+Aquí está la función de fábrica para nuestra mónada Quizas+Humilde:
+
 
 ```js
-function MaybeHumble(egoLevel) {
-    // accept anything other than a number that's 42 or higher
-    return !(Number( egoLevel ) >= 42) ?
-        Maybe.of( egoLevel ) :
-        Maybe.Nothing();
+function QuizasHumilde(nivelEgo) {
+    // acepta cualquier cosa que no sea un número que sea 42 o mayor
+    return !(Number( nivelEgo ) >= 42) ?
+        Quizas.de( nivelEgo ) :
+        Quizas.Nada();
 }
 ```
 
-You'll notice that this factory function is kinda like `safeProp(..)`, in that it uses a condition to decide if it should pick the `Just(..)` or the `Nothing()` part of the Maybe.
+Notarás que esta función de fábrica es algo así como `propiedadSegura(..)`, en que usa una condición para decidir si debe elegir la parte `Solamente(..)` o `Nada()` de Quizas.
 
-Let's illustrate some basic usage:
+Vamos a ilustrar algunos usos básicos:
 
 ```js
-var bob = MaybeHumble( 45 );
-var alice = MaybeHumble( 39 );
+var bob = QuizasHumilde( 45 );
+var alice = QuizasHumilde( 39 );
 
-bob.inspect();              // Nothing
-alice.inspect();            // Just(39)
+bob.inspeccionar();              // Nada
+alice.inspeccionar();            // Solamente(39)
 ```
 
-What if Alice wins a big award and is now a bit more proud of herself?
+Qué pasa si Alice gana un gran premio y ahora está un poco más orgullosa de sí misma?
 
 ```js
-function winAward(ego) {
-    return MaybeHumble( ego + 3 );
+function ganarPremio(ego) {
+    return QuizasHumilde( ego + 3 );
 }
 
-alice = alice.chain( winAward );
-alice.inspect();            // Nothing
+alice = alice.cadena( ganarPremio );
+alice.inspeccionar();            // Nada
 ```
 
-The `MaybeHumble( 39 + 3 )` call creates a `Nothing()` monad instance to return back from the `chain(..)` call, so now Alice doesn't qualify as humble anymore.
+La llamada `QuizasHumilde(39 + 3)` crea una instancia de mónada `Nada()` para retornar de la llamada `cadena(..)`, por lo que ahora Alice ya no califica como humilde.
 
-Now, let's use a few monads together:
+Ahora, usemos algunas mónadas juntas:
 
 ```js
-var bob = MaybeHumble( 41 );
-var alice = MaybeHumble( 39 );
+var bob = QuizasHumilde( 41 );
+var alice = QuizasHumilde( 39 );
 
-var teamMembers = curry( function teamMembers(ego1,ego2){
-    console.log( `Our humble team's egos: ${ego1} ${ego2}` );
+var miembrosEquipo = curry( function miembrosEquipo(ego1,ego2){
+    console.log( `Los egos de nuestro humilde equipo: ${ego1} ${ego2}` );
 } );
 
-bob.map( teamMembers ).ap( alice );
-// Our humble team's egos: 41 39
+bob.map( miembrosEquipo ).aplicar( alice );
+// Los egos de nuestro humilde equipo: 41 39
 ```
 
-Recalling the usage of `ap(..)` from earlier, we can now explain how this code works.
+Recordando el uso de `aplicar(..)` de antes, podemos explicar ahora cómo funciona este código.
 
-Since `teamMembers(..)` is curried, the `bob.map(..)` call passes in the `bob` ego level (`41`), and creates a monad instance with the remaining function wrapped up. Calling `ap(alice)` on *that* monad calls `alice.map(..)` and passes to it the function from the monad. The effect is that both the `bob` and `alice` monad's numeric values have been provided to `teamMembers(..)` function, printing out the message as shown.
+Como `miembrosEquipo(..)` esta al curry, la llamada `bob.map(..)` pasa en el nivel del ego `bob` (`41`), y crea una instancia de mónada con la función restante completa. Llamando `aplicar(alice)` en *esa* mónada llama a `alice.map(..)` y le pasa la función de la mónada. El efecto es que tanto los valores numéricos de la mónada `bob` como` alice` se han proporcionado a la función `miembrosEquipo(..)`, imprimiendo el mensaje como se muestra.
 
-However, if either or both monads are actually `Nothing()` instances (because their ego level was too high):
+Sin embargo, si una o ambas mónadas son en realidad instancias `Nada()` (porque su nivel de ego era demasiado alto):
 
 ```js
-var frank = MaybeHumble( 45 );
+var frank = QuizasHumilde( 45 );
 
-bob.map( teamMembers ).ap( frank );
-// ..no output..
+bob.map( miembrosEquipo ).aplicar( frank );
+// ..sin salida..
 
-frank.map( teamMembers ).ap( bob );
-// ..no output..
+frank.map( miembrosEquipo ).aplicar( bob );
+// ..sin salida..
 ```
 
-`teamMembers(..)` never gets called (and no message is printed), because `frank` is a `Nothing()` instance. That's the power of the Maybe monad, and our `MaybeHumble(..)` factory allows us to select based on the ego level. Cool!
+`miembrosEquipo(..)` nunca se llama (y no se imprime ningún mensaje), porque `frank` es una instancia `Nothing()`. Ese es el poder de la Mónada Quizas, y nuestra fábrica `QuizasHumilde(..)` nos permite seleccionar en función del nivel del ego. Cool!
 
-### Humility
+### Humildad
 
-One more example to illustrate the behaviors of our Maybe+Humble data structure:
+Un ejemplo más para ilustrar los comportamientos de nuestra estructura de datos Quizas + Humilde:
 
 ```js
-function introduction() {
-    console.log( "I'm just a learner like you! :)" );
+function introduccion() {
+    console.log( "Solo soy un aprendiz como tú! :)" );
 }
 
-var egoChange = curry( function egoChange(amount,concept,egoLevel) {
-    console.log( `${amount > 0 ? "Learned" : "Shared"} ${concept}.` );
-    return MaybeHumble( egoLevel + amount );
+var cambioDeEgo = curry( function cambioDeEgo(cantidad,concepto,nivelEgo) {
+    console.log( `${cantidad > 0 ? "Aprendi" : "Comparti"} ${concepto}.` );
+    return QuizasHumilde( nivelEgo + cantidad );
 } );
 
-var learn = egoChange( 3 );
+var aprender = cambioDeEgo( 3 );
 
-var learner = MaybeHumble( 35 );
+var aprendiz = QuizasHumilde( 35 );
 
-learner
-.chain( learn( "closures" ) )
-.chain( learn( "side effects" ) )
-.chain( learn( "recursion" ) )
-.chain( learn( "map/reduce" ) )
-.map( introduction );
-// Learned closures.
-// Learned side effects.
-// Learned recursion.
-// ..nothing else..
+aprendiz
+.cadena( aprender( "cierres" ) )
+.cadena( aprender( "efectos secundarios" ) )
+.cadena( aprender( "recursion" ) )
+.cadena( aprender( "map/reduce" ) )
+.map( introduccion );
+// Aprendi cierres.
+// Aprendi efectos secundarios.
+// Aprendi recursion.
+// ..nada mas..
 ```
 
-Unfortunately, the learning process seems to have been cut short. You see, I've found that learning a bunch of stuff without sharing with others: inflates your ego too much and is not good for your skills.
+Desafortunadamente, el proceso de aprendizaje parece haberse interrumpido. Verás, he descubierto que aprender un montón de cosas sin compartirlas con otras personas: infla demasiado tu ego y no es bueno para tus habilidades.
 
-Let's try a better approach to learning:
+Probemos un mejor enfoque para aprender:
 
 ```js
-var share = egoChange( -2 );
+var compartir = cambioDeEgo( -2 );
 
-learner
-.chain( learn( "closures" ) )
-.chain( share( "closures" ) )
-.chain( learn( "side effects" ) )
-.chain( share( "side effects" ) )
-.chain( learn( "recursion" ) )
-.chain( share( "recursion" ) )
-.chain( learn( "map/reduce" ) )
-.chain( share( "map/reduce" ) )
-.map( introduction );
-// Learned closures.
-// Shared closures.
-// Learned side effects.
-// Shared side effects.
-// Learned recursion.
-// Shared recursion.
-// Learned map/reduce.
-// Shared map/reduce.
-// I'm just a learner like you! :)
+aprendiz
+.cadena( aprender( "cierres" ) )
+.cadena( compartir( "cierres" ) )
+.cadena( aprender( "efectos secundarios" ) )
+.cadena( compartir( "efectos secundarios" ) )
+.cadena( aprender( "recursion" ) )
+.cadena( compartir( "recursion" ) )
+.cadena( aprender( "map/reduce" ) )
+.cadena( compartir( "map/reduce" ) )
+.map( introduccion );
+// Aprendi cierres.
+// Comparti cierres.
+// Aprendi efectos secundarios.
+// Comparti efectos secundarios.
+// Aprendi recursion.
+// Comparti recursion.
+// Aprendi map/reduce.
+// Comparti map/reduce.
+// Solo soy un aprendiz como tú! :)
 ```
 
-Sharing while you learn. That's the best way to learn more and learn better.
+Compartir mientras aprendes. Esa es la mejor manera de aprender más y aprender mejor.
 
-## Summary
+## Resumen
 
-What is a monad, anyway?
+De todos modos, qué es una mónada?
 
-A monad is a value type, an interface, an object data structure with encapsulated behaviors.
+Una mónada es un tipo de valor, una interfaz, una estructura de datos de objeto con comportamientos encapsulados.
 
-But none of those definitions are particularly useful. Here's an attempt at something better: a monad is how you organize behavior around a value in a more declarative way.
+Pero ninguna de esas definiciones es particularmente útil. Aquí hay un intento de algo mejor: una mónada es cómo organizas el comportamiento en torno a un valor de una manera más declarativa.
 
-As with everything else in this book, use monads where they are helpful but don't use them just because everyone else talks about them in FP. Monads aren't a universal silver bullet, but they do offer some utility when used conservatively.
+Al igual que con todo lo demás en este libro, usa mónadas donde sean útiles, pero no las use solo porque todos los demás hablan sobre ellas en la PF. Las mónadas no son una bala de plata universal, pero ofrecen cierta utilidad cuando se usan de forma conservadora.
